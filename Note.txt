@@ -5,3 +5,5 @@ Date => Nom : "Message"
 30/10/2024 => Adel : Ecriver ici vos remarque et notifier vos modification "la communication est importante dans un groupe"
 
 13/11/2024 => Adel : mise en place de l'environement MVC et début d'une logique d'un formualire d'inscription 
+
+14/11/2024 ajout dun hello world
