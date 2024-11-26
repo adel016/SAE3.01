@@ -44,7 +44,7 @@ class ModelUtilisateur {
         );
     }
 
-    public static function getUtilisateurs() : void {
+    public static function getUtilisateurs() : array {
         try {
             $sql = "SELECT * FROM Utilisateurs";
             $pdo = Model::getPdo();
@@ -62,7 +62,7 @@ class ModelUtilisateur {
         }
     }
 
-    public static function getUtilisateurByID(string $utilisateur_id) : ?ModelVoiture {
+    public static function getUtilisateurByID(string $utilisateur_id) : ?ModelUtilisateur {
         $sql = "SELECT * FROM Utilisateurs WHERE utilisateur_id = :utilisateurID";
 
         // Préparation de la requête
@@ -161,29 +161,21 @@ class ModelUtilisateur {
         }
     }
 
-    public static function deleteByID() : bool {
+    public static function deleteByID(int $utilisateurId) : bool {
         try {
             $sql = "DELETE FROM Utilisateurs WHERE utilisateur_id = :utilisateurId";
-
             $pdoStatement = Model::getPdo()->prepare($sql);
-
-            $values = array(
-                'utilisateurId' => $this->utilisateurId
-            );
-
+    
+            $values = ['utilisateurId' => $utilisateurId];
             $pdoStatement->execute($values);
-
-            if ($pdoStatement->rowCount() > 0) {
-                $this->enregistrerLog("Suppression de l'utilisateur avec ID {$this->utilisateurId}");
-                return true;
-            }
-            return false;
-
+    
+            return $pdoStatement->rowCount() > 0;
         } catch (PDOException $e) {
             echo "Erreur lors de la suppression : " . $e->getMessage();
             return false;
         }
     }
+    
 
     private function enregistrerLog(string $action) {
         try {

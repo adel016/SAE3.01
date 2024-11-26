@@ -52,9 +52,9 @@ class ControllerUtilisateur {
 
     // Traitement de la création d'utilisateur
     public static function created() : void {
-        $nom = $_GET['nom'] ?? null;
-        $email = $_GET['email'] ?? null;
-        $motDePasse = $_GET['mot_de_passe'] ?? null;
+        $nom = $_POST['nom'] ?? null;
+        $email = $_POST['email'] ?? null;
+        $motDePasse = $_POST['mot_de_passe'] ?? null;
 
         if ($nom && $email && $motDePasse) {
             $utilisateur = new ModelUtilisateur(0, $nom, $email, md5($motDePasse), date('Y-m-d H:i:s'), 'utilisateur', 'en_attente');
