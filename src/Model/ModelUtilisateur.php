@@ -11,13 +11,25 @@ class ModelUtilisateur {
     private string $email;
     private string $motDePasse;
     private string $dateCreation;
+    private string $role;
+    private string $etatCompte;
 
-    public function __construct(int $utilisateurId, string $nom, string $email, string $motDePasse, string $dateCreation) {
+    public function __construct(int $utilisateurId, string $nom, string $email, string $motDePasse, string $dateCreation, string $role = 'utilisateur', string $etatCompte = 'en_attente') {
         $this->utilisateurId = $utilisateurId;
         $this->nom = $nom;
         $this->email = $email;
         $this->motDePasse = $motDePasse;
         $this->dateCreation = $dateCreation;
+        $this->role = $role;
+        $this->etatCompte = $etatCompte;
+    }
+
+    public function getRole() : string {
+        return $this->role;
+    }
+
+    public function estAdministrateur() : bool {
+        return $this->role === 'administrateur';
     }
 
     public static function construire(array $utilisateurFormatTableau) : ModelUtilisateur {
@@ -26,32 +38,24 @@ class ModelUtilisateur {
             $utilisateurFormatTableau['nom'],
             $utilisateurFormatTableau['email'],
             $utilisateurFormatTableau['mot_de_passe'],
-            $utilisateurFormatTableau['date_creation']
+            $utilisateurFormatTableau['date_creation'],
+            $utilisateurFormatTableau['role'],
+            $utilisateurFormatTableau['etat_compte']
         );
-    }
-
-    public static function getUtilisateurs() {
-        $pdo = Model::getPdo();
-        $sql = "SELECT * FROM Utilisateurs";
-        $pdoStatement = $pdo->query($sql);
-
-        $utilisateurs = [];
-        foreach ($pdoStatement as $utilisateurFormatTableau) {
-            $utilisateurs[] = ModelUtilisateur::construire($utilisateurFormatTableau);
-        }
-        return $utilisateurs;
     }
 
     public function sauvegarder() : bool {
         try {
-            $sql = "INSERT INTO Utilisateurs (nom, email, mot_de_passe, date_creation) 
-                    VALUES (:nom, :email, :motDePasse, :dateCreation)";
+            $sql = "INSERT INTO Utilisateurs (nom, email, mot_de_passe, date_creation, role, etat_compte) 
+                    VALUES (:nom, :email, :motDePasse, :dateCreation, :role, :etatCompte)";
             $pdoStatement = Model::getPdo()->prepare($sql);
             $values = array(
                 'nom' => $this->nom,
                 'email' => $this->email,
                 'motDePasse' => $this->motDePasse,
-                'dateCreation' => $this->dateCreation
+                'dateCreation' => $this->dateCreation,
+                'role' => $this->role ?? 'utilisateur',
+                'etatCompte' => $this->etatCompte ?? 'en_attente'
             );
             $pdoStatement->execute($values);
             return true;
@@ -60,7 +64,34 @@ class ModelUtilisateur {
             return false;
         }
     }
-    
+
+    public function changerEtatCompte(string $nouvelEtat) : bool {
+        $etatsValides = ['actif', 'en_attente', 'suspendu'];
+        if (!in_array($nouvelEtat, $etatsValides)) {
+            echo "Erreur : État du compte invalide.";
+            return false;
+        }
+
+        try {
+            $sql = "UPDATE Utilisateurs SET etat_compte = :etat WHERE utilisateur_id = :utilisateurId";
+
+            $pdoStatement = Model::getPdo()->prepare($sql);
+            $values = array(
+                'etat' => $nouvelEtat,
+                'utilisateurId' => $this->utilisateurId
+            );
+
+            $pdoStatement->execute($values);
+
+            $this->enregistrerLog("Changement de l'état du compte utilisateur à '{$nouvelEtat}'");
+            return $pdoStatement->rowCount() > 0;
+
+        } catch (PDOException $e) {
+            echo "Erreur lors du changement d'état du compte : " . $e->getMessage();
+            return false;
+        }
+    }
+
     public function modifier() : bool {
         try {
             $sql = "UPDATE Utilisateurs 
@@ -100,11 +131,30 @@ class ModelUtilisateur {
             );
 
             $pdoStatement->execute($values);
-            return $pdoStatement->rowCount() > 0;
+
+            if ($pdoStatement->rowCount() > 0) {
+                $this->enregistrerLog("Suppression de l'utilisateur avec ID {$this->utilisateurId}");
+                return true;
+            }
+            return false;
 
         } catch (PDOException $e) {
             echo "Erreur lors de la suppression : " . $e->getMessage();
             return false;
+        }
+    }
+
+    private function enregistrerLog(string $action) {
+        try {
+            $sql = "INSERT INTO Logs (utilisateur_id, action, timestamp) VALUES (:utilisateurId, :action, NOW())";
+            $pdoStatement = Model::getPdo()->prepare($sql);
+            $values = array(
+                'utilisateurId' => $this->utilisateurId,
+                'action' => $action
+            );
+            $pdoStatement->execute($values);
+        } catch (PDOException $e) {
+            echo "Erreur lors de l'enregistrement dans les logs : " . $e->getMessage();
         }
     }
 }
