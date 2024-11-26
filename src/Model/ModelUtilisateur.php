@@ -44,6 +44,47 @@ class ModelUtilisateur {
         );
     }
 
+    public static function getUtilisateurs() : void {
+        try {
+            $sql = "SELECT * FROM Utilisateurs";
+            $pdo = Model::getPdo();
+            $pdoStatement = $pdo->query($sql);
+
+            // Creation d'un tableau pour stocker toutes les voitures
+            $utilisateurs = [];
+            foreach ($pdoStatement as $voitureFormatTableau) {
+                $utilisateurs[] = ModelUtilisateur::construire($voitureFormatTableau) ;
+            }
+            return $utilisateurs;
+
+        } catch (PDOException $e) {
+            echo "Erreur lors de la recuperation de donnees : " . $e->getMessage();
+        }
+    }
+
+    public static function getUtilisateurByID(string $utilisateur_id) : ?ModelVoiture {
+        $sql = "SELECT * FROM Utilisateurs WHERE utilisateur_id = :utilisateurID";
+
+        // Préparation de la requête
+        $pdoStatement = Model::getPdo()->prepare($sql);
+        $values = array(
+            "utilisateurID" => $utilisateur_id
+        );
+        
+        // On donne les valeurs et on exécute la requête
+        $pdoStatement->execute($values);
+
+        // On récupère les résultats comme précédemment
+        // Note: fetch() renvoie false si pas de voiture correspondante
+        $utilisateur = $pdoStatement->fetch();
+
+        if ($utilisateur === false) {
+            return null;
+        }
+
+        return static::construire($utilisateur);
+    }
+
     public function sauvegarder() : bool {
         try {
             $sql = "INSERT INTO Utilisateurs (nom, email, mot_de_passe, date_creation, role, etat_compte) 
@@ -120,7 +161,7 @@ class ModelUtilisateur {
         }
     }
 
-    public function supprimer() : bool {
+    public static function deleteByID() : bool {
         try {
             $sql = "DELETE FROM Utilisateurs WHERE utilisateur_id = :utilisateurId";
 

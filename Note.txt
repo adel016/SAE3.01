@@ -7,3 +7,7 @@ Date => Nom : "Message"
 13/11/2024 => Adel : mise en place de l'environement MVC et début d'une logique d'un formualire d'inscription 
 
 21/11/2024 => Adel : Pour la prochiane fois réorganiser les fichiers et ajouter les fichiers .htaccess afin de mettre en place la securité et aussi changer toutes les vues afin d'appliquer htmlspecialchars
+
+26/11/2024 => Hugo : Je viens de restructurer le modele MVC,
+                     notamment le dossier Model 
+                     et ces fichiers qui gereront l'interface pour ajouter, supprimer, modifier un ou des utilisateurs.
