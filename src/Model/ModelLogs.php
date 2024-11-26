@@ -55,5 +55,48 @@ class ModelLog {
             return false;
         }
     }
+
+    public function modifier() : bool {
+        try {
+            $sql = "UPDATE Logs
+                    SET utilisateur_id = :utilisateur_id,
+                        action = :action,
+                        timestamp = :timestamp";
+            
+            $pdoStatement = Model::getPdo()->prepare($sql);
+            $values = array(
+                'utilisateurId' => $this->utilisateurId,
+                'action' => $this->action,
+                'timestamp' => $this->timestamp
+            );
+
+            $pdoStatement->execute($values);
+            // Retourne true si la modification a ete effectue
+            return $pdoStatement->rowCount() > 0;
+        } catch (PDOException $e) {
+            echo "Erreur lors de la modification : " . $e->getMessage();
+            return false;
+        }
+
+    }
+
+    public function delete() : bool {
+        try {
+            $sql = "DELETE FROM Logs WHERE log_id = :log_id";
+
+            $pdoStatement = Model::getPdo()->prepare($sql);
+
+            $values = array(
+                'log_id' => $this->logId
+            );
+
+            $pdoStatement->execute($values);
+            return $pdoStatement->rowCount() > 0;
+
+        } catch (PDOException $e) {
+            echo "Erreur lors de la suppression : " . $e->getMessage();
+            return false;
+        }
+    }
 }
 ?>

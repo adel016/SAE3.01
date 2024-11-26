@@ -60,5 +60,52 @@ class ModelUtilisateur {
             return false;
         }
     }
+    
+    public function modifier() : bool {
+        try {
+            $sql = "UPDATE Utilisateurs 
+                    SET nom = :nom, 
+                        email = :email, 
+                        mot_de_passe = :motDePasse, 
+                        date_creation = :dateCreation 
+                    WHERE utilisateur_id = :utilisateurId";
+
+            $pdoStatement = Model::getPdo()->prepare($sql);
+
+            $values = array(
+                'nom' => $this->nom,
+                'email' => $this->email,
+                'motDePasse' => $this->motDePasse,
+                'dateCreation' => $this->dateCreation,
+                'utilisateurId' => $this->utilisateurId
+            );
+
+            $pdoStatement->execute($values);
+            return $pdoStatement->rowCount() > 0;
+
+        } catch (PDOException $e) {
+            echo "Erreur lors de la modification : " . $e->getMessage();
+            return false;
+        }
+    }
+
+    public function supprimer() : bool {
+        try {
+            $sql = "DELETE FROM Utilisateurs WHERE utilisateur_id = :utilisateurId";
+
+            $pdoStatement = Model::getPdo()->prepare($sql);
+
+            $values = array(
+                'utilisateurId' => $this->utilisateurId
+            );
+
+            $pdoStatement->execute($values);
+            return $pdoStatement->rowCount() > 0;
+
+        } catch (PDOException $e) {
+            echo "Erreur lors de la suppression : " . $e->getMessage();
+            return false;
+        }
+    }
 }
 ?>

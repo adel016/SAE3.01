@@ -60,5 +60,56 @@ class ModelMeteotheque {
             return false;
         }
     }
+
+    public function modifier() : bool {
+        try {
+            $sql = "UPDATE Meteotheques
+                    SET utilisateur_id = :utilisateur_id,
+                        nom_collection = :nom_collection,
+                        description = :description,
+                        date_creation = :date_creation
+                    WHERE meteo_id = :meteo_id";
+
+            $pdoStatement = Model::getPdo()->prepare($sql);
+
+            // Préparation des valeurs à partir des propriétés de l'objet
+            $values = array(
+                'utilisateur_id' => $this->utilisateurId,
+                'nom_collection' => $this->nomCollection,
+                'description' => $this->description,
+                'date_creation' => $this->dateCreation,
+                'meteo_id' => $this->meteoId
+            );
+
+            $pdoStatement->execute($values);
+            // Retourne true si la modification a ete effectue
+            return $pdoStatement->rowCount() > 0;
+        } catch (PDOException $e) {
+            echo "Erreur lors de la modification : " . $e->getMessage();
+            return false;
+        }
+    }
+
+    public function supprimer() : bool {
+        try {
+            $sql = "DELETE FROM Meteotheques WHERE meteo_id = :meteoId";
+            $pdoStatement = Model::getPdo()->prepare($sql);
+
+            // Préparation des valeurs à partir des propriétés de l'objet
+            $values = array(
+                'meteoId' => $this->meteoId
+            );
+    
+            // Exécution de la requête
+            $pdoStatement->execute($values);
+            // Retourne true si une ligne a été supprimée
+            return $pdoStatement->rowCount() > 0;
+    
+        } catch (PDOException $e) {
+            echo "Erreur lors de la suppression : " . $e->getMessage();
+            return false;
+        }
+    }
+    
 }
 ?>
