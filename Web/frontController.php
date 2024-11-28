@@ -2,7 +2,6 @@
 
 require_once __DIR__ . '/../src/Lib/Psr4AutoloaderClass.php';
 
-use App\Covoiturage\Controller\ControllerUtilisateur;
 use App\Covoiturage\Lib\Psr4AutoloaderClass;
 
 // Initialisation de l'autoloader
@@ -10,12 +9,19 @@ $loader = new Psr4AutoloaderClass();
 $loader->addNamespace('App\Covoiturage', __DIR__ . '/../src');
 $loader->register();
 
-// Gestion des actions pour la requete GET
-$action = $_GET['action'] ?? 'readAll';
-$controllerClass = ControllerUtilisateur::class;
+// Gestion des actions pour la requête GET
+$controller = filter_input(INPUT_GET, 'controller', FILTER_SANITIZE_STRING) ?? 'Utilisateur';
+$action = filter_input(INPUT_GET, 'action', FILTER_SANITIZE_STRING) ?? 'readAll';
 
-// Vérification que l'action est définie et que la méthode existe dans le contrôleur
+$controllerClass = "App\\Covoiturage\\Controller\\Controller" . ucfirst($controller);
+
 try {
+    // Vérification que la classe contrôleur existe
+    if (!class_exists($controllerClass)) {
+        throw new Exception("Le contrôleur spécifié est introuvable : $controllerClass");
+    }
+
+    // Vérification que l'action existe
     if (method_exists($controllerClass, $action)) {
         $controllerClass::$action();
     } else {
@@ -23,7 +29,6 @@ try {
     }
 } catch (Exception $e) {
     // Gestion des erreurs
+    $message = htmlspecialchars($e->getMessage());
     require __DIR__ . '/../src/View/error.php';
-    echo "Erreur : " . htmlspecialchars($e->getMessage());
 }
-?>
