@@ -19,6 +19,11 @@
             &nbsp;
             <?php
             require __DIR__ . "/{$cheminVueBody}";
+            if (file_exists($vuePath)) {
+                require $vuePath;
+            } else {
+                echo "<p>Erreur : La vue specifiee est introuvable ($cheminVueBody).</p>";
+            }
             ?>
             &nbsp;
         </main>

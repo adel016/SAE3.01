@@ -10,8 +10,8 @@ $loader->addNamespace('App\Covoiturage', __DIR__ . '/../src');
 $loader->register();
 
 // Gestion des actions pour la requête GET
-$controller = filter_input(INPUT_GET, 'controller', FILTER_SANITIZE_STRING) ?? 'Utilisateur';
-$action = filter_input(INPUT_GET, 'action', FILTER_SANITIZE_STRING) ?? 'readAll';
+$controller = htmlspecialchars($_GET['controller'] ?? 'Utilisateur');
+$action = htmlspecialchars($_GET['action'] ?? 'readAll');
 
 $controllerClass = "App\\Covoiturage\\Controller\\Controller" . ucfirst($controller);
 
