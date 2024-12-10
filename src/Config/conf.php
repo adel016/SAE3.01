@@ -5,7 +5,7 @@ namespace App\Meteo\Config;
 use \PDO;
 
 class Conf {
-    // Paramètres de connexion à la base de données
+    // Paramètres de connexion à la base de donnée
     static private array $databases = array(
         'hostname' => 'localhost',    // Nom de l'hôte
         'database' => 'meteo_db',    // Nom de la base de données (ajusté ici)

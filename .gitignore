@@ -1,0 +1,10 @@
+# Ignorer les fichiers de configuration locaux
+/src/Config/.env
+
+# Ignorer les fichiers générés automatiquement
+/vendor/
+/node_modules/
+
+# Ignorer les fichiers système
+.DS_Store
+Thumbs.db
