@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Covoiturage\Model;
+namespace App\Meteo\Model;
 
-use App\Covoiturage\Model\Model;
+use App\Meteo\Model\Model;
 use \PDOException;
 
 class ModelMeteotheque {
