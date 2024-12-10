@@ -5,47 +5,51 @@ namespace App\Meteo\Config;
 use \PDO;
 
 class Conf {
-    // Paramètres de connexion à la base de donnée
-    static private array $databases = array(
-        'hostname' => 'localhost',    // Nom de l'hôte
-        'database' => 'meteo_db',    // Nom de la base de données (ajusté ici)
-        'login' => 'root',           // Utilisateur (par défaut root sur WAMP)
-        'password' => 'root'             // Mot de passe (vide par défaut sur WAMP)
-    );
+    private static array $config = [];
 
-    // Méthode pour récupérer le login
-    static public function getLogin(): string {
-        return static::$databases['login'];
+    // Charger la configuration depuis le fichier .env
+    public static function loadConfig(): void {
+        $envPath = __DIR__ . '/.env';
+
+        if (file_exists($envPath)) {
+            $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+            foreach ($lines as $line) {
+                if (strpos(trim($line), '#') === 0) {
+                    continue; // Ignore les commentaires
+                }
+
+                [$key, $value] = explode('=', $line, 2);
+                self::$config[trim($key)] = trim($value);
+            }
+        } else {
+            die('.env file not found. Please configure the database settings.');
+        }
     }
 
-    // Méthode pour récupérer le nom d'hôte
-    static public function getHostname(): string {
-        return static::$databases['hostname'];
+    public static function getConfig(string $key): string {
+        if (!isset(self::$config[$key])) {
+            die("Configuration clé $key manquante dans le fichier .env");
+        }
+        return self::$config[$key];
     }
 
-    // Méthode pour récupérer le nom de la base de données
-    static public function getDatabase(): string {
-        return static::$databases['database'];
-    }
-
-    // Méthode pour récupérer le mot de passe
-    static public function getPassword(): string {
-        return static::$databases['password'];
-    }
-
-    // Méthode pour créer une connexion PDO
-    static public function getPDO(): PDO {
+    public static function getPDO(): PDO {
         try {
-            // Construction du DSN (Data Source Name)
-            $dsn = 'mysql:host=' . static::getHostname() . ';dbname=' . static::getDatabase() . ';charset=utf8';
+            // Charger les configurations si elles ne sont pas encore chargées
+            if (!self::$config) {
+                self::loadConfig();
+            }
 
-            // Création de la connexion PDO
-            $pdo = new PDO($dsn, static::getLogin(), static::getPassword(), [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, // Active les exceptions en cas d'erreur
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC // Résultats sous forme de tableau associatif
+            $dsn = 'mysql:host=' . self::getConfig('DB_HOST') . 
+                   ';port=' . self::getConfig('DB_PORT') . 
+                   ';dbname=' . self::getConfig('DB_NAME') . 
+                   ';charset=utf8';
+
+            return new PDO($dsn, self::getConfig('DB_USER'), self::getConfig('DB_PASS'), [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
             ]);
-
-            return $pdo;
         } catch (\PDOException $e) {
             die('Erreur de connexion à la base de données : ' . $e->getMessage());
         }
