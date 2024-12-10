@@ -11,3 +11,12 @@ Date => Nom : "Message"
 26/11/2024 => Hugo : Je viens de restructurer le modele MVC,
                      notamment le dossier Model 
                      et ces fichiers qui gereront l'interface pour ajouter, supprimer, modifier un ou des utilisateurs.
+
+10/12/2024 => Adel : Je m'occupe du formualire d'inscription ce que j'ai fait : 
+                    - Création d'une page unique pour l'inscription et la connexion "authentification.php"
+                    - Modification de conf.php pour se connexter à la base (Attention login: root et mot de passe: root) aussi ajout dans le même fichier méthode pour créer une connexion pdo 
+                    - Modification de "ModelUtilisateur.php" 
+                    - problème de cohérence mis à jour de l'autoLoader !
+                    - conclusion le formualire d'inscription marche !! youpiii
+
+

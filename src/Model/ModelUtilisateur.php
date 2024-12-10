@@ -1,38 +1,76 @@
 <?php
 
-namespace App\Covoiturage\Model;
+namespace App\Meteo\Model;
 
-use App\Covoiturage\Model\Model;
+use App\Meteo\Config\Conf;
 use \PDOException;
 
+
 class ModelUtilisateur {
+    // Attributs privés représentant les colonnes de la table "utilisateurs"
     private int $utilisateurId;
     private string $nom;
+    private string $prenom;
     private string $email;
     private string $motDePasse;
     private string $dateCreation;
     private string $role;
     private string $etatCompte;
 
-    public function __construct(int $utilisateurId, string $nom, string $email, string $motDePasse, string $dateCreation, string $role = 'utilisateur', string $etatCompte = 'en_attente') {
+    // Constructeur pour initialiser un utilisateur
+    public function __construct(
+        int $utilisateurId,
+        string $nom,
+        string $prenom,
+        string $email,
+        string $motDePasse,
+        string $dateCreation,
+        string $role = 'utilisateur',
+        string $etatCompte = 'en_attente'
+    ) {
         $this->utilisateurId = $utilisateurId;
         $this->nom = $nom;
+        $this->prenom = $prenom;
         $this->email = $email;
         $this->motDePasse = $motDePasse;
         $this->dateCreation = $dateCreation;
         $this->role = $role;
         $this->etatCompte = $etatCompte;
     }
+    
 
-    public function getRole() : string {
+    // ========================
+    // Getters pour les attributs
+    // ========================
+    public function getRole(): string {
         return $this->role;
     }
 
-    public function estAdministrateur() : bool {
+    public function getNom(): string {
+        return $this->nom;
+    }
+
+    public function getEmail(): string {
+        return $this->email;
+    }
+
+    public function getMotDePasse(): string {
+        return $this->motDePasse;
+    }
+
+    // Méthode pour vérifier si l'utilisateur est un administrateur
+    public function estAdministrateur(): bool {
         return $this->role === 'administrateur';
     }
 
-    public static function construire(array $utilisateurFormatTableau) : ModelUtilisateur {
+    // ========================
+    // Méthodes statiques
+    // ========================
+
+    /**
+     * Reconstruit un objet utilisateur à partir d'un tableau associatif
+     */
+    public static function construire(array $utilisateurFormatTableau): ModelUtilisateur {
         return new ModelUtilisateur(
             $utilisateurFormatTableau['utilisateur_id'],
             $utilisateurFormatTableau['nom'],
@@ -44,151 +82,158 @@ class ModelUtilisateur {
         );
     }
 
-    public static function getUtilisateurs() : array {
+    /**
+     * Récupère tous les utilisateurs de la base de données
+     */
+    public static function getUtilisateurs(): array {
         try {
-            $sql = "SELECT * FROM Utilisateurs";
-            $pdo = Model::getPdo();
+            $sql = "SELECT * FROM utilisateurs";
+            $pdo = Conf::getPDO();
             $pdoStatement = $pdo->query($sql);
 
-            // Creation d'un tableau pour stocker toutes les voitures
             $utilisateurs = [];
-            foreach ($pdoStatement as $voitureFormatTableau) {
-                $utilisateurs[] = ModelUtilisateur::construire($voitureFormatTableau) ;
+            foreach ($pdoStatement as $utilisateurFormatTableau) {
+                $utilisateurs[] = ModelUtilisateur::construire($utilisateurFormatTableau);
             }
             return $utilisateurs;
-
         } catch (PDOException $e) {
-            echo "Erreur lors de la recuperation de donnees : " . $e->getMessage();
+            echo "Erreur lors de la récupération des utilisateurs : " . $e->getMessage();
+            return [];
         }
     }
 
-    public static function getUtilisateurByID(string $utilisateur_id) : ?ModelUtilisateur {
-        $sql = "SELECT * FROM Utilisateurs WHERE utilisateur_id = :utilisateurID";
+    /**
+     * Récupère un utilisateur par son ID
+     */
+    public static function getUtilisateurByID(int $utilisateurId): ?ModelUtilisateur {
+        try {
+            $sql = "SELECT * FROM utilisateurs WHERE utilisateur_id = :utilisateurId";
+            $pdo = Conf::getPDO();
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(['utilisateurId' => $utilisateurId]);
 
-        // Préparation de la requête
-        $pdoStatement = Model::getPdo()->prepare($sql);
-        $values = array(
-            "utilisateurID" => $utilisateur_id
-        );
-        
-        // On donne les valeurs et on exécute la requête
-        $pdoStatement->execute($values);
+            $utilisateur = $stmt->fetch();
+            if ($utilisateur === false) {
+                return null;
+            }
 
-        // On récupère les résultats comme précédemment
-        // Note: fetch() renvoie false si pas de voiture correspondante
-        $utilisateur = $pdoStatement->fetch();
-
-        if ($utilisateur === false) {
+            return static::construire($utilisateur);
+        } catch (PDOException $e) {
+            echo "Erreur lors de la récupération de l'utilisateur : " . $e->getMessage();
             return null;
         }
-
-        return static::construire($utilisateur);
     }
 
-    public function sauvegarder() : bool {
+    /**
+     * Récupère un utilisateur par son email
+     */
+    public static function getUtilisateurByEmail(string $email): ?ModelUtilisateur {
         try {
-            $sql = "INSERT INTO Utilisateurs (nom, email, mot_de_passe, date_creation, role, etat_compte) 
-                    VALUES (:nom, :email, :motDePasse, :dateCreation, :role, :etatCompte)";
-            $pdoStatement = Model::getPdo()->prepare($sql);
-            $values = array(
+            $sql = "SELECT * FROM utilisateurs WHERE email = :email";
+            $pdo = Conf::getPDO();
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(['email' => $email]);
+
+            $utilisateur = $stmt->fetch();
+            if ($utilisateur === false) {
+                return null;
+            }
+
+            return static::construire($utilisateur);
+        } catch (PDOException $e) {
+            echo "Erreur lors de la récupération de l'utilisateur par email : " . $e->getMessage();
+            return null;
+        }
+    }
+
+    // ========================
+    // Méthodes d'instance
+    // ========================
+
+    /**
+     * Enregistre un utilisateur dans la base de données
+     */
+    public function sauvegarder(): bool {
+        try {
+            $sql = "INSERT INTO utilisateurs (nom, prenom, email, mot_de_passe, role, etat_compte) 
+                    VALUES (:nom, :prenom, :email, :motDePasse, :role, :etatCompte)";
+            $pdo = Conf::getPDO();
+            $stmt = $pdo->prepare($sql);
+    
+            $values = [
                 'nom' => $this->nom,
+                'prenom' => $this->prenom,
                 'email' => $this->email,
                 'motDePasse' => $this->motDePasse,
-                'dateCreation' => $this->dateCreation,
-                'role' => $this->role ?? 'utilisateur',
-                'etatCompte' => $this->etatCompte ?? 'en_attente'
-            );
-            $pdoStatement->execute($values);
+                'role' => $this->role,
+                'etatCompte' => $this->etatCompte
+            ];
+    
+            // Debugging pour la requête et les valeurs
+            echo "Requête SQL : $sql<br>";
+            echo "Valeurs : ";
+            print_r($values);
+            echo "<br>";
+    
+            $stmt->execute($values);
             return true;
-        } catch (PDOException $e) {
-            echo "Erreur lors de la sauvegarde : " . $e->getMessage();
+        } catch (\PDOException $e) {
+            echo "Erreur lors de l'insertion : " . $e->getMessage() . "<br>";
             return false;
         }
     }
-
-    public function changerEtatCompte(string $nouvelEtat) : bool {
-        $etatsValides = ['actif', 'en_attente', 'suspendu'];
-        if (!in_array($nouvelEtat, $etatsValides)) {
-            echo "Erreur : État du compte invalide.";
-            return false;
-        }
-
+    
+    
+    
+    /**
+     * Modifie un utilisateur existant
+     */
+    public function modifier(): bool {
         try {
-            $sql = "UPDATE Utilisateurs SET etat_compte = :etat WHERE utilisateur_id = :utilisateurId";
-
-            $pdoStatement = Model::getPdo()->prepare($sql);
-            $values = array(
-                'etat' => $nouvelEtat,
-                'utilisateurId' => $this->utilisateurId
-            );
-
-            $pdoStatement->execute($values);
-
-            $this->enregistrerLog("Changement de l'état du compte utilisateur à '{$nouvelEtat}'");
-            return $pdoStatement->rowCount() > 0;
-
-        } catch (PDOException $e) {
-            echo "Erreur lors du changement d'état du compte : " . $e->getMessage();
-            return false;
-        }
-    }
-
-    public function modifier() : bool {
-        try {
-            $sql = "UPDATE Utilisateurs 
+            $sql = "UPDATE utilisateurs 
                     SET nom = :nom, 
                         email = :email, 
                         mot_de_passe = :motDePasse, 
-                        date_creation = :dateCreation 
+                        date_creation = :dateCreation, 
+                        role = :role, 
+                        etat_compte = :etatCompte 
                     WHERE utilisateur_id = :utilisateurId";
 
-            $pdoStatement = Model::getPdo()->prepare($sql);
+            $pdo = Conf::getPDO();
+            $stmt = $pdo->prepare($sql);
 
-            $values = array(
+            $stmt->execute([
                 'nom' => $this->nom,
                 'email' => $this->email,
                 'motDePasse' => $this->motDePasse,
                 'dateCreation' => $this->dateCreation,
+                'role' => $this->role,
+                'etatCompte' => $this->etatCompte,
                 'utilisateurId' => $this->utilisateurId
-            );
+            ]);
 
-            $pdoStatement->execute($values);
-            return $pdoStatement->rowCount() > 0;
-
+            return $stmt->rowCount() > 0;
         } catch (PDOException $e) {
-            echo "Erreur lors de la modification : " . $e->getMessage();
+            echo "Erreur lors de la modification de l'utilisateur : " . $e->getMessage();
             return false;
         }
     }
 
-    public static function deleteByID(int $utilisateurId) : bool {
+    /**
+     * Supprime un utilisateur par son ID
+     */
+    public static function deleteByID(int $utilisateurId): bool {
         try {
-            $sql = "DELETE FROM Utilisateurs WHERE utilisateur_id = :utilisateurId";
-            $pdoStatement = Model::getPdo()->prepare($sql);
-    
-            $values = ['utilisateurId' => $utilisateurId];
-            $pdoStatement->execute($values);
-    
-            return $pdoStatement->rowCount() > 0;
-        } catch (PDOException $e) {
-            echo "Erreur lors de la suppression : " . $e->getMessage();
-            return false;
-        }
-    }
-    
+            $sql = "DELETE FROM utilisateurs WHERE utilisateur_id = :utilisateurId";
+            $pdo = Conf::getPDO();
+            $stmt = $pdo->prepare($sql);
 
-    private function enregistrerLog(string $action) {
-        try {
-            $sql = "INSERT INTO Logs (utilisateur_id, action, timestamp) VALUES (:utilisateurId, :action, NOW())";
-            $pdoStatement = Model::getPdo()->prepare($sql);
-            $values = array(
-                'utilisateurId' => $this->utilisateurId,
-                'action' => $action
-            );
-            $pdoStatement->execute($values);
+            $stmt->execute(['utilisateurId' => $utilisateurId]);
+
+            return $stmt->rowCount() > 0;
         } catch (PDOException $e) {
-            echo "Erreur lors de l'enregistrement dans les logs : " . $e->getMessage();
+            echo "Erreur lors de la suppression de l'utilisateur : " . $e->getMessage();
+            return false;
         }
     }
 }
-?>
