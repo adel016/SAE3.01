@@ -1,8 +1,8 @@
 <?php
 // Inclusion du fichier de configuration
-namespace App\Covoiturage\Model;
+namespace App\Meteo\Model;
 
-use App\Covoiturage\Config\Conf;
+use App\Meteo\Config\Conf;
 use \PDO;
 use \PDOException;
 
