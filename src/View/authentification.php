@@ -49,19 +49,22 @@
     </div>
 
     <script>
-        let isInscription = true;
+        // Affiche le formulaire de connexion au départ
+        document.getElementById('connexionForm').style.display = 'block';
 
-        // Affiche le formulaire d'inscription par défaut
-        document.getElementById('inscriptionForm').style.display = 'block';
+        // Variable pour garder la trace de l'état actuel (connexion ou inscription)
+        let isConnexion = true;
 
-        // Change entre inscription et connexion
+        // Change entre connexion et inscription
         function toggleForm() {
-            isInscription = !isInscription;
+            isConnexion = !isConnexion;
 
-            document.getElementById('inscriptionForm').style.display = isInscription ? 'block' : 'none';
-            document.getElementById('connexionForm').style.display = isInscription ? 'none' : 'block';
+            // Affiche le formulaire correspondant
+            document.getElementById('connexionForm').style.display = isConnexion ? 'block' : 'none';
+            document.getElementById('inscriptionForm').style.display = isConnexion ? 'none' : 'block';
 
-            document.getElementById('toggleButton').textContent = isInscription ? 'Connexion' : 'Inscription';
+            // Change le texte du bouton
+            document.getElementById('toggleButton').textContent = isConnexion ? 'Inscription' : 'Connexion';
         }
     </script>
 </body>
