@@ -19,4 +19,9 @@ Date => Nom : "Message"
                     - problème de cohérence mis à jour de l'autoLoader !
                     - conclusion le formualire d'inscription marche !! youpiii
 
+11/12/2024 => :     - Mise en place du back end du formulaire de connexion 
+                    - ajout d'une page de liens qui va regrouper tout les lien de test (afin de facilité les tests)
+
+
+
 

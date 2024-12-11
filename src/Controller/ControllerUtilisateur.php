@@ -3,7 +3,6 @@ namespace App\Meteo\Controller;
 
 require_once __DIR__ . '/../Lib/Psr4AutoloaderClass.php';
 
-
 use App\Meteo\Model\ModelUtilisateur;
 use App\Meteo\Lib\Psr4AutoloaderClass;
 
@@ -58,17 +57,32 @@ class ControllerUtilisateur {
     }
 
     public static function connexion() {
+        // Vérifie si les données POST sont envoyées
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Nettoyage des données
             $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
             $motdepasse = $_POST['motdepasse'];
 
+            // Vérifie si l'utilisateur existe
             $utilisateur = ModelUtilisateur::getUtilisateurByEmail($email);
 
-            if ($utilisateur && password_verify($motdepasse, $utilisateur->getMotDePasse())) {
-                echo "Connexion réussie. Bienvenue, " . $utilisateur->getNom();
+            if ($utilisateur) {
+                // Vérifie le mot de passe
+                if (password_verify($motdepasse, $utilisateur->getMotDePasse())) {
+                    // Définir une session pour l'utilisateur
+                    session_start();
+                    $_SESSION['utilisateur_id'] = $utilisateur->getId();
+                    $_SESSION['nom'] = $utilisateur->getNom();
+
+                    echo "Connexion réussie. Bienvenue, " . $utilisateur->getNom();
+                } else {
+                    echo "Erreur : Mot de passe incorrect.";
+                }
             } else {
-                echo "Erreur : Email ou mot de passe incorrect.";
+                echo "Erreur : Aucun utilisateur trouvé avec cet email.";
             }
+        } else {
+            echo "Erreur : Méthode non autorisée.";
         }
     }
 }

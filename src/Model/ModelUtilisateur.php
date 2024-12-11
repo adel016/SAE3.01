@@ -5,9 +5,8 @@ namespace App\Meteo\Model;
 use App\Meteo\Config\Conf;
 use \PDOException;
 
-
 class ModelUtilisateur {
-    // Attributs privés représentant les colonnes de la table "utilisateurs"
+    // Attributs correspondant aux colonnes de la table "utilisateurs"
     private int $utilisateurId;
     private string $nom;
     private string $prenom;
@@ -37,17 +36,18 @@ class ModelUtilisateur {
         $this->role = $role;
         $this->etatCompte = $etatCompte;
     }
-    
 
-    // ========================
-    // Getters pour les attributs
-    // ========================
-    public function getRole(): string {
-        return $this->role;
+    // Getters
+    public function getId(): int {
+        return $this->utilisateurId;
     }
 
     public function getNom(): string {
         return $this->nom;
+    }
+
+    public function getPrenom(): string {
+        return $this->prenom;
     }
 
     public function getEmail(): string {
@@ -58,75 +58,61 @@ class ModelUtilisateur {
         return $this->motDePasse;
     }
 
-    // Méthode pour vérifier si l'utilisateur est un administrateur
+    public function getRole(): string {
+        return $this->role;
+    }
+
     public function estAdministrateur(): bool {
         return $this->role === 'administrateur';
     }
 
-    // ========================
-    // Méthodes statiques
-    // ========================
-
-    /**
-     * Reconstruit un objet utilisateur à partir d'un tableau associatif
-     */
-    public static function construire(array $utilisateurFormatTableau): ModelUtilisateur {
-        return new ModelUtilisateur(
-            $utilisateurFormatTableau['utilisateur_id'],
-            $utilisateurFormatTableau['nom'],
-            $utilisateurFormatTableau['email'],
-            $utilisateurFormatTableau['mot_de_passe'],
-            $utilisateurFormatTableau['date_creation'],
-            $utilisateurFormatTableau['role'],
-            $utilisateurFormatTableau['etat_compte']
+    // Reconstruire un utilisateur à partir d'un tableau associatif
+    public static function construire(array $data): ModelUtilisateur {
+        return new self(
+            $data['utilisateur_id'],
+            $data['nom'],
+            $data['prenom'],
+            $data['email'],
+            $data['mot_de_passe'],
+            $data['date_creation'],
+            $data['role'],
+            $data['etat_compte']
         );
     }
 
-    /**
-     * Récupère tous les utilisateurs de la base de données
-     */
+    // Récupérer tous les utilisateurs
     public static function getUtilisateurs(): array {
         try {
             $sql = "SELECT * FROM utilisateurs";
             $pdo = Conf::getPDO();
-            $pdoStatement = $pdo->query($sql);
+            $stmt = $pdo->query($sql);
 
             $utilisateurs = [];
-            foreach ($pdoStatement as $utilisateurFormatTableau) {
-                $utilisateurs[] = ModelUtilisateur::construire($utilisateurFormatTableau);
+            foreach ($stmt as $row) {
+                $utilisateurs[] = self::construire($row);
             }
             return $utilisateurs;
         } catch (PDOException $e) {
-            echo "Erreur lors de la récupération des utilisateurs : " . $e->getMessage();
-            return [];
+            throw new \Exception("Erreur lors de la récupération des utilisateurs : " . $e->getMessage());
         }
     }
 
-    /**
-     * Récupère un utilisateur par son ID
-     */
-    public static function getUtilisateurByID(int $utilisateurId): ?ModelUtilisateur {
+    // Récupérer un utilisateur par ID
+    public static function getUtilisateurByID(int $id): ?ModelUtilisateur {
         try {
-            $sql = "SELECT * FROM utilisateurs WHERE utilisateur_id = :utilisateurId";
+            $sql = "SELECT * FROM utilisateurs WHERE utilisateur_id = :id";
             $pdo = Conf::getPDO();
             $stmt = $pdo->prepare($sql);
-            $stmt->execute(['utilisateurId' => $utilisateurId]);
+            $stmt->execute(['id' => $id]);
 
-            $utilisateur = $stmt->fetch();
-            if ($utilisateur === false) {
-                return null;
-            }
-
-            return static::construire($utilisateur);
+            $data = $stmt->fetch();
+            return $data ? self::construire($data) : null;
         } catch (PDOException $e) {
-            echo "Erreur lors de la récupération de l'utilisateur : " . $e->getMessage();
-            return null;
+            throw new \Exception("Erreur lors de la récupération de l'utilisateur : " . $e->getMessage());
         }
     }
 
-    /**
-     * Récupère un utilisateur par son email
-     */
+    // Récupérer un utilisateur par email
     public static function getUtilisateurByEmail(string $email): ?ModelUtilisateur {
         try {
             $sql = "SELECT * FROM utilisateurs WHERE email = :email";
@@ -134,106 +120,47 @@ class ModelUtilisateur {
             $stmt = $pdo->prepare($sql);
             $stmt->execute(['email' => $email]);
 
-            $utilisateur = $stmt->fetch();
-            if ($utilisateur === false) {
-                return null;
-            }
-
-            return static::construire($utilisateur);
+            $data = $stmt->fetch();
+            return $data ? self::construire($data) : null;
         } catch (PDOException $e) {
-            echo "Erreur lors de la récupération de l'utilisateur par email : " . $e->getMessage();
-            return null;
+            throw new \Exception("Erreur lors de la récupération de l'utilisateur par email : " . $e->getMessage());
         }
     }
 
-    // ========================
-    // Méthodes d'instance
-    // ========================
-
-    /**
-     * Enregistre un utilisateur dans la base de données
-     */
+    // Enregistrer un utilisateur
     public function sauvegarder(): bool {
         try {
             $sql = "INSERT INTO utilisateurs (nom, prenom, email, mot_de_passe, role, etat_compte) 
-                    VALUES (:nom, :prenom, :email, :motDePasse, :role, :etatCompte)";
-            $pdo = Conf::getPDO();
-            $stmt = $pdo->prepare($sql);
-    
-            $values = [
-                'nom' => $this->nom,
-                'prenom' => $this->prenom,
-                'email' => $this->email,
-                'motDePasse' => $this->motDePasse,
-                'role' => $this->role,
-                'etatCompte' => $this->etatCompte
-            ];
-    
-            // Debugging pour la requête et les valeurs
-            echo "Requête SQL : $sql<br>";
-            echo "Valeurs : ";
-            print_r($values);
-            echo "<br>";
-    
-            $stmt->execute($values);
-            return true;
-        } catch (\PDOException $e) {
-            echo "Erreur lors de l'insertion : " . $e->getMessage() . "<br>";
-            return false;
-        }
-    }
-    
-    
-    
-    /**
-     * Modifie un utilisateur existant
-     */
-    public function modifier(): bool {
-        try {
-            $sql = "UPDATE utilisateurs 
-                    SET nom = :nom, 
-                        email = :email, 
-                        mot_de_passe = :motDePasse, 
-                        date_creation = :dateCreation, 
-                        role = :role, 
-                        etat_compte = :etatCompte 
-                    WHERE utilisateur_id = :utilisateurId";
-
+                    VALUES (:nom, :prenom, :email, :mot_de_passe, :role, :etat_compte)";
             $pdo = Conf::getPDO();
             $stmt = $pdo->prepare($sql);
 
             $stmt->execute([
                 'nom' => $this->nom,
+                'prenom' => $this->prenom,
                 'email' => $this->email,
-                'motDePasse' => $this->motDePasse,
-                'dateCreation' => $this->dateCreation,
+                'mot_de_passe' => $this->motDePasse,
                 'role' => $this->role,
-                'etatCompte' => $this->etatCompte,
-                'utilisateurId' => $this->utilisateurId
+                'etat_compte' => $this->etatCompte
             ]);
 
-            return $stmt->rowCount() > 0;
+            return true;
         } catch (PDOException $e) {
-            echo "Erreur lors de la modification de l'utilisateur : " . $e->getMessage();
-            return false;
+            throw new \Exception("Erreur lors de l'insertion : " . $e->getMessage());
         }
     }
 
-    /**
-     * Supprime un utilisateur par son ID
-     */
-    public static function deleteByID(int $utilisateurId): bool {
+    // Supprimer un utilisateur par ID
+    public static function deleteByID(int $id): bool {
         try {
-            $sql = "DELETE FROM utilisateurs WHERE utilisateur_id = :utilisateurId";
+            $sql = "DELETE FROM utilisateurs WHERE utilisateur_id = :id";
             $pdo = Conf::getPDO();
             $stmt = $pdo->prepare($sql);
 
-            $stmt->execute(['utilisateurId' => $utilisateurId]);
-
+            $stmt->execute(['id' => $id]);
             return $stmt->rowCount() > 0;
         } catch (PDOException $e) {
-            echo "Erreur lors de la suppression de l'utilisateur : " . $e->getMessage();
-            return false;
+            throw new \Exception("Erreur lors de la suppression : " . $e->getMessage());
         }
     }
 }
