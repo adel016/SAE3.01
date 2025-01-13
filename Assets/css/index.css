@@ -201,7 +201,7 @@ a {
 
 .map {
     width: 100%; /* S'adapte à la largeur du parent */
-    height: 700px; /* Hauteur spécifique */
+    height: 400px; /* Hauteur spécifique */
     border: 1px solid #ccc; /* Optionnel : une bordure */
     border-radius: 10px; /* Optionnel : coins arrondis */
 }

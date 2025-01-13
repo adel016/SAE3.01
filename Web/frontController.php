@@ -1,5 +1,10 @@
 <?php
 
+// Demarrage de la session en premier
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once __DIR__ . '/../src/Lib/Psr4AutoloaderClass.php';
 
 use App\Meteo\Lib\Psr4AutoloaderClass;
