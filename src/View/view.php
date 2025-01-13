@@ -16,6 +16,7 @@
             <a href="/Web/frontController.php?action=connexion&controller=utilisateur">Connexion</a>
         </nav>
     </header>
+
         <?php
         if (isset($cheminVueBody) && file_exists(__DIR__ . "/$cheminVueBody")) {
             require __DIR__ . "/$cheminVueBody";
@@ -23,17 +24,19 @@
             echo "<p>Erreur : La vue spécifiée est introuvable ($cheminVueBody).</p>";
         }
         ?>
-            <div class="flash-messages">
-                <?php if (!empty($flashMessages = \App\Meteo\Lib\MessageFlash::lireTousMessages())): ?>
-                    <?php foreach ($flashMessages as $type => $messages): ?>
-                        <div class="alert alert-<?= htmlspecialchars($type) ?>">
-                            <?php foreach ($messages as $message): ?>
-                                <p><?= htmlspecialchars($message) ?></p>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
+
+        <div class="flash-messages">
+            <?php if (!empty($flashMessages = \App\Meteo\Lib\MessageFlash::lireTousMessages())): ?>
+                <?php foreach ($flashMessages as $type => $messages): ?>
+                    <div class="alert alert-<?= htmlspecialchars($type) ?>">
+                        <?php foreach ($messages as $message): ?>
+                            <p><?= htmlspecialchars($message) ?></p>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+        
     <footer>
         <p>© Site METEO VISION - BUT2.C INFORMATIQUE</p>
     </footer>
