@@ -114,6 +114,7 @@ class Psr4AutoloaderClass
             require $file;
             return true;
         }
+        error_log("Autoloader : Impossible de charger le fichier $file");
         return false;
     }
 }

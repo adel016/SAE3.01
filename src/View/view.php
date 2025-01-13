@@ -1,34 +1,41 @@
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <title><?= htmlspecialchars($pagetitle); ?></title>
-        <link rel="stylesheet" href="/Assets/css/style.css">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Sour+Gummy:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    </head>
-    <body>
-        <header>
-            <nav>
-                <h1>SITE DE METEO</h1>
-                <a href="">BARRE DE NAVIGATION</a>
-            </nav>
-        </header>
-        <main>
-            &nbsp;
-            <?php
-            require __DIR__ . "/{$cheminVueBody}";
-            if (file_exists($vuePath)) {
-                require $vuePath;
-            } else {
-                echo "<p>Erreur : La vue specifiee est introuvable ($cheminVueBody).</p>";
-            }
-            ?>
-            &nbsp;
-        </main>
-        <footer>
-            <p>© Site DATA METEO - BUT2.C INFORMATIQUE </p>
-        </footer>
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= htmlspecialchars($pagetitle ?? ""); ?></title>
+    <link rel="stylesheet" href="/Assets/css/index.css?v=<?= time(); ?>">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <a href="/Web/frontController.php">MeteoVision</a>
+            <a href="#">Tableau de bord</a>
+            <a href="#">Contact</a>
+            <a href="#">Meteo dans ma ville</a>
+            <a href="/Web/frontController.php?action=connexion&controller=utilisateur">Connexion</a>
+        </nav>
+    </header>
+        <?php
+        if (isset($cheminVueBody) && file_exists(__DIR__ . "/$cheminVueBody")) {
+            require __DIR__ . "/$cheminVueBody";
+        } else {
+            echo "<p>Erreur : La vue spécifiée est introuvable ($cheminVueBody).</p>";
+        }
+        ?>
+            <div class="flash-messages">
+                <?php if (!empty($flashMessages = \App\Meteo\Lib\MessageFlash::lireTousMessages())): ?>
+                    <?php foreach ($flashMessages as $type => $messages): ?>
+                        <div class="alert alert-<?= htmlspecialchars($type) ?>">
+                            <?php foreach ($messages as $message): ?>
+                                <p><?= htmlspecialchars($message) ?></p>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+    <footer>
+        <p>© Site METEO VISION - BUT2.C INFORMATIQUE</p>
+    </footer>
+</body>
 </html>

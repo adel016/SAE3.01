@@ -9,6 +9,9 @@
         <ul>
             <?php foreach ($utilisateurs as $utilisateur): ?>
                 <li><?= htmlspecialchars($utilisateur->getNom()) ?> (<?= htmlspecialchars($utilisateur->getEmail()) ?>)</li>
+                &nbsp;
+                <a href="/Web/frontController.php?action=role&controller=utilisateur">Modifier le role</a>
+                <br>
             <?php endforeach; ?>
         </ul>
     <?php else: ?>

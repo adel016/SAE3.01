@@ -2,12 +2,13 @@
 
 namespace App\Meteo\Config;
 
-use \PDO;
+use PDO;
+use PDOException;
 
 class Conf {
     private static array $config = [];
 
-    // Charger la configuration depuis le fichier .env
+    // Charge la configuration depuis un fichier .env
     public static function loadConfig(): void {
         $envPath = __DIR__ . '/.env';
 
@@ -27,20 +28,23 @@ class Conf {
         }
     }
 
+    // Récupère la configuration pour une clé donnée
     public static function getConfig(string $key): string {
         if (!isset(self::$config[$key])) {
-            die("Configuration clé $key manquante dans le fichier .env");
+            throw new \RuntimeException("Configuration clé $key manquante dans le fichier .env");
         }
         return self::$config[$key];
     }
+    
 
+    // Récupère une instance PDO en fonction des paramètres de configuration
     public static function getPDO(): PDO {
-        try {
-            // Charger les configurations si elles ne sont pas encore chargées
-            if (!self::$config) {
-                self::loadConfig();
-            }
+        // Charger les configurations si elles ne sont pas déjà chargées
+        if (!self::$config) {
+            self::loadConfig();
+        }
 
+        try {
             $dsn = 'mysql:host=' . self::getConfig('DB_HOST') . 
                    ';port=' . self::getConfig('DB_PORT') . 
                    ';dbname=' . self::getConfig('DB_NAME') . 
@@ -50,7 +54,7 @@ class Conf {
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
             ]);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             die('Erreur de connexion à la base de données : ' . $e->getMessage());
         }
     }

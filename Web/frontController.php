@@ -2,18 +2,19 @@
 
 require_once __DIR__ . '/../src/Lib/Psr4AutoloaderClass.php';
 
-use App\Covoiturage\Lib\Psr4AutoloaderClass;
+use App\Meteo\Lib\Psr4AutoloaderClass;
 
 // Initialisation de l'autoloader
 $loader = new Psr4AutoloaderClass();
-$loader->addNamespace('App\Covoiturage', __DIR__ . '/../src');
+$loader->addNamespace('App\Meteo', __DIR__ . '/../src');
 $loader->register();
 
 // Gestion des actions pour la requête GET
-$controller = htmlspecialchars($_GET['controller'] ?? 'Utilisateur');
-$action = htmlspecialchars($_GET['action'] ?? 'readAll');
+$controller = htmlspecialchars($_GET['controller'] ?? 'utilisateur', ENT_QUOTES, 'UTF-8');
+$action = htmlspecialchars($_GET['action'] ?? 'default', ENT_QUOTES, 'UTF-8');
 
-$controllerClass = "App\\Covoiturage\\Controller\\Controller" . ucfirst($controller);
+
+$controllerClass = "App\\Meteo\\Controller\\Controller" . ucfirst($controller);
 
 try {
     // Vérification que la classe contrôleur existe
