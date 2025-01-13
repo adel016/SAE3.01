@@ -205,3 +205,36 @@ a {
     border: 1px solid #ccc; /* Optionnel : une bordure */
     border-radius: 10px; /* Optionnel : coins arrondis */
 }
+
+
+/* OUTILS */
+
+ul {
+    list-style: none; /* Supprimer les puces des listes */
+    padding: 0;
+}
+
+li {
+    margin-bottom: 15px; /* Ajouter un espace entre les utilisateurs */
+}
+
+li > span {
+    display: inline-block;
+    margin-right: 10px; /* Espacement entre le nom/email et les boutons */
+}
+
+li > a {
+    display: inline-block;
+    background-color: #f8e58c;
+    color: #333;
+    padding: 5px 10px;
+    margin-right: 5px; /* Espacement entre les boutons */
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+li > a:hover {
+    background-color: #d4c56b; /* Couleur au survol */
+}
