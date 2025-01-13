@@ -80,12 +80,12 @@ class ControllerUtilisateur {
         } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
             $motDePasse = $_POST['motdepasse'] ?? '';
-
+    
             if ($email && $motDePasse) {
                 // Vérifie si l'utilisateur existe
                 $repository = new UtilisateurRepository();
                 $utilisateur = $repository->select($email); // Suppose que l'email est utilisé comme clé primaire
-
+    
                 if ($utilisateur) {
                     // Vérifie le mot de passe
                     if (password_verify($motDePasse, $utilisateur->getMotDePasse())) {
@@ -93,9 +93,10 @@ class ControllerUtilisateur {
                         session_start();
                         $_SESSION['utilisateur_id'] = $utilisateur->getId();
                         $_SESSION['nom'] = $utilisateur->getNom();
-
+                        $_SESSION['role'] = $utilisateur->getRole(); // Par exemple : "admin" ou "utilisateur"
+    
                         MessageFlash::ajouter('success', "Connexion réussie. Bienvenue, " . htmlspecialchars($utilisateur->getNom()) . " !");
-                        header('Location: /Web/frontController.php');
+                        header('Location: /Web/frontController.php'); // Redirige vers la page d'accueil
                         exit();
                     } else {
                         MessageFlash::ajouter('error', "Mot de passe incorrect.");
@@ -106,7 +107,7 @@ class ControllerUtilisateur {
             } else {
                 MessageFlash::ajouter('error', "Email ou mot de passe non fourni.");
             }
-
+    
             // Réaffiche le formulaire avec les messages flash
             self::afficheVue('view.php', [
                 'pagetitle' => 'CONNEXION',
@@ -114,6 +115,32 @@ class ControllerUtilisateur {
             ]);
         }
     }
+
+    public static function deconnexion() {
+        session_start();
+        session_unset(); // Supprime toutes les variables de session
+        session_destroy(); // Détruit la session
+        MessageFlash::ajouter('success', "Vous avez été déconnecté.");
+        header('Location: /Web/frontController.php'); // Redirige vers la page d'accueil
+        exit();
+    }
+    
+
+    public static function tableauDeBord() {
+        session_start();
+        if (!isset($_SESSION['utilisateur_id'])) {
+            // Si l'utilisateur n'est pas connecté, redirigez vers la page de connexion
+            MessageFlash::ajouter('error', "Veuillez vous connecter pour accéder au tableau de bord.");
+            header('Location: /Web/frontController.php?action=connexion&controller=utilisateur');
+            exit();
+        }
+    
+        // Si l'utilisateur est connecté, affichez le tableau de bord
+        self::afficheVue('view.php', [
+            'pagetitle' => 'TABLEAU DE BORD',
+            'cheminVueBody' => 'tableauDeBord/index.php'
+        ]);
+    }    
 
     public static function update() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
