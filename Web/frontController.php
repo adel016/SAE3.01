@@ -1,7 +1,5 @@
 <?php
 
-
-
 // Démarrer la session au début
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -21,20 +19,6 @@ $controller = htmlspecialchars($_GET['controller'] ?? 'utilisateur', ENT_QUOTES,
 $action = htmlspecialchars($_GET['action'] ?? 'default', ENT_QUOTES, 'UTF-8');
 $controllerClass = "App\\Meteo\\Controller\\Controller" . ucfirst($controller);
 
-// Ajout des tests pour afficher les valeurs des paramètres
-if (class_exists($controllerClass) && method_exists($controllerClass, $action)) {
-    $controllerClass::$action();
-} else {
-    throw new Exception("Controller ou action introuvable : $controllerClass::$action");
-}
-
-echo "Controller: $controllerClass, Action: $action";
-exit;
-
-
-
-
-$controllerClass = "App\\Meteo\\Controller\\Controller" . ucfirst($controller);
 
 try {
     // Vérification que la classe contrôleur existe
