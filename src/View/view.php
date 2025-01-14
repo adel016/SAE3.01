@@ -18,6 +18,7 @@
 
     </header>
 
+    
         <?php
         if (isset($cheminVueBody) && file_exists(__DIR__ . "/$cheminVueBody")) {
             require __DIR__ . "/$cheminVueBody";
@@ -37,7 +38,13 @@
                 <?php endforeach; ?>
             <?php endif; ?>
         </div>
-        
+
+        <?php if (isset($_SESSION['utilisateur_id'])): ?>
+            <h2>Bienvenue, <?= htmlspecialchars($_SESSION['nom']) ?> !</h2>
+        <?php else: ?>
+            <h2>Bienvenue sur MeteoVision</h2>
+        <?php endif; ?>
+
     <footer>
         <p>© Site METEO VISION - BUT2.C INFORMATIQUE</p>
     </footer>

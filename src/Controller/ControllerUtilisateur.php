@@ -121,25 +121,74 @@ class ControllerUtilisateur {
     }
     
 
+    public static function deconnexion() {
+        session_start();
+        session_unset(); // Supprime toutes les variables de session
+        session_destroy(); // Détruit la session
+        MessageFlash::ajouter('success', "Vous avez été déconnecté.");
+        header('Location: /Web/frontController.php'); // Redirige vers la page d'accueil
+        exit();
+    }
+    
+
+    public static function tableauDeBord() {
+        session_start();
+        if (!isset($_SESSION['utilisateur_id'])) {
+            // Si l'utilisateur n'est pas connecté, redirigez vers la page de connexion
+            MessageFlash::ajouter('error', "Veuillez vous connecter pour accéder au tableau de bord.");
+            header('Location: /Web/frontController.php?action=connexion&controller=utilisateur');
+            exit();
+        }
+    
+        // Si l'utilisateur est connecté, affichez le tableau de bord
+        self::afficheVue('view.php', [
+            'pagetitle' => 'TABLEAU DE BORD',
+            'cheminVueBody' => 'tableauDeBord/index.php'
+        ]);
+    }    
+
+#################################
+######### PARTIE ADMIN ##########
+#################################
+
     public static function update() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $id = $_POST['utilisateur_id'] ?? null;
+        $id = $_GET['id'] ?? null;
+
+        if ($_SERVER['REQUEST_METHOD'] === 'GET' && $id) {
+            $repository = new UtilisateurRepository();
+            $utilisateur = $repository->select($id);
+
+            if ($utilisateur) {
+                self::afficheVue('view.php', [
+                    'utilisateur' => $utilisateur,
+                    'pagetitle' => "Modifier un utilisateur",
+                    'cheminVueBody' => 'utilisateur/modifier.php'
+                ]);
+            } else {
+                MessageFlash::ajouter('error', "Utilisateur introuvable.");
+                header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
+                exit();
+            }
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && $id) {
             $nom = htmlspecialchars($_POST['nom']);
             $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-    
-            if ($id && $nom && $email) {
+
+            if ($nom && $email) {
                 $repository = new UtilisateurRepository();
                 $utilisateur = new Utilisateur($id, $nom, '', $email, '', date('Y-m-d H:i:s'));
-    
+
                 if ($repository->update($utilisateur)) {
                     MessageFlash::ajouter('success', "Utilisateur modifié avec succès.");
                 } else {
                     MessageFlash::ajouter('error', "Échec de la modification.");
                 }
+            } else {
+                MessageFlash::ajouter('error', "Veuillez remplir tous les champs.");
             }
+
+            header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
+            exit();
         }
-        header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
-        exit;
     }
     
     public static function delete() {
@@ -152,10 +201,43 @@ class ControllerUtilisateur {
             } else {
                 MessageFlash::ajouter('error', "Échec de la suppression.");
             }
+        } else {
+            MessageFlash::ajouter('error', "Utilisateur introuvable !");
         }
+
         header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
         exit;
-    }    
+    }
+
+    public static function changerRole() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = $_POST['id'] ?? null;
+            $nouveauRole = $_POST['role'] ?? null;
+    
+            if ($id && $nouveauRole) {
+                $repository = new UtilisateurRepository();
+                $utilisateur = $repository->select($id);
+    
+                if ($utilisateur) {
+                    // Modifiez le rôle de l'utilisateur
+                    $utilisateur->setRole($nouveauRole);
+    
+                    if ($repository->update($utilisateur)) {
+                        MessageFlash::ajouter('success', "Rôle mis à jour avec succès.");
+                    } else {
+                        MessageFlash::ajouter('error', "Erreur lors de la mise à jour du rôle.");
+                    }
+                } else {
+                    MessageFlash::ajouter('error', "Utilisateur non trouvé.");
+                }
+            } else {
+                MessageFlash::ajouter('error', "ID ou rôle manquant.");
+            }
+        }
+    
+        header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
+        exit();
+    }     
 
     public static function afficheVue(string $cheminVue, array $parametres = []): void {
         extract($parametres); // Crée des variables à partir du tableau $parametres
