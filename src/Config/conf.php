@@ -58,4 +58,13 @@ class Conf {
             die('Erreur de connexion à la base de données : ' . $e->getMessage());
         }
     }
+
+    public static function getBaseUrl(): string {
+        // Récupère le chemin de base en fonction de la configuration actuelle
+        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
+        $host = $_SERVER['HTTP_HOST'];
+        $scriptName = dirname($_SERVER['SCRIPT_NAME']);
+        return $protocol . "://" . $host . $scriptName;
+    }
+    
 }

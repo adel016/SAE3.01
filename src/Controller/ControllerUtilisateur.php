@@ -72,29 +72,34 @@ class ControllerUtilisateur {
 
     public static function connexion() {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            // Afficher le formulaire de connexion
+            // Affiche le formulaire de connexion
             self::afficheVue('view.php', [
                 'pagetitle' => 'CONNEXION',
                 'cheminVueBody' => 'utilisateur/authentification.php'
             ]);
         } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Récupère les données du formulaire
             $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
             $motDePasse = $_POST['motdepasse'] ?? '';
-
-            if ($email && $motDePasse) {
-                // Vérifie si l'utilisateur existe
+    
+            // Vérifie si les champs sont remplis
+            if (!empty($email) && !empty($motDePasse)) {
+                // Récupération de l'utilisateur à partir du repository
                 $repository = new UtilisateurRepository();
-                $utilisateur = $repository->select($email); // Suppose que l'email est utilisé comme clé primaire
-
+                $utilisateur = $repository->select($email);
+    
                 if ($utilisateur) {
                     // Vérifie le mot de passe
                     if (password_verify($motDePasse, $utilisateur->getMotDePasse())) {
-                        // Définir une session pour l'utilisateur
-                        session_start();
+                        // Initialise la session utilisateur
+                        if (session_status() === PHP_SESSION_NONE) {
+                            session_start();
+                        }
                         $_SESSION['utilisateur_id'] = $utilisateur->getId();
                         $_SESSION['nom'] = $utilisateur->getNom();
-
-                        MessageFlash::ajouter('success', "Connexion réussie. Bienvenue, " . htmlspecialchars($utilisateur->getNom()) . " !");
+    
+                        // Redirection après connexion réussie
+                        MessageFlash::ajouter('success', "Bienvenue, " . htmlspecialchars($utilisateur->getNom()) . " !");
                         header('Location: /Web/frontController.php');
                         exit();
                     } else {
@@ -104,16 +109,17 @@ class ControllerUtilisateur {
                     MessageFlash::ajouter('error', "Aucun utilisateur trouvé avec cet email.");
                 }
             } else {
-                MessageFlash::ajouter('error', "Email ou mot de passe non fourni.");
+                MessageFlash::ajouter('error', "Veuillez remplir tous les champs.");
             }
-
-            // Réaffiche le formulaire avec les messages flash
+    
+            // Réaffiche le formulaire avec les messages flash en cas d'erreur
             self::afficheVue('view.php', [
                 'pagetitle' => 'CONNEXION',
                 'cheminVueBody' => 'utilisateur/authentification.php'
             ]);
         }
     }
+    
 
     public static function update() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {

@@ -4,17 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($pagetitle ?? ""); ?></title>
-    <link rel="stylesheet" href="/Assets/css/index.css?v=<?= time(); ?>">
+    <link rel="stylesheet" href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/css/index.css">
 </head>
 <body>
     <header>
-        <nav class="navbar">
-            <a href="/Web/frontController.php">MeteoVision</a>
-            <a href="#">Tableau de bord</a>
-            <a href="#">Contact</a>
-            <a href="#">Meteo dans ma ville</a>
-            <a href="/Web/frontController.php?action=connexion&controller=utilisateur">Connexion</a>
-        </nav>
+    <nav class="navbar">
+        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/frontController.php">MeteoVision</a>
+        <a href="#">Tableau de bord</a>
+        <a href="#">Contact</a>
+        <a href="#">Meteo dans ma ville</a>
+        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/frontController.php?action=connexion&controller=utilisateur">Connexion</a>
+    </nav>
+
     </header>
 
         <?php
