@@ -9,11 +9,11 @@
 <body>
     <header>
     <nav class="navbar">
-        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/frontController.php">MeteoVision</a>
+        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php">MeteoVision</a>
         <a href="#">Tableau de bord</a>
         <a href="#">Contact</a>
         <a href="#">Meteo dans ma ville</a>
-        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/frontController.php?action=connexion&controller=utilisateur">Connexion</a>
+        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=connexion&controller=utilisateur">Connexion</a>
     </nav>
 
     </header>

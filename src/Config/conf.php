@@ -60,11 +60,16 @@ class Conf {
     }
 
     public static function getBaseUrl(): string {
-        // Récupère le chemin de base en fonction de la configuration actuelle
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
         $host = $_SERVER['HTTP_HOST'];
-        $scriptName = dirname($_SERVER['SCRIPT_NAME']);
-        return $protocol . "://" . $host . $scriptName;
+        $scriptName = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+    
+        // Supprime le sous-dossier "Web" s'il est ajouté en double
+        $basePath = str_replace('/Web', '', $scriptName);
+    
+        return rtrim($protocol . "://" . $host . $basePath, '/');
     }
+    
+    
     
 }
