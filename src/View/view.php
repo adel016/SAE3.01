@@ -13,7 +13,9 @@
         <a href="#">Tableau de bord</a>
         <a href="#">Observations</a>
         <a href="#">Contact</a>
-        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=connexion&controller=utilisateur">Connexion</a>
+        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=connexion&controller=utilisateur" class="compte-lien">
+            <img src="/Assets/img/compte_logo.png" alt="Image de compte" class="compte-image" />
+        </a>
     </nav>
 
     </header>

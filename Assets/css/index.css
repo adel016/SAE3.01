@@ -21,16 +21,6 @@ body {
     line-height: 1.5;
 }
 
-/* Header - Barre de navigation */
-header {
-    background: transparent;
-    padding: 15px 40px;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
-
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -188,16 +178,6 @@ footer {
     border-radius: 5px;
 }
 
-a {
-    text-decoration: none;
-    color: black;
-    background-color: rgb(232, 232, 164);
-    border: solid grey 3px;
-    border-radius: 20px;
-    box-shadow: 0px 0px 5px;
-    padding: 7px;
-}
-
 .map {
     width: 100%; /* S'adapte à la largeur du parent */
     height: 400px; /* Hauteur spécifique */
@@ -236,4 +216,51 @@ li > a {
 
 li > a:hover {
     background-color: #d4c56b; /* Couleur au survol */
+}
+
+/* Style de base pour le header */
+header {
+    background-color: #ADD8E6; /* Bleu clair */
+    padding: 15px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Légère ombre */
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* Style pour les liens dans le header */
+header a {
+    text-decoration: none;
+    color: #004080; /* Bleu foncé pour contraster avec le fond */
+    background-color: rgba(255, 255, 255, 0.7); /* Blanc transparent pour un effet harmonieux */
+    border: 2px solid #004080; /* Bordure fine bleu foncé */
+    border-radius: 5px; /* Coins arrondis pour un design moderne */
+    padding: 10px 15px;
+    margin: 0 5px; /* Espacement entre les liens */
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease; /* Animation fluide */
+}
+
+/* Effet au survol */
+header a:hover {
+    transform: scale(1.1); /* Agrandit légèrement */
+    background-color: #004080; /* Fond bleu foncé */
+    color: #FFFFFF; /* Texte blanc */
+}
+
+
+/* IMAGES */
+
+.compte-lien {
+    text-decoration: none;
+}
+
+.compte-image {
+    width: 50px; /* Ajustez la taille de l'image */
+    height: auto;
+    border-radius: 50%; /* Exemple pour arrondir l'image */
+    transition: transform 0.3s ease; /* Animation au survol */
+}
+
+.compte-image:hover {
+    transform: scale(1.1); /* Agrandit légèrement l'image au survol */
 }
