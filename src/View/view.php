@@ -20,7 +20,7 @@
 
     </header>
 
-    
+        
         <?php
         if (isset($cheminVueBody) && file_exists(__DIR__ . "/$cheminVueBody")) {
             require __DIR__ . "/$cheminVueBody";
