@@ -5,7 +5,7 @@
             <p>À 15h00</p>
             <div class="temperature">
                 <span class="temp-value">6°</span>
-                <img src="placeholder-cloud.png" alt="Nuageux">
+                <img src="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/img/ACCUEIL/nuage_soleil.avif" alt="Nuageux" class="meteo">
             </div>
             <div class="weather-details">
                 <h2>Un peu Nuageux</h2>
@@ -42,7 +42,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 // Charger et afficher les régions depuis le GeoJSON
-fetch('/Assets/gjson/regions.geojson')
+fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/gjson/regions.geojson')
     .then((response) => response.json())
     .then((geojsonData) => {
         L.geoJSON(geojsonData, {
