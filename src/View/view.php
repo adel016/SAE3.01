@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
     <title><?= htmlspecialchars($pagetitle ?? ""); ?></title>
-    <link rel="stylesheet" href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/css/index.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <link rel="stylesheet" href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/css/index.css"v=<?= time(); ?>>
 </head>
 <body>
     <header>
@@ -19,7 +21,6 @@
     </nav>
 
     </header>
-
         
         <?php
         if (isset($cheminVueBody) && file_exists(__DIR__ . "/$cheminVueBody")) {
