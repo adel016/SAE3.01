@@ -129,7 +129,6 @@ class ControllerUtilisateur {
         header('Location: /Web/frontController.php'); // Redirige vers la page d'accueil
         exit();
     }
-    
 
     public static function tableauDeBord() {
         session_start();
@@ -210,34 +209,43 @@ class ControllerUtilisateur {
     }
 
     public static function changerRole() {
+        if ($_SESSION['utilisateur_role'] !== 'admin') {
+            MessageFlash::ajouter('error', "Vous n'avez pas les permissions pour modifier les rôles.");
+            header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
+            exit();
+        }
+        
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $_POST['id'] ?? null;
             $nouveauRole = $_POST['role'] ?? null;
     
-            if ($id && $nouveauRole) {
-                $repository = new UtilisateurRepository();
-                $utilisateur = $repository->select($id);
-    
-                if ($utilisateur) {
-                    // Modifiez le rôle de l'utilisateur
-                    $utilisateur->setRole($nouveauRole);
-    
-                    if ($repository->update($utilisateur)) {
-                        MessageFlash::ajouter('success', "Rôle mis à jour avec succès.");
-                    } else {
-                        MessageFlash::ajouter('error', "Erreur lors de la mise à jour du rôle.");
-                    }
-                } else {
-                    MessageFlash::ajouter('error', "Utilisateur non trouvé.");
-                }
-            } else {
+            if (!$id || !$nouveauRole) {
                 MessageFlash::ajouter('error', "ID ou rôle manquant.");
+                header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
+                exit();
+            }
+    
+            $repository = new UtilisateurRepository();
+            $utilisateur = $repository->select($id);
+    
+            if (!$utilisateur) {
+                MessageFlash::ajouter('error', "Utilisateur introuvable.");
+                header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
+                exit();
+            }
+    
+            // Modifier le rôle et mettre à jour l'utilisateur
+            $utilisateur->setRole($nouveauRole);
+            if ($repository->update($utilisateur)) {
+                MessageFlash::ajouter('success', "Rôle mis à jour avec succès.");
+            } else {
+                MessageFlash::ajouter('error', "Erreur lors de la mise à jour du rôle.");
             }
         }
     
         header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
         exit();
-    }     
+    }         
 
     public static function afficheVue(string $cheminVue, array $parametres = []): void {
         extract($parametres); // Crée des variables à partir du tableau $parametres

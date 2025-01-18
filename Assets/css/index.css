@@ -17,7 +17,7 @@ html, body {
 /* Corps principal */
 body {
     font-family: 'Montserrat', sans-serif;
-    background: linear-gradient(180deg, #E6F5FE, #FFF9EB);
+    background: #f5f5f5;
     color: #333;
     line-height: 1.5;
 }
@@ -26,6 +26,65 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+/* Style de base pour le header */
+header {
+    background-color: #ADD8E6; /* Bleu clair */
+    padding: 15px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Légère ombre */
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* Style pour les liens dans le header */
+header a {
+    text-decoration: none;
+    color: #004080; /* Bleu foncé pour contraster avec le fond */
+    background-color: rgba(255, 255, 255, 0.7); /* Blanc transparent pour un effet harmonieux */
+    border: 2px solid #004080; /* Bordure fine bleu foncé */
+    border-radius: 5px; /* Coins arrondis pour un design moderne */
+    padding: 10px 15px;
+    margin: 0 5px; /* Espacement entre les liens */
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease; /* Animation fluide */
+}
+
+/* Effet au survol */
+header a:hover {
+    transform: scale(1.1); /* Agrandit légèrement */
+    background-color: #004080; /* Fond bleu foncé */
+    color: #FFFFFF; /* Texte blanc */
+}
+
+h1 {
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+
+/* IMAGES */
+
+.compte-lien {
+    text-decoration: none;
+}
+
+.compte-image {
+    width: 50px; /* Ajustez la taille de l'image */
+    height: auto;
+    border-radius: 50%; /* Exemple pour arrondir l'image */
+    transition: transform 0.3s ease; /* Animation au survol */
+}
+
+.compte-image:hover {
+    transform: scale(1.1); /* Agrandit légèrement l'image au survol */
+}
+
+
+.meteo {
+    width: 100px; /* Ajustez la taille de l'image */
+    height: auto;
+    border-radius: 50%; /* Exemple pour arrondir l'image */
 }
 
 /* Conteneur météo à l'intérieur de <main class="index"> */
@@ -164,27 +223,30 @@ footer {
     background-color: #333;
     color: white;
     text-align: center;
+    position: fixed;
+    bottom: 0;
     padding: 10px 20px;
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
     width: 100%; /* Toujours prendre toute la largeur */
 }
 
-.message-success {
-    color: green;
-    background: #e7f5e6;
+/* COULEUR DES MESSAGES FLASHS */
+
+.flash {
     padding: 10px;
-    border: 1px solid green;
-    margin: 10px 0;
+    margin-bottom: 20px;
     border-radius: 5px;
+    font-weight: bold;
 }
 
-.message-error {
-    color: red;
-    background: #fdecea;
-    padding: 10px;
-    border: 1px solid red;
-    margin: 10px 0;
-    border-radius: 5px;
+.flash.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.flash.error {
+    background-color: #f8d7da;
+    color: #721c24;
 }
 
 /* MAP OUTILS */
@@ -202,91 +264,57 @@ footer {
     box-shadow: 0px 0px 5px #ccc;
 }
 
+/* PAGE DES UTILISATEURS */
 
-
-
-/* OUTILS */
-
-ul {
-    list-style: none; /* Supprimer les puces des listes */
-    padding: 0;
+table {
+    width: 95%; /* Réduit la largeur pour ne pas encombrer les bords */
+    margin: 20px auto; /* Centre le tableau horizontalement */
+    border-collapse: collapse;
+    background-color: #f9f9f9; /* Couleur de fond claire */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Ajout d'une ombre subtile */
 }
 
-li {
-    margin-bottom: 15px; /* Ajouter un espace entre les utilisateurs */
+table th, table td {
+    padding: 12px 15px; /* Espacement pour un affichage aéré */
+    border: 1px solid #ddd; /* Bordure légère */
+    text-align: left;
 }
 
-li > span {
+table th {
+    background-color: #4CAF50; /* Couleur en-tête */
+    color: white;
+    font-weight: bold;
+}
+
+table tr:nth-child(even) {
+    background-color: #f2f2f2; /* Ligne alternée */
+}
+
+table tr:hover {
+    background-color: #e9f7df; /* Surlignage au survol */
+}
+
+.user {
     display: inline-block;
-    margin-right: 10px; /* Espacement entre le nom/email et les boutons */
-}
-
-li > a {
-    display: inline-block;
-    background-color: #f8e58c;
+    padding: 8px 12px;
+    margin: 5px; /* Espacement entre les boutons */
+    background-color: #f8e58c; /* Couleur douce pour différencier les actions */
     color: #333;
-    padding: 5px 10px;
-    margin-right: 5px; /* Espacement entre les boutons */
     text-decoration: none;
     border-radius: 5px;
     font-size: 14px;
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Ombre subtile */
 }
 
-li > a:hover {
-    background-color: #d4c56b; /* Couleur au survol */
+.user:hover {
+    background-color: #d4c56b; /* Changement de couleur au survol */
 }
 
-/* Style de base pour le header */
-header {
-    background-color: #ADD8E6; /* Bleu clair */
-    padding: 15px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Légère ombre */
-    position: sticky;
-    top: 0;
-    z-index: 1000;
+.user.danger {
+    background-color: #f88c8c; /* Couleur rouge pour supprimer */
 }
 
-/* Style pour les liens dans le header */
-header a {
-    text-decoration: none;
-    color: #004080; /* Bleu foncé pour contraster avec le fond */
-    background-color: rgba(255, 255, 255, 0.7); /* Blanc transparent pour un effet harmonieux */
-    border: 2px solid #004080; /* Bordure fine bleu foncé */
-    border-radius: 5px; /* Coins arrondis pour un design moderne */
-    padding: 10px 15px;
-    margin: 0 5px; /* Espacement entre les liens */
-    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease; /* Animation fluide */
-}
-
-/* Effet au survol */
-header a:hover {
-    transform: scale(1.1); /* Agrandit légèrement */
-    background-color: #004080; /* Fond bleu foncé */
-    color: #FFFFFF; /* Texte blanc */
-}
-
-
-/* IMAGES */
-
-.compte-lien {
-    text-decoration: none;
-}
-
-.compte-image {
-    width: 50px; /* Ajustez la taille de l'image */
-    height: auto;
-    border-radius: 50%; /* Exemple pour arrondir l'image */
-    transition: transform 0.3s ease; /* Animation au survol */
-}
-
-.compte-image:hover {
-    transform: scale(1.1); /* Agrandit légèrement l'image au survol */
-}
-
-
-.meteo {
-    width: 100px; /* Ajustez la taille de l'image */
-    height: auto;
-    border-radius: 50%; /* Exemple pour arrondir l'image */
+.user.danger:hover {
+    background-color: #e66a6a; /* Rouge plus foncé au survol */
 }

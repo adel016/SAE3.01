@@ -63,7 +63,7 @@ fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/gjson/regions.geojson
                         fillOpacity: 0.5,
                     });
                 });
-                layer.bindPopup(`Région : ${feature.properties.name}`);
+                layer.bindPopup(`Région : ${feature.properties.nom}`);
             },
             style: {
                 color: '#004080',

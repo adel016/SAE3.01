@@ -30,17 +30,16 @@
         }
         ?>
 
-        <div class="flash-messages">
-            <?php if (!empty($flashMessages = \App\Meteo\Lib\MessageFlash::lireTousMessages())): ?>
-                <?php foreach ($flashMessages as $type => $messages): ?>
-                    <div class="alert alert-<?= htmlspecialchars($type) ?>">
-                        <?php foreach ($messages as $message): ?>
-                            <p><?= htmlspecialchars($message) ?></p>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </div>
+        <?php if (!empty($flashMessages = \App\Meteo\Lib\MessageFlash::lireTousMessages())): ?>
+            <?php foreach ($flashMessages as $type => $messages): ?>
+                <div class="flash <?= htmlspecialchars($type) ?>">
+                    <?php foreach ($messages as $message): ?>
+                        <p><?= htmlspecialchars($message) ?></p>
+                    <?php endforeach; ?>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+
 
         <?php if (isset($_SESSION['utilisateur_id'])): ?>
             <h2>Bienvenue, <?= htmlspecialchars($_SESSION['nom']) ?> !</h2>
