@@ -1,10 +1,4 @@
-<?php
-require_once __DIR__ . '/../../Config/conf.php';
-?>
-
-
-
-<h2>Bienvenue</h2>
+<h1>FORMULAIRE DE CONNEXION / INSCRIPTION</h1>
 <button id="toggleButton" onclick="toggleForm()">Inscription</button>
 
 <section class="formulaire">
