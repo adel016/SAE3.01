@@ -58,10 +58,10 @@ header a:hover {
 }
 
 h1 {
+    margin-top: 40px;
     text-align: center;
     font-size: 1.5rem;
 }
-
 
 /* IMAGES */
 
@@ -265,6 +265,7 @@ footer {
 }
 
 /* PAGE DES UTILISATEURS */
+/* Liste des utilisateurs */
 
 table {
     width: 95%; /* Réduit la largeur pour ne pas encombrer les bords */
@@ -281,7 +282,7 @@ table th, table td {
 }
 
 table th {
-    background-color: #4CAF50; /* Couleur en-tête */
+    background: linear-gradient(to bottom, #84d0f1, #c7eafd);
     color: white;
     font-weight: bold;
 }
@@ -291,7 +292,7 @@ table tr:nth-child(even) {
 }
 
 table tr:hover {
-    background-color: #e9f7df; /* Surlignage au survol */
+    background-color: #e8fafc; /* Surlignage au survol */
 }
 
 .user {
@@ -319,124 +320,166 @@ table tr:hover {
     background-color: #e66a6a; /* Rouge plus foncé au survol */
 }
 
-/* UTILISATEUR - modification */
+/* UTILISATEUR - inscription et connexion */
+/* Conteneur principal */
+.formulaire {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px; /* Espacement entre les deux formulaires */
+    margin: 50px auto;
+    max-width: 800px;
+}
 
-/* Style général du formulaire */
-.form-modification {
-    max-width: 500px;
-    margin: 20px auto;
+/* Style des formulaires individuels */
+.formulaire div {
+    background: linear-gradient(to bottom, #84d0f1, #c7eafd);
     padding: 20px;
-    background: linear-gradient(135deg, #eef2f3, #cfd9df); /* Dégradé léger pour thème météo */
-    border: 1px solid #ccc;
-    border-radius: 8px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 100%; /* Taille égale pour les deux formulaires */
+    max-width: 350px;
+}
+
+/* Séparation des formulaires avec une barre */
+.formulaire::after {
+    content: '';
+    display: block;
+    width: 2px;
+    height: auto;
+    background-color: #007acc;
+    position: relative;
+    margin: 0 10px;
+}
+
+/* Titres des formulaires */
+.formulaire h3 {
+    text-align: center;
+    color: #005b96;
+    margin-bottom: 20px;
+    font-size: 20px;
+    text-transform: uppercase;
+}
+
+/* Champs d'entrée */
+.formulaire input[type="text"],
+.formulaire input[type="email"],
+.formulaire input[type="password"] {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #007acc;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: #f0faff;
+    color: #333;
+    box-sizing: border-box;
+}
+
+/* Boutons des formulaires */
+.formulaire button {
+    display: block;
+    width: calc(100% - 20px);
+    margin: 10px auto;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #007acc;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-transform: uppercase;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Bouton bascule */
+#toggleButton {
+    display: block;
+    width: 150px; /* Réduit la largeur */
+    margin: 20px auto;
+    padding: 10px;
+    font-size: 14px;
+    color: #007acc;
+    background: transparent;
+    border: 2px solid #007acc;
+    border-radius: 5px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+#toggleButton:hover {
+    background-color: #007acc;
+    color: #fff;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 600px) {
+    .formulaire {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .formulaire::after {
+        display: none;
+    }
+}
+
+/* UTILISATEUR - formulaire de modification et changement de role */
+/* Style général partagé par tous les formulaires */
+.form-container {
+    max-width: 500px;
+    margin: 30px auto;
+    padding: 20px;
+    background: linear-gradient(to bottom, #84d0f1, #c7eafd);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     font-family: Arial, sans-serif;
     color: #333;
 }
 
-/* Titres */
-.form-modification h1 {
+/* Titres des formulaires */
+.form-container h1 {
     text-align: center;
-    color: #4a90e2; /* Bleu ciel */
+    color: #005b96; /* Bleu ciel */
     font-size: 24px;
     margin-bottom: 20px;
 }
 
 /* Labels */
-.form-modification label {
+.form-container label {
     display: block;
+    font-size: 16px;
     margin-bottom: 8px;
-    font-weight: bold;
+    color: #005b96; /* Bleu plus sombre */
 }
 
-/* Inputs */
-.form-modification input[type="text"],
-.form-modification input[type="email"] {
+/* Champs de saisie */
+.form-container input[type="text"],
+.form-container input[type="email"],
+.form-container select {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
     margin-bottom: 20px;
+    border: 1px solid #007acc;
+    border-radius: 5px;
     font-size: 14px;
+    background-color: #f0faff;
+    box-sizing: border-box;
 }
 
-/* Input focus */
-.form-modification input[type="text"]:focus,
-.form-modification input[type="email"]:focus {
-    border-color: #4a90e2; /* Bleu ciel */
-    box-shadow: 0 0 4px rgba(74, 144, 226, 0.5); /* Effet lumineux */
+/* Champs focus */
+.form-container input[type="text"]:focus,
+.form-container input[type="email"]:focus,
+.form-container select:focus {
+    border-color: #005b96;
+    box-shadow: 0 0 5px rgba(0, 91, 150, 0.5); /* Effet lumineux */
     outline: none;
 }
 
-/* Bouton */
-.form-modification button {
-    width: 100%;
-    padding: 10px;
-    background-color: #4a90e2; /* Bleu ciel */
-    color: #fff;
-    font-size: 16px;
-    font-weight: bold;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-/* Bouton hover */
-.form-modification button:hover {
-    background-color: #357ABD; /* Bleu plus sombre */
-}
-
-/* Style général du formulaire pour petits écrans */
-@media (max-width: 768px) {
-    .form-modification {
-        padding: 15px;
-        font-size: 14px;
-    }
-
-    .form-modification button {
-        font-size: 14px;
-    }
-}
-
-/* UTILISATEUR - CHANGEMENT DE ROLE */
-/* Formulaire de changement de rôle */
-.role-form-container {
-    background: linear-gradient(to right, #84d0f1, #c7eafd);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    max-width: 400px;
-    margin: 20px auto;
-    font-family: 'Arial', sans-serif;
-}
-
-.role-form-container h1 {
-    text-align: center;
-    color: #005b96;
-    font-size: 24px;
-    margin-bottom: 20px;
-}
-
-.role-form-container label {
-    display: block;
-    font-size: 16px;
-    margin-bottom: 5px;
-    color: #005b96;
-}
-
-.role-form-container select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #007acc;
-    border-radius: 5px;
-    font-size: 16px;
-    background-color: #f0faff;
-    margin-bottom: 15px;
-}
-
-.role-form-container button.role-submit-button {
+/* Boutons */
+.form-container button {
     display: block;
     width: 100%;
     padding: 10px;
@@ -447,16 +490,24 @@ table tr:hover {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    text-transform: uppercase;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
 }
 
-.role-form-container button.role-submit-button:hover {
+/* Boutons hover */
+.form-container button:hover {
     background-color: #005b96;
 }
 
-.role-form-container select:focus,
-.role-form-container button:focus {
-    outline: none;
-    border-color: #005b96;
-    box-shadow: 0 0 5px #005b96;
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-container {
+        padding: 15px;
+        font-size: 14px;
+    }
+
+    .form-container button {
+        font-size: 14px;
+    }
 }

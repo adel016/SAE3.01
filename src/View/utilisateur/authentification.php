@@ -5,7 +5,7 @@
     <!-- Formulaire de connexion -->
     <div id="connexionForm">
         <h3>Connexion</h3>
-        <form action="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/frontController.php?action=connexion&controller=utilisateur" method="POST">
+        <form action="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=connexion&controller=utilisateur" method="POST">
             <label for="email">Email :</label>
             <input type="email" name="email" id="email" required><br><br>
 
@@ -19,7 +19,7 @@
     <!-- Formulaire d'inscription -->
     <div id="inscriptionForm">
         <h3>Inscription</h3>
-        <form action="/Web/frontController.php?action=inscription&controller=utilisateur" method="POST">
+        <form action="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=inscription&controller=utilisateur" method="POST">
             <label for="nom">Nom :</label>
             <input type="text" name="nom" id="nom" required><br><br>
 
@@ -36,17 +36,6 @@
         </form>
     </div>
 </section>
-
-<!-- Affichage des messages de succès ou d'erreur -->
-<div class="messages">
-    <?php if (class_exists('App\Covoiturage\Lib\MessageFlash')): ?>
-        <?php foreach (\App\Meteo\Lib\MessageFlash::lireTousMessages() as $type => $messages): ?>
-            <?php foreach ($messages as $message): ?>
-                <p class="message-<?= htmlspecialchars($type) ?>"><?= htmlspecialchars($message) ?></p>
-            <?php endforeach; ?>
-        <?php endforeach; ?>
-    <?php endif; ?>
-</div>
 
 <script>
     // Affiche le formulaire de connexion au départ

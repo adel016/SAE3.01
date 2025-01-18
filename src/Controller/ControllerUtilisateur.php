@@ -28,7 +28,7 @@ class ControllerUtilisateur {
             // Afficher le formulaire d'inscription
             self::afficheVue('view.php', [
                 'pagetitle' => "Inscription",
-                'cheminVueBody' => "utilisateur/inscription.php"
+                'cheminVueBody' => "utilisateur/authentification.php"
             ]);
         } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Traiter les données du formulaire
@@ -65,7 +65,7 @@ class ControllerUtilisateur {
             // Réaffiche le formulaire d'inscription avec les messages flash
             self::afficheVue('view.php', [
                 'pagetitle' => "Inscription",
-                'cheminVueBody' => "utilisateur/inscription.php"
+                'cheminVueBody' => "utilisateur/authentification.php"
             ]);
         }
     }
