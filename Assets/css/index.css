@@ -32,7 +32,6 @@ body {
 header {
     background-color: #ADD8E6; /* Bleu clair */
     padding: 15px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Légère ombre */
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -220,8 +219,9 @@ section.formulaire {
 
 /* Footer toujours en bas */
 footer {
-    background-color: #333;
-    color: white;
+    background-color: #ADD8E6;
+    color: #004080;
+    font-weight: 1000;
     text-align: center;
     position: fixed;
     bottom: 0;
