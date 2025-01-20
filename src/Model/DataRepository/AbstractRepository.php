@@ -2,6 +2,7 @@
 
 namespace App\Meteo\Model\DataRepository;
 
+use App\Meteo\Model\DataObject\Station;
 use App\Meteo\Model\DataRepository\DatabaseConnection;
 use App\Meteo\Model\DataObject\Utilisateur;
 use PDO;
@@ -53,6 +54,20 @@ abstract class AbstractRepository {
         $result = $pdoStatement->fetch(PDO::FETCH_ASSOC);
     
         return $result ? $this->construire($result) : null;
+    }
+
+    public function selectByReg(string $region): ?array {
+        $pdo = DatabaseConnection::getPdo();
+        $sql = "SELECT * FROM stations WHERE region = :region";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['region' => $region]);
+        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $stations = [];
+        foreach ($result as $stationData) {
+            $stations[] = $this->construire($stationData);
+        }
+        return $stations;
     }
     
 

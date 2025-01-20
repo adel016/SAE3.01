@@ -103,6 +103,10 @@ class ControllerUtilisateur {
             $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
             $motDePasse = $_POST['motdepasse'] ?? '';
     
+            // Log des entrées utilisateur
+            error_log("Email saisi : $email");
+            error_log("Mot de passe saisi : $motDePasse");
+    
             // Vérifie si les champs sont remplis
             if (!empty($email) && !empty($motDePasse)) {
                 // Récupération de l'utilisateur à partir de l'email
@@ -110,8 +114,15 @@ class ControllerUtilisateur {
                 $utilisateur = $repository->selectByEmail($email);
     
                 if ($utilisateur) {
+                    // Log les informations de l'utilisateur récupérées
+                    error_log("Utilisateur trouvé : " . print_r($utilisateur, true));
+                    error_log("Mot de passe haché en base : " . $utilisateur->getMotDePasse());
+    
                     // Vérifie le mot de passe en utilisant password_verify
                     if (password_verify($motDePasse, $utilisateur->getMotDePasse())) {
+                        // Log succès de la vérification du mot de passe
+                        error_log("Mot de passe vérifié avec succès.");
+    
                         // Initialise la session utilisateur
                         if (session_status() === PHP_SESSION_NONE) {
                             session_start();
@@ -126,9 +137,15 @@ class ControllerUtilisateur {
                         header('Location: /Web/frontController.php');
                         exit();
                     } else {
+                        // Log échec de la vérification du mot de passe
+                        error_log("Échec de la vérification du mot de passe.");
+                        error_log("Mot de passe saisi : $motDePasse");
+                        error_log("Mot de passe haché correspondant : " . password_hash($motDePasse, PASSWORD_DEFAULT));
                         MessageFlash::ajouter('error', "Mot de passe incorrect.");
                     }
                 } else {
+                    // Log utilisateur introuvable
+                    error_log("Aucun utilisateur trouvé avec l'email : $email");
                     MessageFlash::ajouter('error', "Aucun utilisateur trouvé avec cet email.");
                 }
             } else {
@@ -141,7 +158,7 @@ class ControllerUtilisateur {
                 'cheminVueBody' => 'utilisateur/authentification.php'
             ]);
         }
-    }
+    }    
 
     public static function deconnexion() {
         session_unset(); // Supprime toutes les variables de session
