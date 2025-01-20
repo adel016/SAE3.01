@@ -57,7 +57,7 @@ class ControllerUtilisateur {
             $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
             $motDePasse = $_POST['motdepasse'] ?? '';
     
-            if ($nom && $prenom && $email && $motDePasse) {
+            if (!empty($nom) && !empty($prenom) && !empty($email) && !empty($motDePasse)) {
                 // Hachage sécurisé du mot de passe
                 $motDePasseHash = password_hash($motDePasse, PASSWORD_DEFAULT);
     
@@ -73,7 +73,7 @@ class ControllerUtilisateur {
     
                 $repository = new UtilisateurRepository();
                 if ($repository->sauvegarder($utilisateur)) {
-                    MessageFlash::ajouter('success', "Utilisateur ajouté avec succès !");
+                    MessageFlash::ajouter('success', "Inscription effectuée !");
                     header('Location: /Web/frontController.php');
                     exit();
                 } else {
@@ -107,7 +107,7 @@ class ControllerUtilisateur {
             if (!empty($email) && !empty($motDePasse)) {
                 // Récupération de l'utilisateur à partir de l'email
                 $repository = new UtilisateurRepository();
-                $utilisateur = $repository->selectByEmail($email); // Nouvelle méthode pour récupérer par email
+                $utilisateur = $repository->selectByEmail($email);
     
                 if ($utilisateur) {
                     // Vérifie le mot de passe en utilisant password_verify
@@ -142,7 +142,6 @@ class ControllerUtilisateur {
             ]);
         }
     }
-        
 
     public static function deconnexion() {
         session_unset(); // Supprime toutes les variables de session
