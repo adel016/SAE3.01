@@ -3,6 +3,7 @@
 namespace App\Meteo\Model\DataRepository;
 
 use App\Meteo\Model\DataRepository\DatabaseConnection;
+use App\Meteo\Model\DataObject\Utilisateur;
 use PDO;
 
 abstract class AbstractRepository {
@@ -42,6 +43,18 @@ abstract class AbstractRepository {
 
         return $result ? $this->construire($result) : null;
     }
+
+    // Methode specifique pour recuperer un objet avec son email
+    public function selectByEmail(string $email): ?Utilisateur {
+        $pdo = DatabaseConnection::getPdo();
+        $sql = "SELECT * FROM " . $this->getNomTable() . " WHERE email = :email";
+        $pdoStatement = $pdo->prepare($sql);
+        $pdoStatement->execute([':email' => $email]);
+        $result = $pdoStatement->fetch(PDO::FETCH_ASSOC);
+    
+        return $result ? $this->construire($result) : null;
+    }
+    
 
     // Méthode générique pour supprimer un objet par clé primaire
     public function delete(string $id): bool {

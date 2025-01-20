@@ -14,14 +14,34 @@ class ControllerUtilisateur {
         ]);
     }
 
-    public static function readAll() : void {
-        $utilisateurs = (new UtilisateurRepository())->getAll(); //appel au modèle pour gérer la BD
+    public static function readAll(): void {    
+        // Vérifie si l'utilisateur est connecté
+        if (!isset($_SESSION['utilisateur_id'])) {
+            MessageFlash::ajouter('error', "Vous devez être connecté pour voir cette page.");
+            header('Location: /Web/frontController.php?action=connexion&controller=utilisateur');
+            exit();
+        }
+    
+        $repository = new UtilisateurRepository();
+    
+        // Si l'utilisateur est un admin, il peut voir tous les utilisateurs
+        if ($_SESSION['role'] === 'admin') {
+            $utilisateurs = $repository->getAll();
+        } else {
+            // Sinon, ne récupérer que lui-même
+            $utilisateurId = $_SESSION['utilisateur_id'];
+            $utilisateur = $repository->select($utilisateurId);
+            $utilisateurs = $utilisateur ? [$utilisateur] : [];
+        }
+    
+        // Affiche la vue avec les utilisateurs filtrés
         self::afficheVue('view.php', [
             'utilisateurs' => $utilisateurs,
             'pagetitle' => "Liste des utilisateurs",
             'cheminVueBody' => "utilisateur/list.php"
         ]);
     }
+    
 
     public static function inscription() {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -36,10 +56,11 @@ class ControllerUtilisateur {
             $prenom = htmlspecialchars($_POST['prenom'] ?? '');
             $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
             $motDePasse = $_POST['motdepasse'] ?? '';
-
+    
             if ($nom && $prenom && $email && $motDePasse) {
+                // Hachage sécurisé du mot de passe
                 $motDePasseHash = password_hash($motDePasse, PASSWORD_DEFAULT);
-
+    
                 // Crée un nouvel utilisateur
                 $utilisateur = new Utilisateur(
                     0,
@@ -49,11 +70,11 @@ class ControllerUtilisateur {
                     $motDePasseHash,
                     date('Y-m-d H:i:s')
                 );
-
+    
                 $repository = new UtilisateurRepository();
                 if ($repository->sauvegarder($utilisateur)) {
                     MessageFlash::ajouter('success', "Utilisateur ajouté avec succès !");
-                    header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
+                    header('Location: /Web/frontController.php');
                     exit();
                 } else {
                     MessageFlash::ajouter('error', "Erreur lors de l'ajout de l'utilisateur.");
@@ -61,14 +82,14 @@ class ControllerUtilisateur {
             } else {
                 MessageFlash::ajouter('error', "Veuillez remplir tous les champs.");
             }
-
+    
             // Réaffiche le formulaire d'inscription avec les messages flash
             self::afficheVue('view.php', [
                 'pagetitle' => "Inscription",
                 'cheminVueBody' => "utilisateur/authentification.php"
             ]);
         }
-    }
+    }    
 
     public static function connexion() {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -84,12 +105,12 @@ class ControllerUtilisateur {
     
             // Vérifie si les champs sont remplis
             if (!empty($email) && !empty($motDePasse)) {
-                // Récupération de l'utilisateur à partir du repository
+                // Récupération de l'utilisateur à partir de l'email
                 $repository = new UtilisateurRepository();
-                $utilisateur = $repository->select($email);
+                $utilisateur = $repository->selectByEmail($email); // Nouvelle méthode pour récupérer par email
     
                 if ($utilisateur) {
-                    // Vérifie le mot de passe
+                    // Vérifie le mot de passe en utilisant password_verify
                     if (password_verify($motDePasse, $utilisateur->getMotDePasse())) {
                         // Initialise la session utilisateur
                         if (session_status() === PHP_SESSION_NONE) {
@@ -97,6 +118,8 @@ class ControllerUtilisateur {
                         }
                         $_SESSION['utilisateur_id'] = $utilisateur->getId();
                         $_SESSION['nom'] = $utilisateur->getNom();
+                        $_SESSION['prenom'] = $utilisateur->getPrenom();
+                        $_SESSION['role'] = $utilisateur->getRole();
     
                         // Redirection après connexion réussie
                         MessageFlash::ajouter('success', "Bienvenue, " . htmlspecialchars($utilisateur->getNom()) . " !");
@@ -119,10 +142,9 @@ class ControllerUtilisateur {
             ]);
         }
     }
-    
+        
 
     public static function deconnexion() {
-        session_start();
         session_unset(); // Supprime toutes les variables de session
         session_destroy(); // Détruit la session
         MessageFlash::ajouter('success', "Vous avez été déconnecté.");
@@ -232,12 +254,37 @@ class ControllerUtilisateur {
     }
 
     public static function changerRole() {
-        // Vérifiez si la requête est POST
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $id = $_GET['id'] ?? null;
+
+        // Seul un compte admin peut changer le role d'un utilisateur
+        if ($_SESSION['role'] !== 'admin') {
+            \App\Meteo\Lib\MessageFlash::ajouter('error', "Vous n'avez pas les permissions pour modifier les rôles.");
+            header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
+            exit();
+        }        
+    
+        // Si la requête est GET, afficher le formulaire
+        if ($_SERVER['REQUEST_METHOD'] === 'GET' && $id) {
+            $repository = new UtilisateurRepository();
+            $utilisateur = $repository->select($id);
+    
+            if ($utilisateur) {
+                self::afficheVue('view.php', [
+                    'utilisateur' => $utilisateur,
+                    'pagetitle' => "Changer le rôle d'un utilisateur",
+                    'cheminVueBody' => 'utilisateur/changerRole.php'
+                ]);
+            } else {
+                MessageFlash::ajouter('error', "Utilisateur introuvable.");
+                header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
+                exit();
+            }
+        }
+        // Si la requête est POST, traiter la soumission du formulaire
+        elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $_POST['id'] ?? null;
             $nouveauRole = $_POST['role'] ?? null;
     
-            // Validation des champs
             if (!$id || !$nouveauRole) {
                 MessageFlash::ajouter('error', "ID ou rôle manquant.");
                 header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
@@ -247,41 +294,26 @@ class ControllerUtilisateur {
             $repository = new UtilisateurRepository();
             $utilisateur = $repository->select($id);
     
-            // Vérifiez si l'utilisateur existe
             if (!$utilisateur) {
                 MessageFlash::ajouter('error', "Utilisateur introuvable.");
                 header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
                 exit();
             }
     
-            // Mise à jour du rôle
-            $data = $utilisateur->formatTableau();
-            $data['role'] = $nouveauRole;
+            // Modifier le rôle dans l'objet utilisateur
+            $utilisateur->setRole($nouveauRole);
     
-            // Créez un nouvel objet utilisateur avec le rôle modifié
-            $utilisateurModifie = new Utilisateur(
-                $data['utilisateur_id'],
-                $data['nom'],
-                $data['prenom'],
-                $data['email'],
-                $data['mot_de_passe'],
-                $data['date_creation'],
-                $data['role'],
-                $data['etat_compte']
-            );
-    
-            // Sauvegardez dans la base de données
-            if ($repository->update($utilisateurModifie)) {
+            // Mettre à jour l'utilisateur dans la base de données
+            if ($repository->update($utilisateur)) {
                 MessageFlash::ajouter('success', "Rôle mis à jour avec succès.");
             } else {
                 MessageFlash::ajouter('error', "Erreur lors de la mise à jour du rôle.");
             }
-        }
     
-        // Redirection vers la liste des utilisateurs
-        header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
-        exit();
-    }       
+            header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
+            exit();
+        }
+    }               
 
     public static function afficheVue(string $cheminVue, array $parametres = []): void {
         extract($parametres); // Crée des variables à partir du tableau $parametres

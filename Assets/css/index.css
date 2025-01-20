@@ -28,6 +28,7 @@ body {
     align-items: center;
 }
 
+
 /* Style de base pour le header */
 header {
     background-color: #ADD8E6; /* Bleu clair */
@@ -231,23 +232,54 @@ footer {
 }
 
 /* COULEUR DES MESSAGES FLASHS */
-
-.flash {
-    padding: 10px;
-    margin-bottom: 20px;
-    border-radius: 5px;
-    font-weight: bold;
+/* Styles pour la section des messages flash */
+.flash-container {
+    position: fixed; /* Fixe la position */
+    bottom: 0; /* Colle au bas de la page */
+    left: 0;
+    width: 100%; /* Prend toute la largeur */
+    background-color: #f8d7da; /* Couleur de fond par défaut (rouge pâle pour erreur) */
+    z-index: 1000; /* Toujours au-dessus des autres éléments */
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); /* Ombre douce */
 }
 
+/* Messages individuels */
+.flash {
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Styles pour différents types de messages */
 .flash.success {
-    background-color: #d4edda;
-    color: #155724;
+    background-color: #d4edda; /* Vert pâle pour succès */
+    color: #155724; /* Vert foncé pour texte */
 }
 
 .flash.error {
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: #f8d7da; /* Rouge pâle pour erreur */
+    color: #721c24; /* Rouge foncé pour texte */
 }
+
+.flash.warning {
+    background-color: #fff3cd; /* Jaune pâle pour avertissement */
+    color: #856404; /* Jaune foncé pour texte */
+}
+
+.flash.info {
+    background-color: #d1ecf1; /* Bleu pâle pour information */
+    color: #0c5460; /* Bleu foncé pour texte */
+}
+
+/* Responsiveness: Ajoutez des styles pour mobiles si nécessaire */
+@media (max-width: 768px) {
+    .flash {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
+
 
 /* MAP OUTILS */
 /* Section droite - Carte */
@@ -510,4 +542,41 @@ table tr:hover {
     .form-container button {
         font-size: 14px;
     }
+}
+
+/* UTILISATEUR - Deconnexion */
+/* Styles pour les informations utilisateur */
+.user-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-info .user-name a {
+    text-decoration: none;
+    color: #004080;
+    padding: 10px 15px;
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease; /* Animation fluide */
+    font-weight: bold;
+
+}
+
+.user-info .user-name a:hover {
+    color: #fff; /* Couleur au survol */
+    transform: scale(1.1); /* Agrandit légèrement */
+}
+
+/* Style pour le lien de déconnexion */
+.logout-link {
+    text-decoration: none;
+    color: red;
+    font-weight: bold;
+}
+
+.logout-link:hover {
+    background-color: red;
+    color: white;
+    border-radius: 4px;
+    border: solid 2px white;
 }

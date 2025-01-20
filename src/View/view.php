@@ -10,18 +10,34 @@
 </head>
 <body>
     <header>
-    <nav class="navbar">
-        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php">MeteoVision</a>
-        <a href="#">Tableau de bord</a>
-        <a href="#">Observations</a>
-        <a href="#">Contact</a>
-        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=connexion&controller=utilisateur" class="compte-lien">
-            <img src="<?=\App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/img/compte_logo.png" alt="Image de compte" class="compte-image" />
-        </a>
-    </nav>
+        <nav class="navbar">
+            <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php">MeteoVision</a>
+            <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=readAll&controller=utilisateur">Tableau de bord</a>
+            <a href="#">Observations</a>
+            <a href="#">Contact</a>
 
+            <?php if (isset($_SESSION['utilisateur_id'])): ?>
+                <!-- Lien de déconnexion -->
+                <div class="user-info">
+                    <span class="user-name">
+                        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=readAll&controller=utilisateur">
+                            <?= isset($_SESSION['prenom']) ? htmlspecialchars($_SESSION['prenom']) : '' ?> 
+                            <?= isset($_SESSION['nom']) ? htmlspecialchars($_SESSION['nom']) : '' ?>
+                        </a>
+                    </span>
+                    <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=deconnexion&controller=utilisateur" class="logout-link">
+                        Déconnexion
+                    </a>
+                </div>
+            <?php else: ?>
+                <!-- Lien de connexion si l'utilisateur n'est pas connecté -->
+                <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=connexion&controller=utilisateur" class="compte-lien">
+                    <img src="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/img/compte_logo.png" alt="LOGO DE COMPTE" class="compte-image">
+                </a>
+            <?php endif; ?>
+        </nav>
     </header>
-        
+
         <?php
         if (isset($cheminVueBody) && file_exists(__DIR__ . "/$cheminVueBody")) {
             require __DIR__ . "/$cheminVueBody";
@@ -30,22 +46,17 @@
         }
         ?>
 
-        <?php if (!empty($flashMessages = \App\Meteo\Lib\MessageFlash::lireTousMessages())): ?>
-            <?php foreach ($flashMessages as $type => $messages): ?>
-                <div class="flash <?= htmlspecialchars($type) ?>">
-                    <?php foreach ($messages as $message): ?>
-                        <p><?= htmlspecialchars($message) ?></p>
-                    <?php endforeach; ?>
-                </div>
-            <?php endforeach; ?>
-        <?php endif; ?>
-
-
-        <?php if (isset($_SESSION['utilisateur_id'])): ?>
-            <h2>Bienvenue, <?= htmlspecialchars($_SESSION['nom']) ?> !</h2>
-        <?php else: ?>
-            <h2>Bienvenue sur MeteoVision</h2>
-        <?php endif; ?>
+        <div class="message flash-container">
+            <?php if (!empty($flashMessages = \App\Meteo\Lib\MessageFlash::lireTousMessages())): ?>
+                <?php foreach ($flashMessages as $type => $messages): ?>
+                    <div class="flash <?= htmlspecialchars($type) ?>">
+                        <?php foreach ($messages as $message): ?>
+                            <p><?= htmlspecialchars($message) ?></p>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
 
     <footer>
         <p>© Site METEO VISION - BUT2.C INFORMATIQUE</p>
