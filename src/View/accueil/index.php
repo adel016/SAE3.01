@@ -51,21 +51,25 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 // Variables pour stocker les données
-let geojsonData;
-let stationsData;
-const stationMarkers = []; // Liste des marqueurs de stations
+let geojsonData; // Données des régions
+let stationsData; // Données des stations
+let geojsonLayer; // Stocker le layer GeoJSON pour réinitialisation
+const stationMarkers = []; // Liste des marqueurs pour nettoyage
+
+// Région par défaut
+const defaultRegionName = "Île-de-France";
 
 // Charger les données des régions et stations
 Promise.all([
-    fetch('/Assets/gjson/regions.geojson').then(res => res.json()), // Chemin du fichier GeoJSON
-    fetch('/Web/frontController.php?action=getSynopData&controller=api').then(res => res.json()) // API SYNOP
+    fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/gjson/regions.geojson').then(res => res.json()),
+    fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=getSynopData&controller=api').then(res => res.json())
 ])
     .then(([regions, stations]) => {
         geojsonData = regions;
         stationsData = stations;
 
         // Afficher les régions sur la carte
-        L.geoJSON(geojsonData, {
+        geojsonLayer = L.geoJSON(geojsonData, {
             style: {
                 color: '#004080',
                 weight: 1,
@@ -90,100 +94,37 @@ Promise.all([
                     });
                 });
                 layer.bindPopup(`Région : ${feature.properties.nom}`);
-            },
+            }
         }).addTo(map);
 
-        // Ajouter les stations météo sur la carte
-        stationsData.forEach(station => {
-            const { latitude, longitude, ville, region, altitude, temp, humidity, windSpeed } = station;
-            const marker = L.circleMarker([latitude, longitude], {
-                radius: 8,
-                color: '#004080',
-                fillColor: '#0077be',
-                fillOpacity: 0.7,
-            }).addTo(map);
-
-            // Ajouter un popup avec les informations de la station
-            marker.bindPopup(`
-                <strong>${ville}</strong><br>
-                Région: ${region}<br>
-                Température: ${temp || '--'}°C<br>
-                Humidité: ${humidity || '--'}%<br>
-                Vent: ${windSpeed || '--'} km/h<br>
-                Altitude: ${altitude || 'Non spécifiée'}m
-            `);
-
-            stationMarkers.push({ marker, ville, region, altitude, temp, humidity, windSpeed });
-        });
+        // Afficher la région par défaut
+        showRegionData(defaultRegionName);
     })
     .catch(error => {
         console.error('Erreur lors du chargement des données:', error);
         alert('Erreur lors du chargement des données de la carte.');
     });
 
-// Calculer les statistiques des stations d'une région
-function calculateRegionStats(stations) {
-    const temps = stations.map(station => station.temp).filter(temp => temp !== null && temp !== '--');
-    const humidities = stations.map(station => station.humidity).filter(humidity => humidity !== null && humidity !== '--');
-    const windSpeeds = stations.map(station => station.windSpeed).filter(wind => wind !== null && wind !== '--');
+// Fonction pour afficher les données météo et stations d'une région
+function showRegionData(regionName) {
+    // Réinitialiser les marqueurs des stations
+    stationMarkers.forEach(marker => map.removeLayer(marker));
+    stationMarkers.length = 0; // Vide la liste des marqueurs
 
-    const getStats = (values) => ({
-        min: Math.min(...values),
-        max: Math.max(...values),
-        avg: (values.reduce((sum, val) => sum + val, 0) / values.length).toFixed(2),
-    });
-
-    return {
-        temp: getStats(temps),
-        humidity: getStats(humidities),
-        windSpeed: getStats(windSpeeds),
-    };
-}
-
-// Mettre à jour les informations météo affichées dans la section
-function updateWeatherData(regionName, weatherData, stations) {
-    document.getElementById('region-name').textContent = regionName;
-    const now = new Date();
-    document.getElementById('current-time').textContent = `À ${now.getHours()}h${String(now.getMinutes()).padStart(2, '0')}`;
-
-    document.getElementById('temperature').textContent = `${weatherData.temp.avg || '--'}°`;
-    document.getElementById('weather-icon').src = weatherData.icon || '#';
-    document.getElementById('weather-icon').alt = weatherData.condition || 'Conditions météo';
-    document.getElementById('weather-condition').textContent = weatherData.condition || '--';
-    document.getElementById('rain-chance').textContent = `${weatherData.rainChance || '--'}% de chance de pluie`;
-    document.getElementById('weather-stats').innerHTML = `
-        <li><span class="icon">🌡</span> Max/Min: ${weatherData.temp.max || '--'}°/${weatherData.temp.min || '--'}°</li>
-        <li><span class="icon">💧</span> Humidité Moyenne: ${weatherData.humidity.avg || '--'}%</li>
-        <li><span class="icon">🌬</span> Vent Moyen: ${weatherData.windSpeed.avg || '--'} Km/h</li>
-    `;
-
-    const stationsListElement = document.getElementById('stations-list');
-    if (stations.length > 0) {
-        stationsListElement.innerHTML = '';
-        stations.forEach(station => {
-            const stationItem = document.createElement('li');
-            stationItem.textContent = `${station.ville || 'Inconnue'} - Altitude: ${station.altitude || 'Non spécifiée'}m`;
-            stationsListElement.appendChild(stationItem);
-        });
-    } else {
-        stationsListElement.innerHTML = '<li>Aucune station disponible</li>';
-    }
-}
-
-// Gérer la recherche de région ou de station
-document.getElementById('searchRegionButton').addEventListener('click', () => {
-    const regionInput = document.getElementById('regionInput').value.trim().toLowerCase();
-
-    if (!regionInput) {
-        alert('Veuillez entrer le nom d\'une région ou d\'une station.');
-        return;
-    }
-
-    let found = false;
+    // Effacer les styles de la carte pour une nouvelle recherche
+    if (geojsonLayer) map.removeLayer(geojsonLayer);
+    geojsonLayer = L.geoJSON(geojsonData, {
+        style: {
+            color: '#004080',
+            weight: 1,
+            fillColor: '#0077be',
+            fillOpacity: 0.5,
+        },
+    }).addTo(map);
 
     // Recherche dans les régions
     const matchingRegion = geojsonData.features.find(
-        (feature) => feature.properties.nom.toLowerCase() === regionInput
+        feature => feature.properties.nom.toLowerCase() === regionName.toLowerCase()
     );
 
     if (matchingRegion) {
@@ -199,47 +140,114 @@ document.getElementById('searchRegionButton').addEventListener('click', () => {
             },
         }).addTo(map);
 
+        // Calculer les données météo (moyennes, min, max) pour la région
         const stationsInRegion = stationsData.filter(
-            (station) => station.region.toLowerCase() === regionInput
+            (station) => station.region.toLowerCase() === regionName.toLowerCase()
         );
 
-        const regionStats = calculateRegionStats(stationsInRegion);
+        const weatherData = calculateWeatherData(stationsInRegion);
 
-        updateWeatherData(matchingRegion.properties.nom, {
-            temp: regionStats.temp,
-            humidity: regionStats.humidity,
-            windSpeed: regionStats.windSpeed,
-        }, stationsInRegion);
+        // Ajouter les stations dans la région
+        stationsInRegion.forEach(station => {
+            const { latitude, longitude, ville, region, altitude, temp, humidity, windSpeed } = station;
+            const marker = L.circleMarker([latitude, longitude], {
+                radius: 8,
+                color: '#004080',
+                fillColor: '#0077be',
+                fillOpacity: 0.7,
+            }).addTo(map);
 
-        found = true;
-    }
+            // Ajouter les informations dans un popup
+            marker.bindPopup(`
+                <strong>${ville}</strong><br>
+                Région: ${region}<br>
+                Température: ${temp}°C<br>
+                Humidité: ${humidity}%<br>
+                Vent: ${windSpeed} km/h<br>
+                Altitude: ${altitude || 'Non spécifiée'}m
+            `);
 
-    // Recherche dans les stations
-    const matchingStation = stationMarkers.find(
-        ({ ville }) => ville.toLowerCase() === regionInput
-    );
-
-    if (matchingStation) {
-        matchingStation.marker.setStyle({
-            color: 'red',
-            fillColor: 'red',
-            fillOpacity: 1,
+            stationMarkers.push(marker); // Ajouter le marqueur à la liste pour nettoyage futur
         });
 
-        map.setView(matchingStation.marker.getLatLng(), 7);
-        matchingStation.marker.openPopup();
-
-        updateWeatherData(matchingStation.ville, {
-            temp: { avg: matchingStation.temp || '--', min: '--', max: '--' },
-            humidity: { avg: matchingStation.humidity || '--' },
-            windSpeed: { avg: matchingStation.windSpeed || '--' },
-        }, [matchingStation]);
-
-        found = true;
+        updateWeatherData(regionName, weatherData, stationsInRegion);
+    } else {
+        alert('Aucune région trouvée. Veuillez vérifier le nom.');
     }
+}
 
-    if (!found) {
-        alert('Aucune région ou station trouvée. Veuillez vérifier le nom.');
+// Fonction pour calculer les moyennes et extrêmes météo d'une région
+function calculateWeatherData(stations) {
+    const temps = stations.map(station => station.temp).filter(temp => temp !== '--');
+    const humidities = stations.map(station => station.humidity).filter(humidity => humidity !== '--');
+    const windSpeeds = stations.map(station => station.windSpeed).filter(windSpeed => windSpeed !== '--');
+
+    const avg = arr => arr.length > 0 ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1) : '--';
+    const min = arr => arr.length > 0 ? Math.min(...arr).toFixed(1) : '--';
+    const max = arr => arr.length > 0 ? Math.max(...arr).toFixed(1) : '--';
+
+    return {
+        temp: avg(temps),
+        maxTemp: max(temps),
+        minTemp: min(temps),
+        humidity: avg(humidities),
+        windSpeed: avg(windSpeeds),
+        icon: 'https://example.com/cloudy.png', // Exemple, remplacez par des données réelles si disponibles
+        condition: 'Nuageux', // Exemple, remplacez par des données réelles si disponibles
+        rainChance: 20, // Exemple, remplacez par des données réelles si disponibles
+    };
+}
+
+// Mettre à jour les informations météo affichées
+function updateWeatherData(regionName, weatherData, stations) {
+    document.getElementById('region-name').textContent = regionName;
+    const now = new Date();
+    document.getElementById('current-time').textContent = `À ${now.getHours()}h${String(now.getMinutes()).padStart(2, '0')}`;
+
+    document.getElementById('temperature').textContent = `${weatherData.temp}°`;
+    document.getElementById('weather-icon').src = weatherData.icon;
+    document.getElementById('weather-icon').alt = weatherData.condition;
+    document.getElementById('weather-condition').textContent = weatherData.condition;
+    document.getElementById('rain-chance').textContent = `${weatherData.rainChance}% de chance de pluie`;
+    document.getElementById('weather-stats').innerHTML = `
+        <li><span class="icon">🌡</span> Max/Min: ${weatherData.maxTemp}°/${weatherData.minTemp}°</li>
+        <li><span class="icon">💧</span> Humidité: ${weatherData.humidity}%</li>
+        <li><span class="icon">🌬</span> Vent: ${weatherData.windSpeed} Km/h</li>
+    `;
+
+    const stationsListElement = document.getElementById('stations-list');
+    if (stations.length > 0) {
+        // Utiliser un `Set` pour garder une liste unique des stations
+        const uniqueStations = [];
+        const stationNames = new Set();
+
+        stations.forEach(station => {
+            if (!stationNames.has(station.ville)) {
+                stationNames.add(station.ville);
+                uniqueStations.push(station);
+            }
+        });
+
+        // Afficher les stations uniques
+        stationsListElement.innerHTML = '';
+        uniqueStations.forEach(station => {
+            const stationItem = document.createElement('li');
+            stationItem.textContent = `${station.ville} - Altitude: ${station.altitude}m`;
+            stationsListElement.appendChild(stationItem);
+        });
+    } else {
+        stationsListElement.innerHTML = '<li>Aucune station disponible</li>';
     }
+}
+
+// Gestion de la recherche via la barre de recherche
+document.getElementById('searchRegionButton').addEventListener('click', () => {
+    const regionInput = document.getElementById('regionInput').value.trim();
+    if (!regionInput) {
+        alert('Veuillez entrer une région ou une station.');
+        return;
+    }
+    showRegionData(regionInput);
 });
+
 </script>
