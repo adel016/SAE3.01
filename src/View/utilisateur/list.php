@@ -1,21 +1,36 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Liste des utilisateurs</title>
-</head>
-<body>
-    <h1>Liste des utilisateurs</h1>
-    <?php if (isset($utilisateurs) && is_array($utilisateurs)): ?>
-        <ul>
+<h1>Liste des utilisateurs</h1>
+
+<?php if (!empty($utilisateurs)): ?>
+    <table>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Email</th>
+                <th>Rôle</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
             <?php foreach ($utilisateurs as $utilisateur): ?>
-                <li><?= htmlspecialchars($utilisateur->getNom()) ?> (<?= htmlspecialchars($utilisateur->getEmail()) ?>)</li>
-                &nbsp;
-                <a href="/Web/frontController.php?action=role&controller=utilisateur">Modifier le role</a>
-                <br>
+                <tr>
+                    <td><?= htmlspecialchars($utilisateur->getNom()) ?></td>
+                    <td><?= htmlspecialchars($utilisateur->getPrenom()) ?></td>
+                    <td><?= htmlspecialchars($utilisateur->getEmail()) ?></td>
+                    <td><?= htmlspecialchars($utilisateur->getRole()) ?></td>
+                    <td>
+                        <?php if ($_SESSION['role'] === 'admin' || $utilisateur->getId() === $_SESSION['utilisateur_id']): ?>
+                            <a href="/Web/frontController.php?action=update&controller=utilisateur&id=<?= $utilisateur->getId() ?>" class="user ">Modifier</a>
+                        <?php endif; ?>
+                        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=changerRole&controller=utilisateur&id=<?= $utilisateur->getId() ?>" class="user">Modifier le rôle</a>
+                        <?php if ($_SESSION['role'] === 'admin'): ?>
+                            <a href="/Web/frontController.php?action=delete&controller=utilisateur&id=<?= $utilisateur->getId() ?>" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');" class="user danger">Supprimer</a>
+                        <?php endif; ?>
+                    </td>
+                </tr>
             <?php endforeach; ?>
-        </ul>
-    <?php else: ?>
-        <p>Aucun utilisateur trouvé.</p>
-    <?php endif; ?>
-</body>
-</html>
+        </tbody>
+    </table>
+<?php else: ?>
+    <p>Aucun utilisateur trouvé.</p>
+<?php endif; ?>

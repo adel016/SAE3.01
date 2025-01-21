@@ -65,6 +65,11 @@ class Utilisateur {
         return $this->dateCreation;
     }
 
+    // UTILES
+    public function setRole($role) : void {
+        $this->role = $role;
+    }
+
     // Format en tableau pour usage dans les requêtes SQL
     public function formatTableau(): array {
         return [

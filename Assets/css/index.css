@@ -1,4 +1,3 @@
-/* Style global */
 * {
     margin: 0;
     padding: 0;
@@ -8,8 +7,6 @@
 
 html, body {
     height: 100%;
-    margin: 0;
-    padding: 0;
     display: flex;
     flex-direction: column;
 }
@@ -17,19 +14,9 @@ html, body {
 /* Corps principal */
 body {
     font-family: 'Montserrat', sans-serif;
-    background: linear-gradient(180deg, #E6F5FE, #FFF9EB);
+    background: #f5f5f5;
     color: #333;
     line-height: 1.5;
-}
-
-/* Header - Barre de navigation */
-header {
-    background: transparent;
-    padding: 15px 40px;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
 }
 
 .navbar {
@@ -39,81 +26,153 @@ header {
 }
 
 
-/* Limiter les styles à <main class="index"> uniquement */
+/* HEADER */
+header {
+    background-color: rgba(173, 216, 230, 0.8); /* Bleu clair avec transparence */
+    padding: 15px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px); /* Effet flou derrière le header */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+header:hover {
+    background-color: rgba(173, 216, 230, 0.95); /* Augmente la visibilité au survol */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Ombre subtile */
+}
+
+header a {
+    text-decoration: none;
+    color: #004080;
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 2px solid #004080;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin: 0 5px;
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+header a:hover {
+    transform: scale(1.1);
+    background-color: #004080;
+    color: #FFFFFF;
+}
+
+h1 {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 2rem;
+}
+
+/* IMAGES */
+.compte-lien {
+    text-decoration: none;
+}
+
+.compte-image {
+    width: 50px; /* Ajustez la taille de l'image */
+    height: auto;
+    border-radius: 50%; /* Exemple pour arrondir l'image */
+    transition: transform 0.3s ease; /* Animation au survol */
+}
+
+.compte-image:hover {
+    transform: scale(1.1); /* Agrandit légèrement l'image au survol */
+}
+
+
+.meteo {
+    width: 100px; /* Ajustez la taille de l'image */
+    height: auto;
+    border-radius: 50%; /* Exemple pour arrondir l'image */
+}
+
+/* Contenu principal */
 main.index {
     flex: 1;
-    padding: 40px;
     display: flex;
+    flex-wrap: nowrap;
     justify-content: center;
     align-items: flex-start;
     gap: 40px;
-    background-color: #f9f9f9; /* Exemple : fond spécifique pour main.index */
+    padding: 40px;
+    background-color: #f9f9f9;
     border: 1px solid #ddd;
-    border-radius: 8px;
+    border-radius: 10px;
+    height: auto;
+    padding-bottom: 120px;
 }
 
-/* Conteneur météo à l'intérieur de <main class="index"> */
-main.index .weather-info {
+/* Section gauche - Informations météo */
+/* Conteneur principal de la section */
+.weather-info {
     display: flex;
     width: 100%;
     max-width: 1200px;
-    gap: 40px;
-}
-
-main.index .weather-left {
     flex: 1;
+    flex-direction: column;
+    gap: 40px; /* Ajoute un espacement entre les éléments */
+    justify-content: center;
 }
 
-main.index .weather-left h1 {
+.weather-left {
+    flex: 1; 
+    padding: 20px;
+    background-color: #f7f7f7;
+    overflow-y: auto; /* Pour éviter le débordement */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.weather-left h1 {
     font-size: 2rem;
     color: #333;
 }
 
-main.index .weather-left p {
+.weather-left p {
     font-size: 1rem;
     color: #888;
 }
 
-main.index .temperature {
+.temperature {
     display: flex;
     align-items: center;
     gap: 20px;
     margin: 20px 0;
 }
 
-main.index .temperature .temp-value {
+.temp-value {
     font-size: 4rem;
     font-weight: bold;
     color: #FF6600;
 }
 
-main.index .weather-details {
+.weather-details {
     margin-top: 20px;
 }
 
-main.index .weather-details h2 {
+.weather-details h2 {
     font-size: 1.5rem;
     color: #333;
 }
 
 main.index .weather-details ul {
     list-style: none;
-    margin-top: 10px;
-    padding-left: 20px;
+    padding: 0;
 }
 
-main.index .weather-details ul li {
-    margin: 5px 0;
+.weather-details ul li {
     display: flex;
     align-items: center;
     gap: 10px;
+    margin: 5px 0;
 }
 
 main.index .weather-details ul li .icon {
     font-size: 1.2rem;
 }
 
-main.index .weather-right {
+.weather-right {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -121,7 +180,7 @@ main.index .weather-right {
     gap: 20px;
 }
 
-main.index .search-bar {
+.search-bar {
     width: 80%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -129,24 +188,17 @@ main.index .search-bar {
     outline: none;
 }
 
-main.index .map {
+.map {
     position: relative;
     width: 80%;
     max-width: 400px;
 }
 
-main.index .map img {
+.map img {
     width: 100%;
     border: 1px solid #ccc;
     border-radius: 10px;
 }
-
-main.index .container { 
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
 
 .container { 
     display: flex;
@@ -160,48 +212,421 @@ section.formulaire {
     align-items: center;
 }
 
+/* FOOTER */
 footer {
-    background-color: #333;
-    color: white;
+    background-color: rgba(173, 216, 230, 0.8); /* Bleu clair avec transparence */
+    color: #004080;
+    font-weight: 1000;
     text-align: center;
-    padding: 10px 20px;
-    position: relative; /* Peut être 'fixed' si nécessaire */
+    position: fixed;
     bottom: 0;
     width: 100%;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.message-success {
-    color: green;
-    background: #e7f5e6;
     padding: 10px;
-    border: 1px solid green;
-    margin: 10px 0;
-    border-radius: 5px;
+    backdrop-filter: blur(10px); /* Effet flou derrière le footer */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    z-index: 1000;
 }
 
-.message-error {
-    color: red;
-    background: #fdecea;
+footer:hover {
+    background-color: rgba(173, 216, 230, 0.95); /* Augmente la visibilité au survol */
+    box-shadow: 0px -4px 6px rgba(0, 0, 0, 0.2); /* Ombre subtile */
+}
+
+/* COULEUR DES MESSAGES FLASHS */
+/* Styles pour la section des messages flash */
+.flash-container {
+    position: fixed; /* Fixe la position */
+    bottom: 0; /* Colle au bas de la page */
+    left: 0;
+    width: 100%; /* Prend toute la largeur */
+    background-color: #f8d7da; /* Couleur de fond par défaut (rouge pâle pour erreur) */
+    z-index: 1000; /* Toujours au-dessus des autres éléments */
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); /* Ombre douce */
+}
+
+/* Messages individuels */
+.flash {
     padding: 10px;
-    border: 1px solid red;
-    margin: 10px 0;
-    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
 }
 
-a {
+/* Styles pour différents types de messages */
+.flash.success {
+    background-color: #d4edda; /* Vert pâle pour succès */
+    color: #155724; /* Vert foncé pour texte */
+}
+
+.flash.error {
+    background-color: #f8d7da; /* Rouge pâle pour erreur */
+    color: #721c24; /* Rouge foncé pour texte */
+}
+
+.flash.warning {
+    background-color: #fff3cd; /* Jaune pâle pour avertissement */
+    color: #856404; /* Jaune foncé pour texte */
+}
+
+.flash.info {
+    background-color: #d1ecf1; /* Bleu pâle pour information */
+    color: #0c5460; /* Bleu foncé pour texte */
+}
+
+/* Responsiveness: Ajoutez des styles pour mobiles si nécessaire */
+@media (max-width: 768px) {
+    .flash {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
+
+
+/* MAP OUTILS */
+/* Section droite - Carte */
+
+.map-container {
+    width: 100%; /* Prend toute la largeur */
+    display: flex;
+    justify-content: center; /* Centre la carte */
+    align-items: center;
+    flex: 2;
+}
+
+#map {
+    width: 150%; /* Largeur adaptative */
+    height: 500px; /* Hauteur fixe */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0px 0px 5px #ccc;
+}
+
+/* Barre de recherche des régions */
+.region-search {
+    text-align: center;
+    margin: 0 auto; /* Centre la barre horizontalement */
+    background: linear-gradient(to bottom, #84d0f1, #c7eafd); /* Thème bleu dégradé */
+    padding: 10px 20px; /* Espacement intérieur */
+    border-radius: 8px; /* Coins arrondis */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre douce */
+    width: 100%; /* Largeur adaptative */
+    top: 10px;
+}
+
+#regionInput {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 60%; /* Largeur adaptative */
+    max-width: 400px; /* Largeur maximale */
+    margin-right: 8px; /* Espacement à droite du bouton */
+    background-color: #f0faff; /* Fond bleu clair */
+    color: #333; /* Couleur du texte */
+}
+
+#regionInput:focus {
+    outline: none;
+    border-color: #0077be;
+    box-shadow: 0 0 4px rgba(0, 119, 190, 0.5); /* Effet lumineux */
+}
+
+#searchRegionButton {
+    padding: 8px 16px;
+    font-size: 14px;
+    background-color: #0077be;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#searchRegionButton:hover {
+    background-color: #005b96;
+}
+
+/* PAGE DES UTILISATEURS */
+/* Liste des utilisateurs */
+
+table {
+    width: 95%; /* Réduit la largeur pour ne pas encombrer les bords */
+    margin: 20px auto; /* Centre le tableau horizontalement */
+    border-collapse: collapse;
+    background-color: #f9f9f9; /* Couleur de fond claire */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Ajout d'une ombre subtile */
+}
+
+table th, table td {
+    padding: 12px 15px; /* Espacement pour un affichage aéré */
+    border: 1px solid #ddd; /* Bordure légère */
+    text-align: left;
+}
+
+table th {
+    background: linear-gradient(to bottom, #84d0f1, #c7eafd);
+    color: white;
+    font-weight: bold;
+}
+
+table tr:nth-child(even) {
+    background-color: #f2f2f2; /* Ligne alternée */
+}
+
+table tr:hover {
+    background-color: #e8fafc; /* Surlignage au survol */
+}
+
+.user {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 5px; /* Espacement entre les boutons */
+    background-color: #f8e58c; /* Couleur douce pour différencier les actions */
+    color: #333;
     text-decoration: none;
-    color: black;
-    background-color: rgb(232, 232, 164);
-    border: solid grey 3px;
-    border-radius: 20px;
-    box-shadow: 0px 0px 5px;
-    padding: 7px;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Ombre subtile */
 }
 
-.map {
-    width: 100%; /* S'adapte à la largeur du parent */
-    height: 400px; /* Hauteur spécifique */
-    border: 1px solid #ccc; /* Optionnel : une bordure */
-    border-radius: 10px; /* Optionnel : coins arrondis */
+.user:hover {
+    background-color: #d4c56b; /* Changement de couleur au survol */
+}
+
+.user.danger {
+    background-color: #f88c8c; /* Couleur rouge pour supprimer */
+}
+
+.user.danger:hover {
+    background-color: #e66a6a; /* Rouge plus foncé au survol */
+}
+
+/* UTILISATEUR - inscription et connexion */
+/* Conteneur principal */
+.formulaire {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px; /* Espacement entre les deux formulaires */
+    margin: 50px auto;
+    max-width: 800px;
+}
+
+/* Style des formulaires individuels */
+.formulaire div {
+    background: linear-gradient(to bottom, #84d0f1, #c7eafd);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 100%; /* Taille égale pour les deux formulaires */
+    max-width: 350px;
+}
+
+/* Séparation des formulaires avec une barre */
+.formulaire::after {
+    content: '';
+    display: block;
+    width: 2px;
+    height: auto;
+    background-color: #007acc;
+    position: relative;
+    margin: 0 10px;
+}
+
+/* Titres des formulaires */
+.formulaire h3 {
+    text-align: center;
+    color: #005b96;
+    margin-bottom: 20px;
+    font-size: 20px;
+    text-transform: uppercase;
+}
+
+/* Champs d'entrée */
+.formulaire input[type="text"],
+.formulaire input[type="email"],
+.formulaire input[type="password"] {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #007acc;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: #f0faff;
+    color: #333;
+    box-sizing: border-box;
+}
+
+/* Boutons des formulaires */
+.formulaire button {
+    display: block;
+    width: calc(100% - 20px);
+    margin: 10px auto;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #007acc;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Bouton bascule */
+#toggleButton {
+    display: block;
+    width: 150px; /* Réduit la largeur */
+    margin: 20px auto;
+    padding: 10px;
+    font-size: 14px;
+    color: #007acc;
+    background: transparent;
+    border: 2px solid #007acc;
+    border-radius: 5px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+#toggleButton:hover {
+    background-color: #007acc;
+    color: #fff;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 600px) {
+    .formulaire {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .formulaire::after {
+        display: none;
+    }
+}
+
+/* UTILISATEUR - formulaire de modification et changement de role */
+/* Style général partagé par tous les formulaires */
+.form-container {
+    max-width: 500px;
+    margin: 30px auto;
+    padding: 20px;
+    background: linear-gradient(to bottom, #84d0f1, #c7eafd);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+/* Titres des formulaires */
+.form-container h1 {
+    text-align: center;
+    color: #005b96; /* Bleu ciel */
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+/* Labels */
+.form-container label {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: #005b96; /* Bleu plus sombre */
+}
+
+/* Champs de saisie */
+.form-container input[type="text"],
+.form-container input[type="email"],
+.form-container select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #007acc;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: #f0faff;
+    box-sizing: border-box;
+}
+
+/* Champs focus */
+.form-container input[type="text"]:focus,
+.form-container input[type="email"]:focus,
+.form-container select:focus {
+    border-color: #005b96;
+    box-shadow: 0 0 5px rgba(0, 91, 150, 0.5); /* Effet lumineux */
+    outline: none;
+}
+
+/* Boutons */
+.form-container button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #007acc;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+/* Boutons hover */
+.form-container button:hover {
+    background-color: #005b96;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-container {
+        padding: 15px;
+        font-size: 14px;
+    }
+
+    .form-container button {
+        font-size: 14px;
+    }
+}
+
+/* UTILISATEUR - Deconnexion */
+/* Styles pour les informations utilisateur */
+.user-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-info .user-name a {
+    text-decoration: none;
+    color: #004080;
+    padding: 10px 15px;
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease; /* Animation fluide */
+    font-weight: bold;
+
+}
+
+.user-info .user-name a:hover {
+    color: #fff; /* Couleur au survol */
+    transform: scale(1.1); /* Agrandit légèrement */
+}
+
+/* Style pour le lien de déconnexion */
+.logout-link {
+    text-decoration: none;
+    color: red;
+    font-weight: bold;
+}
+
+.logout-link:hover {
+    background-color: red;
+    color: white;
+    border-radius: 4px;
+    border: solid 2px white;
 }
