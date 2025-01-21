@@ -67,6 +67,38 @@ class ControllerMeteotheque {
         self::create();
     }
 
+    // Affiche une Meteotheque et ses données météo dynamiques
+    public static function viewCollection(): void {
+        session_start();
+        $userId = $_SESSION['utilisateur_id'] ?? null;
+
+        $meteoId = $_GET['id'] ?? null;
+        if (!$meteoId) {
+            MessageFlash::ajouter('error', "Aucune collection spécifiée.");
+            header("Location: /Web/frontController.php?action=readAll&controller=meteotheque");
+            exit();
+        }
+
+        $repository = new MeteothequeRepository();
+        $meteotheque = $repository->select($meteoId);
+
+        if (!$meteotheque || ($meteotheque->getUtilisateurId() !== $userId && $_SESSION['role'] !== 'admin')) {
+            MessageFlash::ajouter('error', "Vous n'avez pas accès à cette collection.");
+            header("Location: /Web/frontController.php?action=readAll&controller=meteotheque");
+            exit();
+        }
+
+        // Récupération des données dynamiques via SYNOP
+        $weatherData = self::getWeatherData($meteotheque->getNomCollection());
+
+        self::afficheVue('view.php', [
+            'pagetitle' => "Collection : " . htmlspecialchars($meteotheque->getNomCollection()),
+            'cheminVueBody' => "meteotheque/view.php",
+            'meteotheque' => $meteotheque,
+            'weatherData' => $weatherData
+        ]);
+    }
+
     // Supprime une Meteotheque (vérifie que l'utilisateur est propriétaire)
     public static function delete() : void {
         session_start();
@@ -95,46 +127,22 @@ class ControllerMeteotheque {
         exit();
     }
 
-    // Modifie une Meteotheque (propriétaire uniquement)
-    public static function update() : void {
-        session_start();
-        $userId = $_SESSION['utilisateur_id'] ?? null;
+    // Méthode pour récupérer les données météo dynamiques depuis SYNOP
+    private static function getWeatherData(string $location): ?array {
+        $apiKey = "VOTRE_CLE_API_SYNOP";
+        $url = "https://api.synop-meteo.com/weather?location=" . urlencode($location) . "&apikey=$apiKey";
 
-        if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
-            $repository = new MeteothequeRepository();
-            $meteotheque = $repository->select($_GET['id']);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $response = curl_exec($ch);
+        curl_close($ch);
 
-            if ($meteotheque && $meteotheque->getUtilisateurId() === $userId) {
-                self::afficheVue('view.php', [
-                    'pagetitle' => "Modifier la Meteotheque",
-                    'cheminVueBody' => "meteotheque/update.php",
-                    'meteotheque' => $meteotheque
-                ]);
-                return;
-            } else {
-                MessageFlash::ajouter('error', "Vous n'avez pas le droit de modifier cette Meteotheque.");
-            }
-        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $repository = new MeteothequeRepository();
-            $id = $_POST['meteo_id'] ?? null;
-            $nom = htmlspecialchars($_POST['nom_collection']);
-            $description = htmlspecialchars($_POST['description']);
-
-            $meteotheque = $repository->select($id);
-            if ($meteotheque && $meteotheque->getUtilisateurId() === $userId) {
-                $updatedMeteotheque = new Meteotheque($id, $userId, $nom, $description, $meteotheque->getDateCreation());
-
-                if ($repository->update($updatedMeteotheque)) {
-                    MessageFlash::ajouter('success', "Meteotheque mise à jour avec succès.");
-                } else {
-                    MessageFlash::ajouter('error', "Erreur lors de la mise à jour.");
-                }
-            } else {
-                MessageFlash::ajouter('error', "Vous n'avez pas le droit de modifier cette Meteotheque.");
-            }
+        if ($response) {
+            return json_decode($response, true);
+        } else {
+            return null;
         }
-        header("Location: /Web/frontController.php?action=readAll&controller=meteotheque");
-        exit();
     }
 
     // Méthode pour afficher une vue

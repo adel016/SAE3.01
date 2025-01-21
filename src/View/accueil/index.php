@@ -1,21 +1,27 @@
 <h1>Bienvenue sur MeteoVision</h1>
 <main class="index">
     <section class="weather-info">
-        <!-- Section gauche (infos météo) -->
+        <!-- Section gauche (infos météo de la région et des stations) -->
         <div class="weather-left">
-            <h1>Paris, France</h1>
-            <p>À 15h00</p>
+            <h1 id="region-name">Nom de la région</h1>
+            <p id="current-time"></p>
             <div class="temperature">
-                <span class="temp-value">6°</span>
-                <img src="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/img/ACCUEIL/nuage_soleil.avif" alt="Nuageux" class="meteo">
+                <span id="temperature" class="temp-value">--°</span>
+                <img id="weather-icon" src="#" alt="Conditions météo" class="meteo">
             </div>
             <div class="weather-details">
-                <h2>Un peu Nuageux</h2>
-                <p>3% de chance de pluie jusqu'à 9:00</p>
-                <ul>
-                    <li><span class="icon">🌡</span> Max/Min: 9°/3°</li>
-                    <li><span class="icon">💧</span> Humidité: 61%</li>
-                    <li><span class="icon">🌬</span> Vent: 24 Km/h</li>
+                <h2 id="weather-condition">--</h2>
+                <p id="rain-chance">--% de chance de pluie</p>
+                <ul id="weather-stats">
+                    <li><span class="icon">🌡</span> Max/Min: --°/--°</li>
+                    <li><span class="icon">💧</span> Humidité: --%</li>
+                    <li><span class="icon">🌬</span> Vent: -- Km/h</li>
+                </ul>
+            </div>
+            <div class="stations-list">
+                <h3>Stations dans la région :</h3>
+                <ul id="stations-list">
+                    <li>Aucune station disponible</li>
                 </ul>
             </div>
         </div>
@@ -36,31 +42,37 @@
     </section>
 </main>
 
-
 <script>
 // INITIALISATION DE LA CARTE
-const map = L.map('map');
-
-// Ajuster la carte pour afficher toute la France
-const franceBounds = [
-    [51.124199, -5.142222], // Nord-Ouest de la France
-    [41.325300, 9.662499]  // Sud-Est de la France
-];
-map.fitBounds(franceBounds); // Adapter les limites à la France
-
-// Ajouter des tuiles de fond
+const map = L.map('map').setView([46.603354, 1.888334], 6); // Centré sur la France
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
+    attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-// Charger et afficher les régions depuis le GeoJSON
-fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/gjson/regions.geojson')
-    .then((response) => response.json())
-    .then((geojsonData) => {
-        // Ajouter le GeoJSON des régions
-        const geojsonLayer = L.geoJSON(geojsonData, {
+// Variables pour stocker les données
+let geojsonData;
+let stationsData;
+const stationMarkers = []; // Liste des marqueurs de stations
+
+// Charger les données des régions et stations
+Promise.all([
+    fetch('/Assets/gjson/regions.geojson').then(res => res.json()), // Chemin du fichier GeoJSON
+    fetch('/Web/frontController.php?action=getSynopData&controller=api').then(res => res.json()) // API SYNOP
+])
+    .then(([regions, stations]) => {
+        geojsonData = regions;
+        stationsData = stations;
+
+        // Afficher les régions sur la carte
+        L.geoJSON(geojsonData, {
+            style: {
+                color: '#004080',
+                weight: 1,
+                fillColor: '#0077be',
+                fillOpacity: 0.5,
+            },
             onEachFeature: (feature, layer) => {
-                // Gérer le survol
                 layer.on('mouseover', () => {
                     layer.setStyle({
                         color: 'lightgreen',
@@ -79,91 +91,155 @@ fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/gjson/regions.geojson
                 });
                 layer.bindPopup(`Région : ${feature.properties.nom}`);
             },
-            style: {
-                color: '#004080',
-                weight: 1,
-                fillColor: '#0077be',
-                fillOpacity: 0.5,
-            },
         }).addTo(map);
 
-        // Charger les stations
-        fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=getStationJSON&controller=station')
-            .then((response) => response.json())
-            .then((stations) => {
-                // Ajouter les stations à la carte
-                stations.forEach((station) => {
-                    const { latitude, longitude, ville, region, altitude } = station;
+        // Ajouter les stations météo sur la carte
+        stationsData.forEach(station => {
+            const { latitude, longitude, ville, region, altitude, temp, humidity, windSpeed } = station;
+            const marker = L.circleMarker([latitude, longitude], {
+                radius: 8,
+                color: '#004080',
+                fillColor: '#0077be',
+                fillOpacity: 0.7,
+            }).addTo(map);
 
-                    // Trouver la région correspondante dans le GeoJSON
-                    const matchingRegion = geojsonData.features.find(
-                        (feature) => feature.properties.nom === region
-                    );
+            // Ajouter un popup avec les informations de la station
+            marker.bindPopup(`
+                <strong>${ville}</strong><br>
+                Région: ${region}<br>
+                Température: ${temp || '--'}°C<br>
+                Humidité: ${humidity || '--'}%<br>
+                Vent: ${windSpeed || '--'} km/h<br>
+                Altitude: ${altitude || 'Non spécifiée'}m
+            `);
 
-                    if (matchingRegion) {
-                        // Ajouter un marqueur pour la station
-                        L.marker([latitude, longitude])
-                            .addTo(map)
-                            .bindPopup(
-                                `<strong>${ville}</strong><br>
-                                Région: ${region}<br>
-                                Altitude: ${altitude}m`
-                            );
-                    }
-                });
-            })
-            .catch((error) => console.error('Erreur lors du chargement des stations:', error));
+            stationMarkers.push({ marker, ville, region, altitude, temp, humidity, windSpeed });
+        });
     })
-    .catch((error) =>
-        console.error('Erreur lors du chargement ou du traitement du GeoJSON:', error)
-    );
-</script>
+    .catch(error => {
+        console.error('Erreur lors du chargement des données:', error);
+        alert('Erreur lors du chargement des données de la carte.');
+    });
 
-<script>
-// RECHERCHE DE LA REGION SUR LA CARTE
+// Calculer les statistiques des stations d'une région
+function calculateRegionStats(stations) {
+    const temps = stations.map(station => station.temp).filter(temp => temp !== null && temp !== '--');
+    const humidities = stations.map(station => station.humidity).filter(humidity => humidity !== null && humidity !== '--');
+    const windSpeeds = stations.map(station => station.windSpeed).filter(wind => wind !== null && wind !== '--');
+
+    const getStats = (values) => ({
+        min: Math.min(...values),
+        max: Math.max(...values),
+        avg: (values.reduce((sum, val) => sum + val, 0) / values.length).toFixed(2),
+    });
+
+    return {
+        temp: getStats(temps),
+        humidity: getStats(humidities),
+        windSpeed: getStats(windSpeeds),
+    };
+}
+
+// Mettre à jour les informations météo affichées dans la section
+function updateWeatherData(regionName, weatherData, stations) {
+    document.getElementById('region-name').textContent = regionName;
+    const now = new Date();
+    document.getElementById('current-time').textContent = `À ${now.getHours()}h${String(now.getMinutes()).padStart(2, '0')}`;
+
+    document.getElementById('temperature').textContent = `${weatherData.temp.avg || '--'}°`;
+    document.getElementById('weather-icon').src = weatherData.icon || '#';
+    document.getElementById('weather-icon').alt = weatherData.condition || 'Conditions météo';
+    document.getElementById('weather-condition').textContent = weatherData.condition || '--';
+    document.getElementById('rain-chance').textContent = `${weatherData.rainChance || '--'}% de chance de pluie`;
+    document.getElementById('weather-stats').innerHTML = `
+        <li><span class="icon">🌡</span> Max/Min: ${weatherData.temp.max || '--'}°/${weatherData.temp.min || '--'}°</li>
+        <li><span class="icon">💧</span> Humidité Moyenne: ${weatherData.humidity.avg || '--'}%</li>
+        <li><span class="icon">🌬</span> Vent Moyen: ${weatherData.windSpeed.avg || '--'} Km/h</li>
+    `;
+
+    const stationsListElement = document.getElementById('stations-list');
+    if (stations.length > 0) {
+        stationsListElement.innerHTML = '';
+        stations.forEach(station => {
+            const stationItem = document.createElement('li');
+            stationItem.textContent = `${station.ville || 'Inconnue'} - Altitude: ${station.altitude || 'Non spécifiée'}m`;
+            stationsListElement.appendChild(stationItem);
+        });
+    } else {
+        stationsListElement.innerHTML = '<li>Aucune station disponible</li>';
+    }
+}
+
+// Gérer la recherche de région ou de station
 document.getElementById('searchRegionButton').addEventListener('click', () => {
-    const regionInput = document.getElementById('regionInput').value.trim();
+    const regionInput = document.getElementById('regionInput').value.trim().toLowerCase();
 
     if (!regionInput) {
-        alert('Veuillez entrer le nom d\'une région.');
+        alert('Veuillez entrer le nom d\'une région ou d\'une station.');
         return;
     }
 
-    fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/gjson/regions.geojson')
-        .then((response) => response.json())
-        .then((geojsonData) => {
-            // Rechercher la région par son nom
-            const matchingRegion = geojsonData.features.find(
-                (feature) => feature.properties.nom.toLowerCase() === regionInput.toLowerCase()
-            );
+    let found = false;
 
-            if (matchingRegion) {
-                // Centrer la carte sur la région trouvée
-                const regionBounds = L.geoJSON(matchingRegion).getBounds();
-                map.fitBounds(regionBounds);
+    // Recherche dans les régions
+    const matchingRegion = geojsonData.features.find(
+        (feature) => feature.properties.nom.toLowerCase() === regionInput
+    );
 
-                // Optionnel : Ajouter une bordure ou un effet visuel
-                L.geoJSON(matchingRegion, {
-                    style: {
-                        color: 'red',
-                        weight: 3,
-                        fillColor: '#f03',
-                        fillOpacity: 0.2,
-                    },
-                }).addTo(map);
+    if (matchingRegion) {
+        const regionBounds = L.geoJSON(matchingRegion).getBounds();
+        map.fitBounds(regionBounds);
 
-                alert(`La carte a été centrée sur la région : ${matchingRegion.properties.nom}`);
-            } else {
-                alert('Région non trouvée. Veuillez vérifier le nom.');
-            }
-        })
-        .catch((error) => {
-            console.error('Erreur lors de la recherche de la région :', error);
-            alert('Erreur lors de la recherche de la région.');
+        L.geoJSON(matchingRegion, {
+            style: {
+                color: 'red',
+                weight: 3,
+                fillColor: '#f03',
+                fillOpacity: 0.2,
+            },
+        }).addTo(map);
+
+        const stationsInRegion = stationsData.filter(
+            (station) => station.region.toLowerCase() === regionInput
+        );
+
+        const regionStats = calculateRegionStats(stationsInRegion);
+
+        updateWeatherData(matchingRegion.properties.nom, {
+            temp: regionStats.temp,
+            humidity: regionStats.humidity,
+            windSpeed: regionStats.windSpeed,
+        }, stationsInRegion);
+
+        found = true;
+    }
+
+    // Recherche dans les stations
+    const matchingStation = stationMarkers.find(
+        ({ ville }) => ville.toLowerCase() === regionInput
+    );
+
+    if (matchingStation) {
+        matchingStation.marker.setStyle({
+            color: 'red',
+            fillColor: 'red',
+            fillOpacity: 1,
         });
+
+        map.setView(matchingStation.marker.getLatLng(), 7);
+        matchingStation.marker.openPopup();
+
+        updateWeatherData(matchingStation.ville, {
+            temp: { avg: matchingStation.temp || '--', min: '--', max: '--' },
+            humidity: { avg: matchingStation.humidity || '--' },
+            windSpeed: { avg: matchingStation.windSpeed || '--' },
+        }, [matchingStation]);
+
+        found = true;
+    }
+
+    if (!found) {
+        alert('Aucune région ou station trouvée. Veuillez vérifier le nom.');
+    }
 });
 </script>
-
-
-</section>
-</main>

@@ -73,3 +73,4 @@ if (!class_exists('App\Meteo\Config\Conf')) {
         
     }
 }
+?>
