@@ -51,6 +51,7 @@
             <?php if (!empty($flashMessages = \App\Meteo\Lib\MessageFlash::lireTousMessages())): ?>
                 <?php foreach ($flashMessages as $type => $messages): ?>
                     <div class="flash <?= htmlspecialchars($type) ?>">
+                        <button class="close-btn" onclick="this.parentElement.remove();">×</button>
                         <?php foreach ($messages as $message): ?>
                             <p><?= htmlspecialchars($message) ?></p>
                         <?php endforeach; ?>

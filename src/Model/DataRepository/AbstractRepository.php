@@ -48,14 +48,19 @@ abstract class AbstractRepository {
     // Methode specifique pour recuperer un objet avec son email
     public function selectByEmail(string $email): ?Utilisateur {
         $pdo = DatabaseConnection::getPdo();
-        $sql = "SELECT * FROM " . $this->getNomTable() . " WHERE email = :email";
+        $sql = "SELECT * FROM utilisateurs WHERE email = :email LIMIT 1";
         $pdoStatement = $pdo->prepare($sql);
         $pdoStatement->execute([':email' => $email]);
         $result = $pdoStatement->fetch(PDO::FETCH_ASSOC);
     
-        return $result ? $this->construire($result) : null;
-    }
+        if ($result) {
+            return $this->construire($result);
+        }
+    
+        return null;
+    }        
 
+    // Methode specifique pour recuperer un objet avec sa region
     public function selectByReg(string $region): ?array {
         $pdo = DatabaseConnection::getPdo();
         $sql = "SELECT * FROM stations WHERE region = :region";
@@ -69,7 +74,6 @@ abstract class AbstractRepository {
         }
         return $stations;
     }
-    
 
     // Méthode générique pour supprimer un objet par clé primaire
     public function delete(string $id): bool {

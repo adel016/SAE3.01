@@ -13,14 +13,21 @@ class MessageFlash
         }
     }
 
-    // Ajouter un message flash
-    public static function ajouter(string $type, string $message) : void {
+    // 
+    public static function isConnected(): bool {
         self::demarrerSession();
-        if (!isset($_SESSION[self::$cleFlash])) {
-            $_SESSION[self::$cleFlash] = [];
+        return isset($_SESSION['utilisateur_id']);
+    }
+    
+
+    // Ajouter un message flash
+    public static function ajouter(string $type, string $message): void {
+        self::demarrerSession();
+        if (!isset($_SESSION[self::$cleFlash][$type])) {
+            $_SESSION[self::$cleFlash][$type] = [];
         }
         $_SESSION[self::$cleFlash][$type][] = $message;
-    }
+    }    
 
     // Vérifier si un type de message existe
     public static function contientMessage(string $type) : bool {
@@ -40,7 +47,7 @@ class MessageFlash
     public static function lireTousMessages() : array {
         self::demarrerSession();
         $messages = $_SESSION[self::$cleFlash] ?? [];
-        unset($_SESSION[self::$cleFlash]); // Supprime après lecture
+        unset($_SESSION[self::$cleFlash]); // Supprime les messsages après lecture
         return $messages;
     }
 }

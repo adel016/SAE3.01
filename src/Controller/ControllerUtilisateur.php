@@ -61,6 +61,9 @@ class ControllerUtilisateur {
                 // Hachage sécurisé du mot de passe
                 $motDePasseHash = password_hash($motDePasse, PASSWORD_DEFAULT);
     
+                // Log pour vérifier le hachage
+                error_log("Mot de passe haché : $motDePasseHash");
+    
                 // Crée un nouvel utilisateur
                 $utilisateur = new Utilisateur(
                     0,
@@ -89,76 +92,60 @@ class ControllerUtilisateur {
                 'cheminVueBody' => "utilisateur/authentification.php"
             ]);
         }
-    }    
-
+    }
+       
     public static function connexion() {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            // Affiche le formulaire de connexion
+            // Afficher le formulaire de connexion
             self::afficheVue('view.php', [
                 'pagetitle' => 'CONNEXION',
                 'cheminVueBody' => 'utilisateur/authentification.php'
             ]);
         } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Récupère les données du formulaire
-            $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
-            $motDePasse = $_POST['motdepasse'] ?? '';
+            try {
+                $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
+                $motDePasse = $_POST['motdepasse'] ?? '';
     
-            // Log des entrées utilisateur
-            error_log("Email saisi : $email");
-            error_log("Mot de passe saisi : $motDePasse");
+                if (empty($email) || empty($motDePasse)) {
+                    throw new \Exception("Veuillez remplir tous les champs.");
+                }
     
-            // Vérifie si les champs sont remplis
-            if (!empty($email) && !empty($motDePasse)) {
-                // Récupération de l'utilisateur à partir de l'email
                 $repository = new UtilisateurRepository();
                 $utilisateur = $repository->selectByEmail($email);
     
-                if ($utilisateur) {
-                    // Log les informations de l'utilisateur récupérées
-                    error_log("Utilisateur trouvé : " . print_r($utilisateur, true));
-                    error_log("Mot de passe haché en base : " . $utilisateur->getMotDePasse());
-    
-                    // Vérifie le mot de passe en utilisant password_verify
-                    if (password_verify($motDePasse, $utilisateur->getMotDePasse())) {
-                        // Log succès de la vérification du mot de passe
-                        error_log("Mot de passe vérifié avec succès.");
-    
-                        // Initialise la session utilisateur
-                        if (session_status() === PHP_SESSION_NONE) {
-                            session_start();
-                        }
-                        $_SESSION['utilisateur_id'] = $utilisateur->getId();
-                        $_SESSION['nom'] = $utilisateur->getNom();
-                        $_SESSION['prenom'] = $utilisateur->getPrenom();
-                        $_SESSION['role'] = $utilisateur->getRole();
-    
-                        // Redirection après connexion réussie
-                        MessageFlash::ajouter('success', "Bienvenue, " . htmlspecialchars($utilisateur->getNom()) . " !");
-                        header('Location: /Web/frontController.php');
-                        exit();
-                    } else {
-                        // Log échec de la vérification du mot de passe
-                        error_log("Échec de la vérification du mot de passe.");
-                        error_log("Mot de passe saisi : $motDePasse");
-                        error_log("Mot de passe haché correspondant : " . password_hash($motDePasse, PASSWORD_DEFAULT));
-                        MessageFlash::ajouter('error', "Mot de passe incorrect.");
-                    }
-                } else {
-                    // Log utilisateur introuvable
-                    error_log("Aucun utilisateur trouvé avec l'email : $email");
-                    MessageFlash::ajouter('error', "Aucun utilisateur trouvé avec cet email.");
+                if (!$utilisateur) {
+                    throw new \Exception("Aucun utilisateur trouvé avec cet email.");
                 }
-            } else {
-                MessageFlash::ajouter('error', "Veuillez remplir tous les champs.");
-            }
     
-            // Réaffiche le formulaire avec les messages flash en cas d'erreur
-            self::afficheVue('view.php', [
-                'pagetitle' => 'CONNEXION',
-                'cheminVueBody' => 'utilisateur/authentification.php'
-            ]);
+                // Log le mot de passe haché récupéré
+                error_log("Mot de passe haché récupéré : " . $utilisateur->getMotDePasse());
+    
+                if (!password_verify($motDePasse, $utilisateur->getMotDePasse())) {
+                    throw new \Exception("Mot de passe incorrect.");
+                }
+    
+                // Initialiser la session utilisateur
+                if (session_status() === PHP_SESSION_NONE) {
+                    session_start();
+                }
+    
+                $_SESSION['utilisateur_id'] = $utilisateur->getId();
+                $_SESSION['nom'] = $utilisateur->getNom();
+                $_SESSION['prenom'] = $utilisateur->getPrenom();
+                $_SESSION['role'] = $utilisateur->getRole();
+    
+                MessageFlash::ajouter('success', "Bienvenue, " . htmlspecialchars($utilisateur->getPrenom()) . " !");
+                header('Location: /Web/frontController.php');
+                exit();
+            } catch (\Exception $e) {
+                MessageFlash::ajouter('error', $e->getMessage());
+                self::afficheVue('view.php', [
+                    'pagetitle' => 'CONNEXION',
+                    'cheminVueBody' => 'utilisateur/authentification.php'
+                ]);
+            }
         }
-    }    
+    }                   
 
     public static function deconnexion() {
         session_unset(); // Supprime toutes les variables de session

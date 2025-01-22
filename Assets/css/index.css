@@ -236,11 +236,11 @@ footer:hover {
 /* Styles pour la section des messages flash */
 .flash-container {
     position: fixed; /* Fixe la position */
-    bottom: 0; /* Colle au bas de la page */
+    bottom: 50px; /* Ajoute une marge de 50px au-dessus du footer */
     left: 0;
     width: 100%; /* Prend toute la largeur */
     background-color: #f8d7da; /* Couleur de fond par défaut (rouge pâle pour erreur) */
-    z-index: 1000; /* Toujours au-dessus des autres éléments */
+    z-index: 1500; /* Toujours au-dessus des autres éléments, y compris le footer */
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); /* Ombre douce */
 }
 
@@ -250,6 +250,7 @@ footer:hover {
     text-align: center;
     font-weight: bold;
     font-size: 16px;
+    animation: slideIn 0.5s, fadeOut 6s 5s forwards;
 }
 
 /* Styles pour différents types de messages */
@@ -273,14 +274,46 @@ footer:hover {
     color: #0c5460; /* Bleu foncé pour texte */
 }
 
+.flash .close-btn {
+    float: right;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: inherit;
+}
+.flash .close-btn:hover {
+    color: #000; /* Couleur au survol */
+}
+
 /* Responsiveness: Ajoutez des styles pour mobiles si nécessaire */
-@media (max-width: 768px) {
+@media (max-width: 480px) {
     .flash {
-        font-size: 14px;
-        padding: 8px;
+        font-size: 12px;
+        padding: 6px;
     }
 }
 
+@keyframes slideIn {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
 
 /* MAP OUTILS */
 /* Section droite - Carte */
