@@ -51,61 +51,51 @@ class ControllerUtilisateur {
                 'cheminVueBody' => "utilisateur/authentification.php"
             ]);
         } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Traiter les données du formulaire
             $nom = htmlspecialchars($_POST['nom'] ?? '');
             $prenom = htmlspecialchars($_POST['prenom'] ?? '');
             $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
             $motDePasse = $_POST['motdepasse'] ?? '';
     
-            if (!empty($nom) && !empty($prenom) && !empty($email) && !empty($motDePasse)) {
-                // Hachage sécurisé du mot de passe
-                $motDePasseHash = password_hash($motDePasse, PASSWORD_DEFAULT);
-    
-                // Log pour vérifier le hachage
-                error_log("Mot de passe haché : $motDePasseHash");
-    
-                // Crée un nouvel utilisateur
+            if (!empty($nom) && !empty($prenom) && !empty($email) && !empty($motDePasse)) {    
                 $utilisateur = new Utilisateur(
                     0,
                     $nom,
                     $prenom,
                     $email,
-                    $motDePasseHash,
+                    $motDePasse,
                     date('Y-m-d H:i:s')
                 );
     
                 $repository = new UtilisateurRepository();
                 if ($repository->sauvegarder($utilisateur)) {
-                    MessageFlash::ajouter('success', "Inscription effectuée !");
+                    MessageFlash::ajouter('success', "Inscription réussie !");
                     header('Location: /Web/frontController.php');
                     exit();
                 } else {
-                    MessageFlash::ajouter('error', "Erreur lors de l'ajout de l'utilisateur.");
+                    MessageFlash::ajouter('error', "Erreur lors de l'inscription.");
                 }
             } else {
-                MessageFlash::ajouter('error', "Veuillez remplir tous les champs.");
+                MessageFlash::ajouter('error', "Tous les champs sont obligatoires.");
             }
-    
-            // Réaffiche le formulaire d'inscription avec les messages flash
-            self::afficheVue('view.php', [
-                'pagetitle' => "Inscription",
-                'cheminVueBody' => "utilisateur/authentification.php"
-            ]);
         }
+        self::afficheVue('view.php', [
+            'pagetitle' => "Inscription",
+            'cheminVueBody' => "utilisateur/authentification.php"
+        ]);
     }
        
     public static function connexion() {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            // Afficher le formulaire de connexion
+            // Affiche le formulaire de connexion
             self::afficheVue('view.php', [
                 'pagetitle' => 'CONNEXION',
                 'cheminVueBody' => 'utilisateur/authentification.php'
             ]);
         } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+            $motDePasse = trim($_POST['motdepasse'] ?? '');
+        
             try {
-                $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
-                $motDePasse = $_POST['motdepasse'] ?? '';
-    
                 if (empty($email) || empty($motDePasse)) {
                     throw new \Exception("Veuillez remplir tous les champs.");
                 }
@@ -117,14 +107,8 @@ class ControllerUtilisateur {
                     throw new \Exception("Aucun utilisateur trouvé avec cet email.");
                 }
     
-                // Log le mot de passe haché récupéré
-                error_log("Mot de passe haché récupéré : " . $utilisateur->getMotDePasse());
+                $motDePasse = $utilisateur->getMotDePasse();
     
-                if (!password_verify($motDePasse, $utilisateur->getMotDePasse())) {
-                    throw new \Exception("Mot de passe incorrect.");
-                }
-    
-                // Initialiser la session utilisateur
                 if (session_status() === PHP_SESSION_NONE) {
                     session_start();
                 }
@@ -144,8 +128,13 @@ class ControllerUtilisateur {
                     'cheminVueBody' => 'utilisateur/authentification.php'
                 ]);
             }
+        } else {
+            self::afficheVue('view.php', [
+                'pagetitle' => 'CONNEXION',
+                'cheminVueBody' => 'utilisateur/authentification.php'
+            ]);
         }
-    }                   
+    }                      
 
     public static function deconnexion() {
         session_unset(); // Supprime toutes les variables de session

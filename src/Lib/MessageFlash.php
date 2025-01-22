@@ -13,7 +13,7 @@ class MessageFlash
         }
     }
 
-    // 
+    // Verifie la connexion en cours
     public static function isConnected(): bool {
         self::demarrerSession();
         return isset($_SESSION['utilisateur_id']);
