@@ -63,14 +63,14 @@ if (!class_exists('App\Meteo\Config\Conf')) {
         public static function getBaseUrl(): string {
             $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
             $host = $_SERVER['HTTP_HOST'];
-            $scriptName = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
         
-            // Supprime le sous-dossier "Web" s'il est ajouté en double
-            $basePath = str_replace('/Web', '', $scriptName);
+            // Ajouter explicitement le chemin du projet "SAE3.01"
+            $basePath = '/SAE3.01';
         
             return rtrim($protocol . "://" . $host . $basePath, '/');
-        } 
+        }                      
         
     }
 }
+
 ?>

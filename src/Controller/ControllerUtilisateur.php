@@ -18,7 +18,7 @@ class ControllerUtilisateur {
         // Vérifie si l'utilisateur est connecté
         if (!isset($_SESSION['utilisateur_id'])) {
             MessageFlash::ajouter('error', "Vous devez être connecté pour voir cette page.");
-            header('Location: /Web/frontController.php?action=connexion&controller=utilisateur');
+            header('Location: /SAE3.01/Web/frontController.php?action=connexion&controller=utilisateur');
             exit();
         }
     
@@ -69,7 +69,7 @@ class ControllerUtilisateur {
                 $repository = new UtilisateurRepository();
                 if ($repository->sauvegarder($utilisateur)) {
                     MessageFlash::ajouter('success', "Inscription réussie !");
-                    header('Location: /Web/frontController.php');
+                    header('Location: /SAE3.01/Web/frontController.php');
                     exit();
                 } else {
                     MessageFlash::ajouter('error', "Erreur lors de l'inscription.");
@@ -119,7 +119,7 @@ class ControllerUtilisateur {
                 $_SESSION['role'] = $utilisateur->getRole();
     
                 MessageFlash::ajouter('success', "Bienvenue, " . htmlspecialchars($utilisateur->getPrenom()) . " !");
-                header('Location: /Web/frontController.php');
+                header('Location: /SAE3.01/Web/frontController.php');
                 exit();
             } catch (\Exception $e) {
                 MessageFlash::ajouter('error', $e->getMessage());
@@ -140,7 +140,7 @@ class ControllerUtilisateur {
         session_unset(); // Supprime toutes les variables de session
         session_destroy(); // Détruit la session
         MessageFlash::ajouter('success', "Vous avez été déconnecté.");
-        header('Location: /Web/frontController.php'); // Redirige vers la page d'accueil
+        header('Location: /SAE3.01/Web/frontController.php'); // Redirige vers la page d'accueil
         exit();
     }
 
@@ -149,7 +149,7 @@ class ControllerUtilisateur {
         if (!isset($_SESSION['utilisateur_id'])) {
             // Si l'utilisateur n'est pas connecté, redirigez vers la page de connexion
             MessageFlash::ajouter('error', "Veuillez vous connecter pour accéder au tableau de bord.");
-            header('Location: /Web/frontController.php?action=connexion&controller=utilisateur');
+            header('Location: /SAE3.01/Web/frontController.php?action=connexion&controller=utilisateur');
             exit();
         }
     
@@ -180,7 +180,7 @@ class ControllerUtilisateur {
                 ]);
             } else {
                 MessageFlash::ajouter('error', "Utilisateur introuvable.");
-                header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
+                header('Location: /SAE3.01/Web/frontController.php?action=readAll&controller=utilisateur');
                 exit();
             }
         } 
@@ -222,7 +222,7 @@ class ControllerUtilisateur {
             }
 
             // Redirection après traitement
-            header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
+            header('Location: /SAE3.01/Web/frontController.php?action=readAll&controller=utilisateur');
             exit();
         }
     }
@@ -241,7 +241,7 @@ class ControllerUtilisateur {
             MessageFlash::ajouter('error', "Utilisateur introuvable !");
         }
 
-        header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
+        header('Location: /SAE3.01/Web/frontController.php?action=readAll&controller=utilisateur');
         exit;
     }
 
@@ -251,7 +251,7 @@ class ControllerUtilisateur {
         // Seul un compte admin peut changer le role d'un utilisateur
         if ($_SESSION['role'] !== 'admin') {
             \App\Meteo\Lib\MessageFlash::ajouter('error', "Vous n'avez pas les permissions pour modifier les rôles.");
-            header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
+            header('Location: /SAE3.01/Web/frontController.php?action=readAll&controller=utilisateur');
             exit();
         }        
     
@@ -268,7 +268,7 @@ class ControllerUtilisateur {
                 ]);
             } else {
                 MessageFlash::ajouter('error', "Utilisateur introuvable.");
-                header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
+                header('Location: /SAE3.01/Web/frontController.php?action=readAll&controller=utilisateur');
                 exit();
             }
         }
@@ -279,7 +279,7 @@ class ControllerUtilisateur {
     
             if (!$id || !$nouveauRole) {
                 MessageFlash::ajouter('error', "ID ou rôle manquant.");
-                header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
+                header('Location: /SAE3.01/Web/frontController.php?action=readAll&controller=utilisateur');
                 exit();
             }
     
@@ -288,7 +288,7 @@ class ControllerUtilisateur {
     
             if (!$utilisateur) {
                 MessageFlash::ajouter('error', "Utilisateur introuvable.");
-                header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
+                header('Location: /SAE3.01/Web/frontController.php?action=readAll&controller=utilisateur');
                 exit();
             }
     
@@ -302,7 +302,7 @@ class ControllerUtilisateur {
                 MessageFlash::ajouter('error', "Erreur lors de la mise à jour du rôle.");
             }
     
-            header('Location: /Web/frontController.php?action=readAll&controller=utilisateur');
+            header('Location: /SAE3.01/Web/frontController.php?action=readAll&controller=utilisateur');
             exit();
         }
     }               

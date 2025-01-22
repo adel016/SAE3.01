@@ -20,11 +20,11 @@
                     <td><?= htmlspecialchars($utilisateur->getRole()) ?></td>
                     <td>
                         <?php if ($_SESSION['role'] === 'admin' || $utilisateur->getId() === $_SESSION['utilisateur_id']): ?>
-                            <a href="/Web/frontController.php?action=update&controller=utilisateur&id=<?= $utilisateur->getId() ?>" class="user ">Modifier</a>
+                            <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=update&controller=utilisateur&id=<?= $utilisateur->getId() ?>" class="user">Modifier</a>
                         <?php endif; ?>
-                        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=changerRole&controller=utilisateur&id=<?= $utilisateur->getId() ?>" class="user">Modifier le rôle</a>
                         <?php if ($_SESSION['role'] === 'admin'): ?>
-                            <a href="/Web/frontController.php?action=delete&controller=utilisateur&id=<?= $utilisateur->getId() ?>" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');" class="user danger">Supprimer</a>
+                            <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=changerRole&controller=utilisateur&id=<?= $utilisateur->getId() ?>" class="user">Modifier le rôle</a>
+                            <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=delete&controller=utilisateur&id=<?= $utilisateur->getId() ?>" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');" class="user danger">Supprimer</a>
                         <?php endif; ?>
                     </td>
                 </tr>

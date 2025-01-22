@@ -16,7 +16,7 @@ class ControllerMeteotheque {
 
         if (!$userId) {
             MessageFlash::ajouter('error', "Vous devez être connecté pour voir les collections météo.");
-            header("Location: /Web/frontController.php?action=connexion&controller=utilisateur");
+            header("Location: /SAE3.01/Web/frontController.php?action=connexion&controller=utilisateur");
             exit();
         }
 
@@ -57,7 +57,7 @@ class ControllerMeteotheque {
 
             if ($repository->sauvegarder($meteotheque)) {
                 MessageFlash::ajouter('success', "Meteotheque créée avec succès.");
-                header("Location: /Web/frontController.php?action=readAll&controller=meteotheque");
+                header("Location: /SAE3.01/Web/frontController.php?action=readAll&controller=meteotheque");
                 exit();
             } else {
                 MessageFlash::ajouter('error', "Erreur lors de la création de la Meteotheque.");
@@ -75,7 +75,7 @@ class ControllerMeteotheque {
         $meteoId = $_GET['id'] ?? null;
         if (!$meteoId) {
             MessageFlash::ajouter('error', "Aucune collection spécifiée.");
-            header("Location: /Web/frontController.php?action=readAll&controller=meteotheque");
+            header("Location: /SAE3.01/Web/frontController.php?action=readAll&controller=meteotheque");
             exit();
         }
 
@@ -84,7 +84,7 @@ class ControllerMeteotheque {
 
         if (!$meteotheque || ($meteotheque->getUtilisateurId() !== $userId && $_SESSION['role'] !== 'admin')) {
             MessageFlash::ajouter('error', "Vous n'avez pas accès à cette collection.");
-            header("Location: /Web/frontController.php?action=readAll&controller=meteotheque");
+            header("Location: /SAE3.01/Web/frontController.php?action=readAll&controller=meteotheque");
             exit();
         }
 
@@ -123,7 +123,7 @@ class ControllerMeteotheque {
             MessageFlash::ajouter('error', "Aucune Meteotheque spécifiée.");
         }
 
-        header("Location: /Web/frontController.php?action=readAll&controller=meteotheque");
+        header("Location: /SAE3.01/Web/frontController.php?action=readAll&controller=meteotheque");
         exit();
     }
 
