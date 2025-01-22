@@ -10,33 +10,40 @@
 </head>
 <body>
     <header>
-        <nav class="navbar">
-            <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php" class="title">MeteoVision</a>
-            <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=readAll&controller=utilisateur">Tableau de bord</a>
-            <a href="#">Observations</a>
-            <a href="#">Météo dans ma ville</a>
-            <a href="#">Contact</a>
+    <nav class="navbar">
+    <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php" class="title">MeteoVision</a>
+    <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=readAll&controller=utilisateur">Tableau de bord</a>
+    <a href="#">Observations</a>
+    <a href="#">Météo dans ma ville</a>
+    <a href="#">Contact</a>
 
-            <?php if (isset($_SESSION['utilisateur_id'])): ?>
-                <!-- Lien de déconnexion -->
-                <div class="user-info">
-                    <span class="user-name">
-                        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=readAll&controller=utilisateur">
-                            <?= isset($_SESSION['prenom']) ? htmlspecialchars($_SESSION['prenom']) : '' ?> 
-                            <?= isset($_SESSION['nom']) ? htmlspecialchars($_SESSION['nom']) : '' ?>
-                        </a>
-                    </span>
-                    <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=deconnexion&controller=utilisateur" class="logout-link">
-                        Déconnexion
-                    </a>
-                </div>
-            <?php else: ?>
-                <!-- Lien de connexion si l'utilisateur n'est pas connecté -->
-                <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=connexion&controller=utilisateur" class="compte-lien">
-                    <img src="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/img/compte_logo.png" alt="LOGO DE COMPTE" class="compte-image">
+    <?php if (isset($_SESSION['utilisateur_id'])): ?>
+        <div class="user-info">
+            <span class="user-name">
+                <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=readAll&controller=utilisateur">
+                    <?= isset($_SESSION['prenom']) ? htmlspecialchars($_SESSION['prenom']) : '' ?> 
+                    <?= isset($_SESSION['nom']) ? htmlspecialchars($_SESSION['nom']) : '' ?>
+                </a>
+            </span>
+
+            <!-- Vérification si l'utilisateur est admin pour afficher le bouton "Tableau de bord admin" -->
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=tableauDeBord&controller=admin" class="admin-dashboard-link">
+                    Tableau de bord admin
                 </a>
             <?php endif; ?>
-        </nav>
+
+            <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=deconnexion&controller=utilisateur" class="logout-link">
+                Déconnexion
+            </a>
+        </div>
+    <?php else: ?>
+        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=connexion&controller=utilisateur" class="compte-lien">
+            <img src="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/img/compte_logo.png" alt="LOGO DE COMPTE" class="compte-image">
+        </a>
+    <?php endif; ?>
+</nav>
+
     </header>
 
         <?php
