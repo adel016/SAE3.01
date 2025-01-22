@@ -76,7 +76,7 @@ abstract class AbstractRepository {
     }
 
     // Méthode générique pour supprimer un objet par clé primaire
-    public function delete(string $id): bool {
+    protected function delete(string $id): bool {
         $pdo = DatabaseConnection::getPdo();
         $sql = "DELETE FROM " . $this->getNomTable() . " WHERE " . $this->getPrimaryKey() . " = :id";
         $pdoStatement = $pdo->prepare($sql);

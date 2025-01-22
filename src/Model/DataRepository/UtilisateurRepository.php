@@ -30,4 +30,32 @@ class UtilisateurRepository extends AbstractRepository {
             $data['etat_compte']
         );
     }
+    
+
+#################################
+######### PARTIE ADMIN ##########
+#################################
+
+// Ici j'ai décider de les mettre en public pour pouvoir les utiliser dans le controllerAdmin.php sans compliqué la tâche 
+    public function modifierRole(string $id, string $nouveauRole): bool {
+        $pdo = DatabaseConnection::getPdo();
+        $sql = "UPDATE " . $this->getNomTable() . " SET role = :role WHERE " . $this->getPrimaryKey() . " = :id";
+        $stmt = $pdo->prepare($sql);
+        return $stmt->execute([':role' => $nouveauRole, ':id' => $id]);
+    }
+
+// Ici j'ai décider de les mettre en public pour pouvoir les utiliser dans le controllerAdmin.php sans compliqué la tâche 
+    // Supprimer un utilisateur
+    public function delete(string $id): bool {
+        $pdo = DatabaseConnection::getPdo();
+        $sql = "DELETE FROM " . $this->getNomTable() . " WHERE " . $this->getPrimaryKey() . " = :id";
+        $stmt = $pdo->prepare($sql);
+        return $stmt->execute([':id' => $id]);
+    }
+
+    
+    
+
 }
+
+
