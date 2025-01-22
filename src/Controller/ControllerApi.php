@@ -4,7 +4,12 @@ namespace App\Meteo\Controller;
 
 class ControllerApi {
     public static function getSynopData() {
-        $apiUrl = 'https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/donnees-synop-essentielles-omm/records?limit=100';
+        // Définir une plage de dates pour tester les données
+        $dateDebut = date('Y-m-d', strtotime('-1 days')); // Plage de 7 jours avant aujourd'hui
+        $dateFin = date('Y-m-d'); // Aujourd'hui
+
+        // URL de l'API
+        $apiUrl = "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/donnees-synop-essentielles-omm/records?limit=100&where=date%20%3E%3D%20%22{$dateDebut}%22%20AND%20date%20%3C%3D%20%22{$dateFin}%22";
 
         // Récupérer les données depuis l'API
         $response = file_get_contents($apiUrl);
@@ -29,17 +34,17 @@ class ControllerApi {
         // Traiter les enregistrements
         $stations = array_map(function ($record) {
             // Extraire les données des stations
-            $fields = $record;
+            $fields = $record; // Les données sont directement accessibles dans chaque résultat
 
             return [
-                'latitude' => $fields['latitude'] ?? null,
-                'longitude' => $fields['longitude'] ?? null,
+                'latitude' => $fields['coordonnees']['lat'] ?? null,
+                'longitude' => $fields['coordonnees']['lon'] ?? null,
                 'ville' => $fields['libgeo'] ?? 'Inconnue',
                 'region' => $fields['nom_reg'] ?? 'Inconnue',
-                'temp' => isset($fields['tc']) ? round($fields['tc'], 1) : '--', // Température arrondie à 1 décimale
-                'humidity' => isset($fields['u']) ? round($fields['u'], 1) : '--', // Humidité arrondie à 1 décimale
-                'windSpeed' => isset($fields['ff']) ? round($fields['ff'], 1) : '--', // Vitesse du vent arrondie à 1 décimale
-                'altitude' => isset($fields['altitude']) ? round($fields['altitude'], 1) : '--', // Altitude arrondie à 1 décimale
+                'temp' => isset($fields['t']) ? round($fields['t'] - 273.15, 1) : '--', // Convertir de Kelvin à Celsius
+                'humidity' => isset($fields['u']) ? round($fields['u'], 1) : '--', // Humidité arrondie
+                'windSpeed' => isset($fields['ff']) ? round($fields['ff'], 1) : '--', // Vitesse du vent arrondie
+                'altitude' => isset($fields['altitude']) ? round($fields['altitude'], 1) : '--', // Altitude arrondie
             ];
         }, $data['results']);
 
