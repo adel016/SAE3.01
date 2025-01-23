@@ -258,7 +258,21 @@ document.getElementById('searchRegionButton').addEventListener('click', () => {
         return;
     }
 
-    // Si ce n'est pas une station, rechercher une région
-    showRegionData(regionInput);
+    // Vérifier si une région correspond au nom saisi
+    const matchingRegion = geojsonData.features.find(
+        feature => feature.properties.nom.toLowerCase() === regionInput.toLowerCase()
+    );
+    if (matchingRegion) {
+        const { nom } = matchingRegion.properties;
+        const [longitude, latitude] = matchingRegion.geometry.coordinates[0][0];
+
+        // Centrer sur la région et afficher ses données
+        map.setView([latitude, longitude], 8);
+        showRegionData(nom);
+
+        return;
+    }
+
+    // Si aucune correspondance n'est trouvée
+    alert('Aucune région ou station correspondante trouvée. Veuillez réessayer.');
 });
-</script>
