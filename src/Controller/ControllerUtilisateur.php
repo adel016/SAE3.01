@@ -146,7 +146,7 @@ class ControllerUtilisateur {
     public static function deconnexion() {
         session_unset(); // Supprime toutes les variables de session
         session_destroy(); // Détruit la session
-        MessageFlash::ajouter('success', "Vous avez été déconnecté.");
+        MessageFlash::ajouter('success', "Revenez-nous voir !");
         header('Location: /SAE3.01/Web/frontController.php'); // Redirige vers la page d'accueil
         exit();
     }  
@@ -222,21 +222,28 @@ class ControllerUtilisateur {
         if (isset($_GET['id'])) {
             $id = $_GET['id'];
             $repository = new UtilisateurRepository();
-            
-            if ($repository->delete($id)) {
-                MessageFlash::ajouter('success', "Utilisateur supprimé avec succès.");
-                header('Location: /SAE3.01/Web/frontController.php');
-                exit;
+    
+            // Vérifie si l'utilisateur connecté est bien celui qu'il souhaite supprimer
+            if (isset($_SESSION['utilisateur_id']) && $_SESSION['utilisateur_id'] == $id) {
+                if ($repository->delete($id)) {
+                    self::deconnexion();
+                    MessageFlash::ajouter('success', "Votre compte a été supprimé avec succès.");
+                    header('Location: /SAE3.01/Web/frontController.php');
+                    exit;
+                } else {
+                    MessageFlash::ajouter('error', "Échec de la suppression du compte.");
+                }
             } else {
-                MessageFlash::ajouter('error', "Échec de la suppression.");
+                MessageFlash::ajouter('error', "Vous ne pouvez pas supprimer ce compte.");
             }
         } else {
             MessageFlash::ajouter('error', "Utilisateur introuvable !");
         }
-
+    
         header('Location: /SAE3.01/Web/frontController.php');
         exit;
     }
+    
 
     public static function changerRole() {
         $id = $_GET['id'] ?? null;

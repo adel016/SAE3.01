@@ -5,7 +5,7 @@ namespace App\Meteo\Controller;
 class ControllerApi {
     public static function getSynopData() {
         // Définir une plage de dates pour tester les données
-        $dateDebut = date('Y-m-d', strtotime('-1 days')); // Plage de 7 jours avant aujourd'hui
+        $dateDebut = date('Y-m-d', strtotime('-1 days')); // hier
         $dateFin = date('Y-m-d'); // Aujourd'hui
 
         // URL de l'API
