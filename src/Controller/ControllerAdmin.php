@@ -3,6 +3,8 @@
 namespace App\Meteo\Controller;
 
 use App\Meteo\Model\DataRepository\UtilisateurRepository;
+use App\Meteo\Model\DataRepository\LogRepository;
+
 
 class ControllerAdmin {
     // Afficher le tableau de bord des administrateurs
@@ -65,6 +67,28 @@ class ControllerAdmin {
         extract($parametres);
         require $cheminComplet;
     }
+
+    public static function afficherStatistiques() {
+        self::verifierAdmin();
+
+        $repository = new LogRepository();
+        $nombreInscriptions = $repository->countByAction('inscription');
+        $nombreConnexions = $repository->countByAction('connexion');
+        $logs = $repository->getAll();
+
+        $inscriptionsParJour = $repository->getActionsParJour('inscription');
+        $connexionsParJour = $repository->getActionsParJour('connexion');
+
+        self::afficheVue('admin/statistiques.php', [
+            'nombreInscriptions' => $nombreInscriptions,
+            'nombreConnexions' => $nombreConnexions,
+            'logs' => $logs,
+            'inscriptionsParJour' => $inscriptionsParJour,
+            'connexionsParJour' => $connexionsParJour,
+        ]);
+    }
+
+    
 
 }
 

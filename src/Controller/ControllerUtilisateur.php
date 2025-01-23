@@ -3,6 +3,7 @@
 namespace App\Meteo\Controller;
 
 use App\Meteo\Model\DataRepository\UtilisateurRepository;
+use App\Meteo\Model\DataRepository\LogRepository;
 use App\Meteo\Model\DataObject\Utilisateur;
 use App\Meteo\Lib\MessageFlash;
 
@@ -73,6 +74,10 @@ class ControllerUtilisateur {
                     $_SESSION['nom'] = $nouvelUtilisateur->getNom();
                     $_SESSION['prenom'] = $nouvelUtilisateur->getPrenom();
                     $_SESSION['role'] = $nouvelUtilisateur->getRole();
+
+                    // Ajouter une entrée dans les logs pour l'inscription
+                    $logRepository = new LogRepository();
+                    $logRepository->addLog($nouvelUtilisateur->getId(), 'inscription');
     
                     MessageFlash::ajouter('success', "Inscription réussie ! Vous êtes maintenant connecté.");
                     header('Location: /SAE3.01/Web/frontController.php');
@@ -124,6 +129,10 @@ class ControllerUtilisateur {
                 $_SESSION['nom'] = $utilisateur->getNom();
                 $_SESSION['prenom'] = $utilisateur->getPrenom();
                 $_SESSION['role'] = $utilisateur->getRole();
+
+                // Ajouter une entrée dans les logs pour la connexion
+                $logRepository = new LogRepository();
+                $logRepository->addLog($utilisateur->getId(), 'connexion');
     
                 MessageFlash::ajouter('success', "Bienvenue, " . htmlspecialchars($utilisateur->getPrenom()) . " !");
                 header('Location: /SAE3.01/Web/frontController.php');
