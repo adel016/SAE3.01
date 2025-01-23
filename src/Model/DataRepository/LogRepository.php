@@ -47,19 +47,26 @@ class LogRepository extends AbstractRepository {
     }
 
     public function getActionsParJour($action) {
-        $query = "SELECT DAYOFWEEK(timestamp) as jour, COUNT(*) as count FROM " . $this->getNomTable() . " WHERE action = :action GROUP BY jour";
+        $query = "
+            SELECT DAYOFWEEK(timestamp) AS jour, COUNT(*) AS count
+            FROM " . $this->getNomTable() . "
+            WHERE action = :action
+            GROUP BY jour
+        ";
         $stmt = Conf::getPDO()->prepare($query);
         $stmt->bindParam(':action', $action);
         $stmt->execute();
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-        $actionsParJour = array_fill(0, 7, 0); // Initialise un tableau avec 7 zéros (un pour chaque jour de la semaine)
+        // Initialiser un tableau pour les jours de la semaine
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $actionsParJour = array_fill(0, 7, 0); // Dimanche = 1, Samedi = 7
+    
         foreach ($result as $row) {
-            $actionsParJour[$row['jour'] - 1] = $row['count']; // DAYOFWEEK retourne 1 pour dimanche, 2 pour lundi, etc.
+            $jourIndex = $row['jour'] - 1; // Convertir pour commencer à 0
+            $actionsParJour[$jourIndex] = (int) $row['count'];
         }
     
         return $actionsParJour;
-    }
-
+    }    
     
 }

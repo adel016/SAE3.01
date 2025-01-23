@@ -4,92 +4,87 @@ namespace App\Meteo\Controller;
 
 use App\Meteo\Model\DataRepository\UtilisateurRepository;
 use App\Meteo\Model\DataRepository\LogRepository;
-
+use App\Meteo\Lib\MessageFlash;
 
 class ControllerAdmin {
-    // Afficher le tableau de bord des administrateurs
+
+    // Affiche le tableau de bord principal
     public static function tableauDeBord() {
-        self::verifierAdmin();
+        $utilisateurRepository = new UtilisateurRepository();
+        $utilisateurs = $utilisateurRepository->getAll(); // Récupère tous les utilisateurs
 
-        $repository = new UtilisateurRepository();
-        $utilisateurs = $repository->getAll();
-
-        self::afficheVue('admin/AdminDashBoard.php', [
+        // Affiche la vue générique avec la liste des utilisateurs
+        self::afficheVue('admin.php', [
+            'pagetitle' => 'Tableau de bord Admin',
+            'cheminVueBody' => 'admin/AdminDashBoard.php',
             'utilisateurs' => $utilisateurs,
         ]);
     }
 
-    // Promouvoir un utilisateur au rôle d'admin
+    // Affiche les statistiques et logs dans une vue dédiée
+    public static function StatistiquesEtLogs() {
+        $logRepository = new LogRepository();
+
+        // Récupérer les statistiques générales
+        $nombreInscriptions = $logRepository->countByAction('inscription');
+        $nombreConnexions = $logRepository->countByAction('connexion');
+
+        // Récupérer les données par jour pour les graphiques
+        $inscriptionsParJour = $logRepository->getActionsParJour('inscription');
+        $connexionsParJour = $logRepository->getActionsParJour('connexion');
+
+        // Récupérer tous les logs
+        $logs = $logRepository->getAll();
+
+        // Appeler la vue avec les données nécessaires
+        self::afficheVue('admin.php', [
+            'pagetitle' => 'Statistiques',
+            'cheminVueBody' => 'admin/statistiques.php',
+            'nombreInscriptions' => $nombreInscriptions,
+            'nombreConnexions' => $nombreConnexions,
+            'inscriptionsParJour' => $inscriptionsParJour,
+            'connexionsParJour' => $connexionsParJour,
+            'logs' => $logs
+        ]);
+    }
+
+    // Promouvoir un utilisateur au rôle admin
     public static function promouvoirAdmin() {
-        self::verifierAdmin();
-
-        $id = $_POST['utilisateur_id'] ?? null;
-
-        if ($id) {
-            $repository = new UtilisateurRepository();
-            $repository->modifierRole($id, 'admin');
-
-            header('Location: ' . \App\Meteo\Config\Conf::getBaseUrl() . '/Web/frontController.php?action=tableauDeBord&controller=admin');
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $utilisateurId = $_POST['utilisateur_id'] ?? null;
+            if ($utilisateurId) {
+                $utilisateurRepository = new UtilisateurRepository();
+                $utilisateur = $utilisateurRepository->select($utilisateurId);
+                if ($utilisateur && $utilisateur->getRole() !== 'admin') {
+                    $utilisateur->setRole('admin');
+                    $utilisateurRepository->update($utilisateur);
+                    MessageFlash::ajouter('success', 'Utilisateur promu au rôle d\'admin.');
+                }
+            }
+            header('Location: ?action=tableauDeBord&controller=admin');
             exit();
         }
     }
 
     // Supprimer un utilisateur
     public static function supprimerUtilisateur() {
-        self::verifierAdmin();
-
-        $id = $_POST['utilisateur_id'] ?? null;
-
-        if ($id) {
-            $repository = new UtilisateurRepository();
-            $repository->delete($id);
-
-            header('Location: ' . \App\Meteo\Config\Conf::getBaseUrl() . '/Web/frontController.php?action=tableauDeBord&controller=admin');
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $utilisateurId = $_POST['utilisateur_id'] ?? null;
+            if ($utilisateurId) {
+                $utilisateurRepository = new UtilisateurRepository();
+                $utilisateurRepository->delete($utilisateurId);
+                MessageFlash::ajouter('success', 'Utilisateur supprimé avec succès.');
+            }
+            header('Location: ?action=tableauDeBord&controller=admin');
             exit();
         }
     }
 
-    // Méthode privée pour vérifier si l'utilisateur est un administrateur
-    private static function verifierAdmin() {
-        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-            header('Location: ' . \App\Meteo\Config\Conf::getBaseUrl() . '/Web/frontController.php?action=connexion&controller=utilisateur');
-            exit();
-        }
-    }
-
-    private static function afficheVue(string $cheminVue, array $parametres = []): void {
-        $cheminComplet = __DIR__ . '/../View/' . $cheminVue; // Ajustement pour src\View
-    
-        if (!file_exists($cheminComplet)) {
-            die("Erreur : Fichier introuvable -> " . $cheminComplet);
-        }
-    
+    // Méthode générique pour afficher une vue
+    private static function afficheVue($vue, $parametres = []) {
         extract($parametres);
-        require $cheminComplet;
+        require __DIR__ . "/../View/{$vue}";
     }
-
-    public static function afficherStatistiques() {
-        self::verifierAdmin();
-
-        $repository = new LogRepository();
-        $nombreInscriptions = $repository->countByAction('inscription');
-        $nombreConnexions = $repository->countByAction('connexion');
-        $logs = $repository->getAll();
-
-        $inscriptionsParJour = $repository->getActionsParJour('inscription');
-        $connexionsParJour = $repository->getActionsParJour('connexion');
-
-        self::afficheVue('admin/statistiques.php', [
-            'nombreInscriptions' => $nombreInscriptions,
-            'nombreConnexions' => $nombreConnexions,
-            'logs' => $logs,
-            'inscriptionsParJour' => $inscriptionsParJour,
-            'connexionsParJour' => $connexionsParJour,
-        ]);
-    }
-
-    
-
 }
 
 ?>
