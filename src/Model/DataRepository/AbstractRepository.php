@@ -48,18 +48,29 @@ abstract class AbstractRepository {
     // Methode specifique pour recuperer un objet avec son email
     public function selectByEmail(string $email): ?Utilisateur {
         $pdo = DatabaseConnection::getPdo();
-        $sql = "SELECT * FROM utilisateurs WHERE email = :email LIMIT 1";
-        $pdoStatement = $pdo->prepare($sql);
-        $pdoStatement->execute([':email' => $email]);
-        $result = $pdoStatement->fetch(PDO::FETCH_ASSOC);
+        $query = "SELECT * FROM Utilisateurs WHERE email = :email";
+        $stmt = $pdo->prepare($query);
+        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+        $stmt->execute();
     
-        if ($result) {
-            return $this->construire($result);
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+        if ($data) {
+            return new Utilisateur(
+                $data['utilisateur_id'],
+                $data['nom'],
+                $data['prenom'],
+                $data['email'],
+                $data['mot_de_passe'], // Mot de passe haché
+                $data['date_creation'],
+                $data['role'],
+                $data['etat_compte']
+            );
         }
     
-        return null;
-    }        
-
+        return null; // Aucun utilisateur trouvé
+    }
+          
     // Methode specifique pour recuperer un objet avec sa region
     public function selectByReg(string $region): ?array {
         $pdo = DatabaseConnection::getPdo();
@@ -76,7 +87,7 @@ abstract class AbstractRepository {
     }
 
     // Méthode générique pour supprimer un objet par clé primaire
-    protected function delete(string $id): bool {
+    public function delete(string $id): bool {
         $pdo = DatabaseConnection::getPdo();
         $sql = "DELETE FROM " . $this->getNomTable() . " WHERE " . $this->getPrimaryKey() . " = :id";
         $pdoStatement = $pdo->prepare($sql);
