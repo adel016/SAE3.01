@@ -22,22 +22,15 @@ class ControllerUtilisateur {
             exit();
         }
     
+        // Recupere les infos de l'utilisateur
         $repository = new UtilisateurRepository();
+        $utilisateurId = $_SESSION['utilisateur_id'];
+        $utilisateur = $repository->select($utilisateurId);
     
-        // Si l'utilisateur est un admin, il peut voir tous les utilisateurs
-        if ($_SESSION['role'] === 'admin') {
-            $utilisateurs = $repository->getAll();
-        } else {
-            // Sinon, ne récupérer que lui-même
-            $utilisateurId = $_SESSION['utilisateur_id'];
-            $utilisateur = $repository->select($utilisateurId);
-            $utilisateurs = $utilisateur ? [$utilisateur] : [];
-        }
-    
-        // Affiche la vue avec les utilisateurs filtrés
+        // Affiche la vue avec l'utilisateur en question
         self::afficheVue('view.php', [
-            'utilisateurs' => $utilisateurs,
-            'pagetitle' => "Liste des utilisateurs",
+            'utilisateur' => $utilisateur,
+            'pagetitle' => "Profil utilisateur",
             'cheminVueBody' => "utilisateur/list.php"
         ]);
     }
@@ -45,7 +38,7 @@ class ControllerUtilisateur {
 
     public static function inscription() {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            // Afficher le formulaire d'inscription
+            // Afficher le formulaire d'inscription (inchangé)
             self::afficheVue('view.php', [
                 'pagetitle' => "Inscription",
                 'cheminVueBody' => "utilisateur/authentification.php"
@@ -68,7 +61,20 @@ class ControllerUtilisateur {
     
                 $repository = new UtilisateurRepository();
                 if ($repository->sauvegarder($utilisateur)) {
-                    MessageFlash::ajouter('success', "Inscription réussie !");
+                    // Inscription réussie, maintenant connectons l'utilisateur
+                    if (session_status() === PHP_SESSION_NONE) {
+                        session_start();
+                    }
+    
+                    // Récupérer l'ID de l'utilisateur nouvellement créé
+                    $nouvelUtilisateur = $repository->selectByEmail($email);
+    
+                    $_SESSION['utilisateur_id'] = $nouvelUtilisateur->getId();
+                    $_SESSION['nom'] = $nouvelUtilisateur->getNom();
+                    $_SESSION['prenom'] = $nouvelUtilisateur->getPrenom();
+                    $_SESSION['role'] = $nouvelUtilisateur->getRole();
+    
+                    MessageFlash::ajouter('success', "Inscription réussie ! Vous êtes maintenant connecté.");
                     header('Location: /SAE3.01/Web/frontController.php');
                     exit();
                 } else {
@@ -78,11 +84,12 @@ class ControllerUtilisateur {
                 MessageFlash::ajouter('error', "Tous les champs sont obligatoires.");
             }
         }
+        // Si on arrive ici, c'est qu'il y a eu une erreur
         self::afficheVue('view.php', [
             'pagetitle' => "Inscription",
             'cheminVueBody' => "utilisateur/authentification.php"
         ]);
-    }
+    }    
        
     public static function connexion() {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -142,23 +149,7 @@ class ControllerUtilisateur {
         MessageFlash::ajouter('success', "Vous avez été déconnecté.");
         header('Location: /SAE3.01/Web/frontController.php'); // Redirige vers la page d'accueil
         exit();
-    }
-
-    public static function tableauDeBord() {
-        session_start();
-        if (!isset($_SESSION['utilisateur_id'])) {
-            // Si l'utilisateur n'est pas connecté, redirigez vers la page de connexion
-            MessageFlash::ajouter('error', "Veuillez vous connecter pour accéder au tableau de bord.");
-            header('Location: /SAE3.01/Web/frontController.php?action=connexion&controller=utilisateur');
-            exit();
-        }
-    
-        // Si l'utilisateur est connecté, affichez le tableau de bord
-        self::afficheVue('view.php', [
-            'pagetitle' => 'TABLEAU DE BORD',
-            'cheminVueBody' => 'tableauDeBord/index.php'
-        ]);
-    }    
+    }  
 
 #################################
 ######### PARTIE ADMIN ##########
@@ -234,6 +225,8 @@ class ControllerUtilisateur {
             
             if ($repository->delete($id)) {
                 MessageFlash::ajouter('success', "Utilisateur supprimé avec succès.");
+                header('Location: /SAE3.01/Web/frontController.php');
+                exit;
             } else {
                 MessageFlash::ajouter('error', "Échec de la suppression.");
             }
@@ -241,7 +234,7 @@ class ControllerUtilisateur {
             MessageFlash::ajouter('error', "Utilisateur introuvable !");
         }
 
-        header('Location: /SAE3.01/Web/frontController.php?action=readAll&controller=utilisateur');
+        header('Location: /SAE3.01/Web/frontController.php');
         exit;
     }
 
@@ -312,3 +305,5 @@ class ControllerUtilisateur {
         require __DIR__ . '/../view/' . $cheminVue; // Charge la vue spécifiée
     }
 }
+
+?>

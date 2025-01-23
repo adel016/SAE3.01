@@ -20,10 +20,12 @@
     <?php if (isset($_SESSION['utilisateur_id'])): ?>
         <div class="user-info">
             <span class="user-name">
-                <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=readAll&controller=utilisateur">
-                    <?= isset($_SESSION['prenom']) ? htmlspecialchars($_SESSION['prenom']) : '' ?> 
-                    <?= isset($_SESSION['nom']) ? htmlspecialchars($_SESSION['nom']) : '' ?>
-                </a>
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'utilisateur'): ?>
+                    <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=readAll&controller=utilisateur">
+                        <?= isset($_SESSION['prenom']) ? htmlspecialchars($_SESSION['prenom']) : '' ?> 
+                        <?= isset($_SESSION['nom']) ? htmlspecialchars($_SESSION['nom']) : '' ?>
+                    </a>
+                <?php endif; ?>
             </span>
 
             <!-- Vérification si l'utilisateur est admin pour afficher le bouton "Tableau de bord admin" -->

@@ -381,58 +381,45 @@ footer:hover {
 
 /* PAGE DES UTILISATEURS */
 /* Liste des utilisateurs */
-
-table {
-    width: 95%; /* Réduit la largeur pour ne pas encombrer les bords */
-    margin: 20px auto; /* Centre le tableau horizontalement */
-    border-collapse: collapse;
-    background-color: #f9f9f9; /* Couleur de fond claire */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Ajout d'une ombre subtile */
+.profile-container {
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-table th, table td {
-    padding: 12px 15px; /* Espacement pour un affichage aéré */
-    border: 1px solid #ddd; /* Bordure légère */
-    text-align: left;
+.user-details p {
+    margin: 10px 0;
 }
 
-table th {
-    background: linear-gradient(to bottom, #84d0f1, #c7eafd);
+.profile-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
     color: white;
     font-weight: bold;
 }
 
-table tr:nth-child(even) {
-    background-color: #f2f2f2; /* Ligne alternée */
+.btn-primary {
+    background-color: #007bff;
 }
 
-table tr:hover {
-    background-color: #e8fafc; /* Surlignage au survol */
+.btn-danger {
+    background-color: #dc3545;
 }
 
-.user {
-    display: inline-block;
-    padding: 8px 12px;
-    margin: 5px; /* Espacement entre les boutons */
-    background-color: #f8e58c; /* Couleur douce pour différencier les actions */
-    color: #333;
-    text-decoration: none;
-    border-radius: 5px;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Ombre subtile */
-}
-
-.user:hover {
-    background-color: #d4c56b; /* Changement de couleur au survol */
-}
-
-.user.danger {
-    background-color: #f88c8c; /* Couleur rouge pour supprimer */
-}
-
-.user.danger:hover {
-    background-color: #e66a6a; /* Rouge plus foncé au survol */
+.btn:hover {
+    opacity: 0.9;
 }
 
 /* UTILISATEUR - inscription et connexion */

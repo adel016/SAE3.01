@@ -1,36 +1,18 @@
-<h1>Liste des utilisateurs</h1>
+<div class="profile-container">
+    <h1>Bienvenue sur votre profil, <?= htmlspecialchars($utilisateur->getPrenom()) ?> !</h1>
 
-<?php if (!empty($utilisateurs)): ?>
-    <table>
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Prénom</th>
-                <th>Email</th>
-                <th>Rôle</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($utilisateurs as $utilisateur): ?>
-                <tr>
-                    <td><?= htmlspecialchars($utilisateur->getNom()) ?></td>
-                    <td><?= htmlspecialchars($utilisateur->getPrenom()) ?></td>
-                    <td><?= htmlspecialchars($utilisateur->getEmail()) ?></td>
-                    <td><?= htmlspecialchars($utilisateur->getRole()) ?></td>
-                    <td>
-                        <?php if ($_SESSION['role'] === 'admin' || $utilisateur->getId() === $_SESSION['utilisateur_id']): ?>
-                            <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=update&controller=utilisateur&id=<?= $utilisateur->getId() ?>" class="user">Modifier</a>
-                        <?php endif; ?>
-                        <?php if ($_SESSION['role'] === 'admin'): ?>
-                            <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=changerRole&controller=utilisateur&id=<?= $utilisateur->getId() ?>" class="user">Modifier le rôle</a>
-                            <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=delete&controller=utilisateur&id=<?= $utilisateur->getId() ?>" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');" class="user danger">Supprimer</a>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-<?php else: ?>
-    <p>Aucun utilisateur trouvé.</p>
-<?php endif; ?>
+    <?php if ($utilisateur): ?>
+        <div class="user-details">
+            <p><strong>Nom :</strong> <?= htmlspecialchars($utilisateur->getNom()) ?></p>
+            <p><strong>Prénom :</strong> <?= htmlspecialchars($utilisateur->getPrenom()) ?></p>
+            <p><strong>Email :</strong> <?= htmlspecialchars($utilisateur->getEmail()) ?></p>
+            <p><strong>Rôle :</strong> <?= htmlspecialchars($utilisateur->getRole()) ?></p>
+        </div>
+        <div class="profile-actions">
+            <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=update&controller=utilisateur&id=<?= $utilisateur->getId() ?>" class="btn btn-primary">Modifier mon profil</a>
+            <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=delete&controller=utilisateur&id=<?= $utilisateur->getId() ?>" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.');">Supprimer mon compte</a>
+        </div>
+    <?php else: ?>
+        <p>Aucune information de profil disponible.</p>
+    <?php endif; ?>
+</div>

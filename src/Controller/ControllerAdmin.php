@@ -65,8 +65,7 @@ class ControllerAdmin {
         extract($parametres);
         require $cheminComplet;
     }
-    
-    
-    
-    
+
 }
+
+?>
