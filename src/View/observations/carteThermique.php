@@ -32,7 +32,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const map = L.map('mapContainer').setView([46.603354, 1.888334], 6);
+    const map = L.map('mapContainer', {
+        attributionControl: false,
+    }).setView([46.603354, 1.888334], 6);
     let geojsonLayer;
     let geojsonData; // Variable pour stocker les données GeoJSON
 
