@@ -12,7 +12,10 @@
     <header>
     <nav class="navbar">
         <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php" class="title">MeteoVision</a>
-        <a href="#">Tableau de bord</a>
+        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=index&controller=tableauDeBord">Tableau de bord</a>
+        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=rechercheAvancee&controller=tableauDeBord">Recherche Avancée</a>
+
+
         <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=default&controller=api">Observations</a>
         <a href="#">Météo dans ma ville</a>
         <a href="#">Contact</a>
