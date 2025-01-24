@@ -188,18 +188,6 @@ main.index .weather-details ul li .icon {
     outline: none;
 }
 
-.map {
-    position: relative;
-    width: 80%;
-    max-width: 400px;
-}
-
-.map img {
-    width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-}
-
 .container { 
     display: flex;
     align-items: center;

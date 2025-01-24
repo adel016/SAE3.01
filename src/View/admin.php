@@ -31,9 +31,6 @@
                         <a class="nav-link" href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=default&controller=api">Observations</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Météo dans ma ville</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="#">Contact</a>
                     </li>
                 </ul>
