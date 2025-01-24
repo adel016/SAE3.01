@@ -15,7 +15,9 @@
 <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
 <script>
-    const map = L.map('map').setView([46.603354, 1.888334], 6);
+    const map = L.map('map', {
+        attributionControl: false,
+    }).setView([46.603354, 1.888334], 6);
 
     // Charger les tuiles de la carte
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
