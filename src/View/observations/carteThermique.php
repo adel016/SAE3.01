@@ -34,10 +34,13 @@
                value > 5 ? 'lime' : 'blue' ;
     };
 
+    let geojsonData; // Variable globale pour stocker les données GeoJSON
+
     // Charger les données GeoJSON des régions
     fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/gjson/regions.geojson')
         .then(response => response.json())
-        .then(geojsonData => {
+        .then(data => {
+            geojsonData = data; // Stocker les données GeoJSON
             // Charger les données des stations et calculer les températures par région
             fetch(`<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=getHeatmapDataByRegion&controller=api`)
                 .then(response => response.json())
@@ -90,10 +93,35 @@
             console.error('Erreur lors du chargement des données GeoJSON :', error);
         });
 
+    // Fonction pour rechercher une région et zoomer dessus
+    const searchRegion = () => {
+        const regionName = document.getElementById('regionInput').value.trim().toLowerCase();
+
+        if (!regionName) {
+            alert('Veuillez entrer un nom de région.');
+            return;
+        }
+
+        // Trouver la région correspondante
+        const region = geojsonData.features.find(feature =>
+            feature.properties.nom.toLowerCase() === regionName
+        );
+
+        if (region) {
+            // Zoom sur la région trouvée
+            const bounds = L.geoJSON(region).getBounds();
+            map.fitBounds(bounds);
+        } else {
+            alert('Aucune région correspondante trouvée.');
+        }
+    };
+
     // Réinitialisation de la vue
     const resetView = () => {
         map.setView([46.603354, 1.888334], 6);
     };
 
+    // Écouteurs d'événements pour les boutons
+    document.getElementById('searchRegionButton').addEventListener('click', searchRegion);
     document.getElementById('resetButton').addEventListener('click', resetView);
 </script>
