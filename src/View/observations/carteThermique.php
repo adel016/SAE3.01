@@ -5,6 +5,7 @@
             <label for="regionInput">Rechercher une région :</label>
             <input type="text" id="regionInput" placeholder="Entrez le nom de la région">
             <button id="searchRegionButton">Rechercher</button>
+            <button id="resetButton">Réinitialiser la vue</button>
         </div>
         <div class="map-container">
             <div id="map"></div>
@@ -15,51 +16,84 @@
 <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
 <script>
-    const map = L.map('map', {
-        attributionControl: false,
-    }).setView([46.603354, 1.888334], 6);
+    const map = L.map('map').setView([46.603354, 1.888334], 6);
+    let geojsonLayer;
 
-    // Charger les tuiles de la carte
+    // Ajout des tuiles OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 18,
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Charger les contours des régions de France
-    fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/gjson/regions.geojson')
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, {
-                style: {
-                    color: '#004080',
-                    weight: 1,
-                    fillOpacity: 0.2
-                }
-            }).addTo(map);
-        });
-
-    // Fonction pour charger les données de la carte thermique
-    const loadHeatmap = (regionName = null) => {
-        const url = regionName
-            ? `<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=getHeatmapDataByRegion&controller=api&region=${regionName}`
-            : `<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=getHeatmapDataByRegion&controller=api`;
-        
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                const heatData = data.map(item => [item.lat, item.lon, item.value]);
-                const heatLayer = L.heatLayer(heatData, { radius: 25, blur: 15, maxZoom: 17 }).addTo(map);
-            });
+    // Fonction pour calculer la couleur thermique en fonction de la valeur
+    const getHeatColor = (value) => {
+        if (value === null) return 'gray'; // Pas de données
+        return value > 30 ? 'red' :
+               value > 20 ? 'orange' :
+               value > 10 ? 'yellow' :
+               value > 5 ? 'lime' : 'blue' ;
     };
 
-    // Charger la carte thermique globale au démarrage
-    loadHeatmap();
+    // Charger les données GeoJSON des régions
+    fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/gjson/regions.geojson')
+        .then(response => response.json())
+        .then(geojsonData => {
+            // Charger les données des stations et calculer les températures par région
+            fetch(`<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=getHeatmapDataByRegion&controller=api`)
+                .then(response => response.json())
+                .then(stationsData => {
+                    // Calculer la moyenne des températures pour chaque région
+                    const regionTemps = {};
 
-    // Rechercher une région
-    document.getElementById('searchRegionButton').addEventListener('click', () => {
-        const regionInput = document.getElementById('regionInput').value.trim();
-        if (regionInput) {
-            loadHeatmap(regionInput);
-        }
-    });
+                    stationsData.forEach(station => {
+                        const { lat, lon, value } = station;
+                        const region = geojsonData.features.find(feature =>
+                            L.geoJSON(feature).getBounds().contains([lat, lon])
+                        );
+
+                        if (region) {
+                            const regionName = region.properties.nom;
+                            if (!regionTemps[regionName]) {
+                                regionTemps[regionName] = [];
+                            }
+                            regionTemps[regionName].push(value);
+                        }
+                    });
+
+                    // Moyenne des températures pour chaque région
+                    Object.keys(regionTemps).forEach(regionName => {
+                        const temps = regionTemps[regionName];
+                        const sum = temps.reduce((a, b) => a + b, 0);
+                        const avg = sum / temps.length;
+                        regionTemps[regionName] = avg;
+                    });
+
+                    // Appliquer les styles en fonction des températures moyennes
+                    geojsonLayer = L.geoJSON(geojsonData, {
+                        style: (feature) => {
+                            const regionName = feature.properties.nom;
+                            const avgTemp = regionTemps[regionName] || null;
+                            return {
+                                fillColor: getHeatColor(avgTemp),
+                                weight: 1,
+                                color: 'black',
+                                fillOpacity: 0.6
+                            };
+                        }
+                    }).addTo(map);
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement des données des stations :', error);
+                });
+        })
+        .catch(error => {
+            console.error('Erreur lors du chargement des données GeoJSON :', error);
+        });
+
+    // Réinitialisation de la vue
+    const resetView = () => {
+        map.setView([46.603354, 1.888334], 6);
+    };
+
+    document.getElementById('resetButton').addEventListener('click', resetView);
 </script>

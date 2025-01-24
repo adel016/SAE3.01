@@ -327,7 +327,7 @@ footer:hover {
 }
 
 #map {
-    width: 150%; /* Largeur adaptative */
+    width: 200%; /* Largeur adaptative */
     height: 500px; /* Hauteur fixe */
     border: 1px solid #ccc;
     border-radius: 8px;
