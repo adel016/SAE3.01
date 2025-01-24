@@ -47,6 +47,7 @@ class ControllerAdmin {
             'logs' => $logs
         ]);
     }
+    
 
     // Promouvoir un utilisateur au rôle admin
     public static function promouvoirAdmin() {
