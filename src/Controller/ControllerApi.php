@@ -6,7 +6,7 @@ class ControllerApi {
     public static function default() {
         self::afficheVue('view.php', [
             'pagetitle' => 'ACCUEIL - OBSERVATIONS',
-            'cheminVueBody' => 'tableau_de_bord/carteThermique.php'
+            'cheminVueBody' => 'observations/carteThermique.php'
         ]);
     }
 
