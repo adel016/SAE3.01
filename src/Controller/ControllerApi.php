@@ -51,8 +51,8 @@ class ControllerApi {
     }
 
     public static function getHeatmapDataByRegion($regionName = null) {
-        $dateDebut = date('Y-m-d\T00:00:00', strtotime('-1 days'));
-        $dateFin = date('Y-m-d\T23:59:59', strtotime('-1 days'));
+        $dateDebut = $_GET['startDate'] ?? date('Y-m-d\T00:00:00', strtotime('-1 days'));
+        $dateFin = $_GET['endDate'] ?? date('Y-m-d\T23:59:59', strtotime('-1 days'));
     
         $apiUrl = "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/donnees-synop-essentielles-omm/records?limit=100&where=date%20%3E%3D%20%22{$dateDebut}%22%20AND%20date%20%3C%3D%20%22{$dateFin}%22";
     
@@ -86,7 +86,7 @@ class ControllerApi {
     
         header('Content-Type: application/json');
         echo json_encode($heatmapData);
-    }    
+    }        
 
     public static function afficheVue(string $cheminVue, array $parametres = []): void {
         extract($parametres);

@@ -86,6 +86,7 @@ h1 {
     width: 100px; /* Ajustez la taille de l'image */
     height: auto;
     border-radius: 50%; /* Exemple pour arrondir l'image */
+    background-color: #0099ff;
 }
 
 /* Contenu principal */
@@ -304,8 +305,116 @@ footer:hover {
 }
 
 /* MAP OUTILS */
-/* Section droite - Carte */
+/* MAP THERMIQUE */
+/* Structure principale */
+.conteneur {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
 
+/* Section des contrôles */
+.controls {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.date-picker,
+.region-search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+label {
+    font-weight: bold;
+    color: #555;
+}
+
+input[type="date"],
+input[type="text"] {
+    padding: 5px 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+input[type="date"]:focus,
+input[type="text"]:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.bton {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.bton:hover {
+    background-color: #0056b3;
+}
+
+.bton-reset {
+    background-color: #6c757d;
+}
+
+.bton-reset:hover {
+    background-color: #5a6268;
+}
+
+/* Carte et informations */
+.map-and-info {
+    display: flex;
+    gap: 20px;
+}
+
+#mapContainer {
+    flex: 2;
+    height: 500px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#temperatureDetails {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow-y: auto;
+    max-height: 500px;
+    background-color: #f8f9fa;
+}
+
+#temperatureDetails h2 {
+    margin-top: 0;
+    color: #333;
+    text-align: center;
+}
+
+#temperatureList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#temperatureList li {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+#temperatureList li:last-child {
+    border-bottom: none;
+}
+
+/* Section droite - Carte */
 .map-container {
     width: 100%; /* Prend toute la largeur */
     display: flex;
