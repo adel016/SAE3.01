@@ -206,7 +206,7 @@ footer {
     color: #004080;
     font-weight: 1000;
     text-align: center;
-    position: fixed;
+    position: sticky;
     bottom: 0;
     width: 100%;
     padding: 10px;
