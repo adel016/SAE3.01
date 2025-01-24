@@ -29,8 +29,8 @@
         <div class="carte">
             <!-- Barre de recherche -->
             <div class="region-search">
-                <label for="regionInput">Rechercher une région :</label>
-                <input type="text" id="regionInput" placeholder="Entrez le nom de la région">
+                <label for="regionInput">Rechercher une région ou une station :</label>
+                <input type="text" id="regionInput" placeholder="Entrez le nom de la région ou de la station">
                 <button id="searchRegionButton">Rechercher</button>
             </div>
 
@@ -44,22 +44,19 @@
 
 <script>
 // INITIALISATION DE LA CARTE
-const map = L.map('map').setView([46.603354, 1.888334], 6); // Centré sur la France
+const map = L.map('map').setView([46.603354, 1.888334], 6);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
     attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-// Variables pour stocker les données
-let geojsonData; // Données des régions
-let stationsData; // Données des stations
-let geojsonLayer; // Stocker le layer GeoJSON pour réinitialisation
-const stationMarkers = []; // Liste des marqueurs pour nettoyage
+let geojsonData;
+let stationsData;
+let geojsonLayer;
+const stationMarkers = [];
 
-// Région par défaut
 const defaultRegionName = "Île-de-France";
 
-// Charger les données des régions et stations
 Promise.all([
     fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/gjson/regions.geojson').then(res => res.json()),
     fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=getSynopData&controller=api').then(res => res.json())
@@ -68,7 +65,6 @@ Promise.all([
         geojsonData = regions;
         stationsData = stations;
 
-        // Afficher les régions sur la carte
         geojsonLayer = L.geoJSON(geojsonData, {
             style: {
                 color: '#004080',
@@ -100,10 +96,7 @@ Promise.all([
             }
         }).addTo(map);
 
-        // Afficher la région par défaut
         showRegionData(defaultRegionName);
-
-        // Afficher toutes les stations sur la carte
         stationsData.forEach(station => addStationMarker(station));
     })
     .catch(error => {
@@ -111,11 +104,9 @@ Promise.all([
         alert('Erreur lors du chargement des données de la carte.');
     });
 
-// Fonction pour ajouter un marqueur de station
 function addStationMarker(station) {
     const { latitude, longitude, ville, temp, humidity, windSpeed } = station;
 
-    // Vérifier si les coordonnées sont valides
     if (latitude && longitude) {
         const marker = L.circleMarker([latitude, longitude], {
             radius: 8,
@@ -124,7 +115,6 @@ function addStationMarker(station) {
             fillOpacity: 0.7,
         }).addTo(map);
 
-        // Ajouter un popup avec des données dynamiques
         marker.bindPopup(`
             <strong>${ville}</strong><br>
             Température: ${temp}°C<br>
@@ -132,36 +122,31 @@ function addStationMarker(station) {
             Vent: ${windSpeed} km/h
         `);
 
-        // Ajouter un événement au clic pour afficher les données dans la section d'informations
         marker.on('click', () => {
             updateWeatherData(ville, {
                 temp,
                 humidity,
                 windSpeed,
-                icon: 'https://example.com/cloudy.png', // Exemple, remplacez par une URL réelle si disponible
-                condition: 'Conditions actuelles', // Exemple, remplacez par des données réelles si disponibles
-                rainChance: Math.random() * 100 // Exemple aléatoire
+                icon: getWeatherIcon(temp),
+                condition: getWeatherCondition(temp),
+                rainChance: calculateRainChance(humidity)
             });
         });
 
-        stationMarkers.push(marker); // Ajouter le marqueur à la liste pour un nettoyage futur
+        stationMarkers.push(marker);
     }
 }
 
-// Fonction pour afficher les regions
 function showRegionData(regionName) {
-    // Réinitialiser les marqueurs des stations
     stationMarkers.forEach(marker => map.removeLayer(marker));
-    stationMarkers.length = 0; // Vide la liste des marqueurs
+    stationMarkers.length = 0;
 
-    // Filtrer les stations dans la région
     const stationsInRegion = stationsData.filter(
         station => station.region.toLowerCase() === regionName.toLowerCase()
     );
 
-    // Supprimer les doublons en fonction du nom de la station
     const uniqueStations = [];
-    const stationNames = new Set(); // Utiliser un Set pour garder une liste unique
+    const stationNames = new Set();
 
     stationsInRegion.forEach(station => {
         if (!stationNames.has(station.ville)) {
@@ -170,50 +155,50 @@ function showRegionData(regionName) {
         }
     });
 
-    // Calculer les données météo pour la région
     const weatherData = calculateWeatherData(uniqueStations);
-
-    // Mettre à jour les données météo dans la section
     updateWeatherData(regionName, weatherData);
 
-    // Afficher les stations dans la région
     const stationsListElement = document.getElementById('stations-list');
-    stationsListElement.innerHTML = ''; // Réinitialiser la liste des stations
+    stationsListElement.innerHTML = '';
 
     uniqueStations.forEach(station => {
         const stationItem = document.createElement('li');
         stationItem.textContent = `${station.ville} - Température: ${station.temp}°C`;
         stationsListElement.appendChild(stationItem);
-
-        // Ajouter les marqueurs des stations
         addStationMarker(station);
     });
+
+    const matchingRegion = geojsonData.features.find(
+        feature => feature.properties.nom.toLowerCase() === regionName.toLowerCase()
+    );
+    if (matchingRegion) {
+        const bounds = L.geoJSON(matchingRegion).getBounds();
+        map.fitBounds(bounds);
+    }
 }
 
-
-// Fonction pour calculer les données météo dynamiques
 function calculateWeatherData(stations) {
-    const temps = stations.map(station => station.temp).filter(temp => temp !== '--');
-    const humidities = stations.map(station => station.humidity).filter(humidity => humidity !== '--');
-    const windSpeeds = stations.map(station => station.windSpeed).filter(windSpeed => windSpeed !== '--');
+    const temps = stations.map(station => parseFloat(station.temp)).filter(temp => !isNaN(temp));
+    const humidities = stations.map(station => parseFloat(station.humidity)).filter(humidity => !isNaN(humidity));
+    const windSpeeds = stations.map(station => parseFloat(station.windSpeed)).filter(windSpeed => !isNaN(windSpeed));
 
     const avg = arr => arr.length > 0 ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1) : '--';
     const min = arr => arr.length > 0 ? Math.min(...arr).toFixed(1) : '--';
     const max = arr => arr.length > 0 ? Math.max(...arr).toFixed(1) : '--';
 
+    const avgTemp = avg(temps);
     return {
-        temp: avg(temps),
+        temp: avgTemp,
         maxTemp: max(temps),
         minTemp: min(temps),
         humidity: avg(humidities),
         windSpeed: avg(windSpeeds),
-        icon: 'https://example.com/cloudy.png', // Exemple, remplacez par des données réelles si disponibles
-        condition: 'Conditions dynamiques', // Exemple, remplacez par des données réelles si disponibles
-        rainChance: Math.random() * 100 // Exemple aléatoire
+        icon: getWeatherIcon(avgTemp),
+        condition: getWeatherCondition(avgTemp),
+        rainChance: calculateRainChance(avg(humidities))
     };
 }
 
-// Mettre à jour les informations météo affichées
 function updateWeatherData(regionName, weatherData) {
     document.getElementById('region-name').textContent = regionName;
     const now = new Date();
@@ -231,48 +216,53 @@ function updateWeatherData(regionName, weatherData) {
     `;
 }
 
-// Gestion de la recherche via la barre de recherche
 document.getElementById('searchRegionButton').addEventListener('click', () => {
-    const regionInput = document.getElementById('regionInput').value.trim();
-    if (!regionInput) {
+    const searchInput = document.getElementById('regionInput').value.trim().toLowerCase();
+    if (!searchInput) {
         alert('Veuillez entrer une région ou une station.');
         return;
     }
 
-    // Vérifier si une station correspond au nom saisi
-    const matchingStation = stationsData.find(station => station.ville.toLowerCase() === regionInput.toLowerCase());
+    const matchingStation = stationsData.find(station => station.ville.toLowerCase() === searchInput);
     if (matchingStation) {
-        const { latitude, longitude, ville, temp, humidity, windSpeed } = matchingStation;
-
-        // Centrer sur la station et afficher ses données
-        map.setView([latitude, longitude], 10);
-        updateWeatherData(ville, {
-            temp,
-            humidity,
-            windSpeed,
-            icon: 'https://example.com/cloudy.png', // Exemple, remplacez par une URL réelle si disponible
-            condition: 'Conditions actuelles', // Exemple, remplacez par des données réelles si disponibles
-            rainChance: Math.random() * 100 // Exemple aléatoire
-        });
-
+        const { latitude, longitude, ville } = matchingStation;
+        if (latitude !== null && longitude !== null) {
+            map.setView([latitude, longitude], 10);
+            showRegionData(matchingStation.region);
+        } else {
+            alert('Les coordonnées de cette station ne sont pas disponibles.');
+        }
         return;
     }
 
-    // Vérifier si une région correspond au nom saisi
     const matchingRegion = geojsonData.features.find(
-        feature => feature.properties.nom.toLowerCase() === regionInput.toLowerCase()
+        feature => feature.properties.nom.toLowerCase() === searchInput
     );
+
     if (matchingRegion) {
-        const { nom } = matchingRegion.properties;
-        const [longitude, latitude] = matchingRegion.geometry.coordinates[0][0];
-
-        // Centrer sur la région et afficher ses données
-        map.setView([latitude, longitude], 8);
-        showRegionData(nom);
-
-        return;
+        showRegionData(matchingRegion.properties.nom);
+    } else {
+        alert('Aucune région ou station correspondante trouvée. Veuillez réessayer.');
     }
-
-    // Si aucune correspondance n'est trouvée
-    alert('Aucune région ou station correspondante trouvée. Veuillez réessayer.');
 });
+
+function getWeatherIcon(temperature) {
+    const baseUrl = 'https://openweathermap.org/img/wn/';
+    let iconCode = '01d';
+    if (temperature < 0) iconCode = '13d';
+    else if (temperature < 10) iconCode = '09d';
+    else if (temperature < 20) iconCode = '03d';
+    return `${baseUrl}${iconCode}@2x.png`;
+}
+
+function getWeatherCondition(temperature) {
+    if (temperature < 0) return 'Neigeux';
+    if (temperature < 10) return 'Frais';
+    if (temperature < 20) return 'Tempéré';
+    return 'Chaud';
+}
+
+function calculateRainChance(humidity) {
+    return Math.min(humidity, 100);
+}
+</script>
