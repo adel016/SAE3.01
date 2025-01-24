@@ -17,8 +17,13 @@ $loader->register();
 // Gestion des actions pour la requête GET
 $controller = htmlspecialchars($_GET['controller'] ?? 'utilisateur', ENT_QUOTES, 'UTF-8');
 $action = htmlspecialchars($_GET['action'] ?? 'default', ENT_QUOTES, 'UTF-8');
-$controllerClass = "App\\Meteo\\Controller\\Controller" . ucfirst($controller);
 
+// Déterminer la classe du contrôleur
+if ($controller === 'tableauDeBord') {
+    $controllerClass = "App\\Meteo\\Controller\\TableauDeBordController";
+} else {
+    $controllerClass = "App\\Meteo\\Controller\\Controller" . ucfirst($controller);
+}
 
 try {
     // Vérification que la classe contrôleur existe

@@ -44,7 +44,9 @@
 
 <script>
 // INITIALISATION DE LA CARTE
-const map = L.map('map').setView([46.603354, 1.888334], 6);
+const map = L.map('map', {
+    attributionControl: false,
+}).setView([46.603354, 1.888334], 6);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
     attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'

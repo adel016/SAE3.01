@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recherche Avancée</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        #result-table {
+            display: none; /* Par défaut, on affiche JSON brut */
+        }
+    </style>
+    <script>
+        // Sauvegarder l'état des colonnes dans localStorage
+        function savePreferences() {
+            const checkboxes = document.querySelectorAll('.column-toggle');
+            const preferences = {};
+            checkboxes.forEach(checkbox => {
+                preferences[checkbox.dataset.column] = checkbox.checked;
+            });
+            localStorage.setItem('columnPreferences', JSON.stringify(preferences));
+        }
+
+        // Charger les préférences des colonnes depuis localStorage
+        function loadPreferences() {
+            const preferences = JSON.parse(localStorage.getItem('columnPreferences'));
+            if (preferences) {
+                const checkboxes = document.querySelectorAll('.column-toggle');
+                checkboxes.forEach(checkbox => {
+                    const columnClass = checkbox.dataset.column;
+                    const isVisible = preferences[columnClass] !== undefined ? preferences[columnClass] : true;
+                    checkbox.checked = isVisible;
+
+                    const columns = document.querySelectorAll(`.${columnClass}`);
+                    columns.forEach(col => {
+                        col.style.display = isVisible ? '' : 'none';
+                    });
+                });
+            }
+        }
+
+        // Réinitialiser les colonnes à l'état par défaut
+        function resetColumns() {
+            const checkboxes = document.querySelectorAll('.column-toggle');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+                const columnClass = checkbox.dataset.column;
+                const columns = document.querySelectorAll(`.${columnClass}`);
+                columns.forEach(col => {
+                    col.style.display = '';
+                });
+            });
+            localStorage.removeItem('columnPreferences');
+        }
+
+        // Charger les préférences et configurer les colonnes
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPreferences();
+
+            const displayModeRadios = document.querySelectorAll('input[name="display-mode"]');
+            displayModeRadios.forEach(radio => {
+                radio.addEventListener('change', toggleColumnOptions);
+            });
+
+            toggleColumnOptions();
+
+            const checkboxes = document.querySelectorAll('.column-toggle');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    savePreferences();
+                    const columnClass = checkbox.dataset.column;
+                    const isVisible = checkbox.checked;
+                    const columns = document.querySelectorAll(`.${columnClass}`);
+                    columns.forEach(col => {
+                        col.style.display = isVisible ? '' : 'none';
+                    });
+                });
+            });
+        });
+
+        function toggleColumnOptions() {
+            const displayMode = document.querySelector('input[name="display-mode"]:checked').value;
+            const columnOptions = document.getElementById('column-options');
+            const resetButton = document.querySelector('button[onclick="resetColumns()"]');
+
+            if (displayMode === 'json') {
+                columnOptions.style.display = 'none';
+                resetButton.style.display = 'none';
+            } else if (displayMode === 'table') {
+                columnOptions.style.display = 'block';
+                resetButton.style.display = 'inline-block';
+            }
+        }
+
+        // Télécharger les données en CSV
+        function downloadCSV(data) {
+            const csvRows = [];
+            const headers = ["Région", "Département", "Ville", "Date", "Vitesse du vent", "Pression", "Humidité", "Température", "Visibilité", "Pression au niveau de la mer"];
+            csvRows.push(headers.join(','));
+
+            data.results.forEach(record => {
+                const row = [
+                    record.nom_reg || 'N/A',
+                    record.nom_dept || 'N/A',
+                    record.libgeo || 'N/A',
+                    record.date || 'N/A',
+                    record.ff || 'N/A',
+                    record.pmer || 'N/A',
+                    record.u || 'N/A',
+                    record.t || 'N/A',
+                    record.vv || 'N/A',
+                    record.pres || 'N/A'
+                ];
+                csvRows.push(row.join(','));
+            });
+
+            const csvContent = csvRows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'données.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Télécharger les données en JSON
+        function downloadJSON(data) {
+            const jsonContent = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'données.json');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Récupérer et afficher les données
+        function fetchData() {
+        const libgeo = document.getElementById('libgeo').value;
+        const region = document.getElementById('region').value;
+        const nom_dept = document.getElementById('nom_dept').value;
+        const codegeo = document.getElementById('codegeo').value;
+        const date_debut = document.getElementById('date_debut').value;
+        const date_fin = document.getElementById('date_fin').value;
+
+        const url = `recherche_avancee.php?libgeo=${encodeURIComponent(libgeo)}&region=${encodeURIComponent(region)}&nom_dept=${encodeURIComponent(nom_dept)}&codegeo=${encodeURIComponent(codegeo)}&date_debut=${date_debut}&date_fin=${date_fin}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                displayResults(data);
+                document.getElementById('download-csv').style.display = 'inline-block';
+                document.getElementById('download-json').style.display = 'inline-block';
+
+                document.getElementById('download-csv').onclick = () => downloadCSV(data);
+                document.getElementById('download-json').onclick = () => downloadJSON(data);
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                document.getElementById('result-json').textContent = 'Erreur lors de la récupération des données.';
+            });
+    }
+        function displayResults(data) {
+            const displayMode = document.querySelector('input[name="display-mode"]:checked').value;
+
+            if (displayMode === 'json') {
+                document.getElementById('result-json').textContent = JSON.stringify(data, null, 2);
+                document.getElementById('result-json').style.display = 'block';
+                document.getElementById('result-table').style.display = 'none';
+            } else if (displayMode === 'table') {
+                const table = document.getElementById('result-table');
+                const tbody = table.querySelector('tbody');
+                tbody.innerHTML = '';
+
+                if (data && data.results && data.results.length > 0) {
+                    data.results.forEach(record => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="region">${record.nom_reg || 'N/A'}</td>
+                            <td class="departement">${record.nom_dept || 'N/A'}</td>
+                            <td class="ville">${record.libgeo || 'N/A'}</td>
+                            <td class="date">${record.date || 'N/A'}</td>
+                            <td class="vent">${record.ff || 'N/A'}</td>
+                            <td class="pression">${record.pmer || 'N/A'}</td>
+                            <td class="humidite">${record.u || 'N/A'}</td>
+                            <td class="temperature">${record.tc || 'N/A'}</td>
+                            <td class="visibilite">${record.vv || 'N/A'}</td>
+                            <td class="pression_mer">${record.pres || 'N/A'}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="10" style="text-align:center;">Aucun résultat trouvé.</td>`;
+                    tbody.appendChild(row);
+                }
+
+                document.getElementById('result-json').style.display = 'none';
+                document.getElementById('result-table').style.display = 'table';
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Recherche Avancée</h1>
+
+    <label for="libgeo">Ville :</label>
+    <input type="text" id="libgeo" placeholder="Ex : ORLY"><br>
+
+    <label for="region">Région :</label>
+    <input type="text" id="region" placeholder="Ex : Île-de-France"><br>
+
+    <label for="nom_dept">Département :</label>
+    <input type="text" id="nom_dept" placeholder="Ex : Essonne"><br>
+
+    <label for="codegeo">Code Département :</label>
+    <input type="text" id="codegeo" placeholder="Ex : 91"><br>
+
+    <label for="date_debut">Date Début :</label>
+    <input type="date" id="date_debut"><br>
+
+    <label for="date_fin">Date Fin :</label>
+    <input type="date" id="date_fin"><br>
+
+    <h3>Choisissez le style d'affichage :</h3>
+    <label><input type="radio" name="display-mode" value="json" checked> JSON brut</label>
+    <label><input type="radio" name="display-mode" value="table"> Tableau</label><br><br>
+
+    <button onclick="fetchData()">Rechercher</button>
+    <h3>Gérer les colonnes affichées :</h3>
+    <div id="column-options" style="display: none;">
+        <label><input type="checkbox" class="column-toggle" data-column="region" checked> Région</label>
+        <label><input type="checkbox" class="column-toggle" data-column="departement" checked> Département</label>
+        <label><input type="checkbox" class="column-toggle" data-column="ville" checked> Ville</label>
+        <label><input type="checkbox" class="column-toggle" data-column="date" checked> Date</label>
+        <label><input type="checkbox" class="column-toggle" data-column="vent" checked> Vitesse du vent</label>
+        <label><input type="checkbox" class="column-toggle" data-column="pression" checked> Pression</label>
+        <label><input type="checkbox" class="column-toggle" data-column="humidite" checked> Humidité</label>
+        <label><input type="checkbox" class="column-toggle" data-column="temperature" checked> Température</label>
+        <label><input type="checkbox" class="column-toggle" data-column="visibilite" checked> Visibilité</label>
+        <label><input type="checkbox" class="column-toggle" data-column="pression_mer" checked> Pression au niveau de la mer</label><br>
+        <button onclick="resetColumns()">Réinitialiser les colonnes</button>
+    </div><br>
+
+    <div>
+        <button id="download-csv" style="display: none;">Télécharger en CSV</button>
+        <button id="download-json" style="display: none;">Télécharger en JSON</button>
+    </div>
+
+    <div id="result-json" style="white-space: pre-wrap; background-color: #f4f4f4; padding: 10px; border: 1px solid #ccc; display: none;"></div>
+
+    <table id="result-table">
+        <thead>
+            <tr>
+                <th class="region">Région</th>
+                <th class="departement">Département</th>
+                <th class="ville">Ville</th>
+                <th class="date">Date</th>
+                <th class="vent">Vitesse du vent</th>
+                <th class="pression">Pression</th>
+                <th class="humidite">Humidité</th>
+                <th class="temperature">Température</th>
+                <th class="visibilite">Visibilité</th>
+                <th class="pression_mer">Pression au niveau de la mer</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</body>
+</html>
