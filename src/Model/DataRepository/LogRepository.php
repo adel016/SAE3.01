@@ -3,8 +3,6 @@
 namespace App\Meteo\Model\DataRepository;
 
 use App\Meteo\Model\DataObject\Logs;
-use App\Meteo\Config\Conf;
-use PDO;
 
 class LogRepository extends AbstractRepository {
     protected function getNomTable(): string {

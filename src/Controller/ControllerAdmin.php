@@ -26,7 +26,7 @@ class ControllerAdmin {
     public static function StatistiquesEtLogs() {
         $logRepository = new LogRepository();
     
-        // Récupérer les statistiques générales
+        // Récupérer les statistiques générales pour chaque action
         $nombreInscriptions = $logRepository->countByAction('inscription');
         $nombreConnexions = $logRepository->countByAction('connexion');
         $nombrePromotions = $logRepository->countByAction('promotion');
@@ -40,10 +40,10 @@ class ControllerAdmin {
         $suppressionsParJour = $logRepository->getActionsParJour('suppression');
         $ajoutsMeteothequeParJour = $logRepository->getActionsParJour('ajout_meteotheque');
     
-        // Récupérer tous les logs
+        // Récupérer tous les logs pour affichage dans un tableau
         $logs = $logRepository->getAll();
     
-        // Appeler la vue avec les données nécessaires
+        // Appeler la vue avec toutes les données nécessaires
         self::afficheVue('admin.php', [
             'pagetitle' => 'Statistiques',
             'cheminVueBody' => 'admin/statistiques.php',
@@ -59,7 +59,7 @@ class ControllerAdmin {
             'ajoutsMeteothequeParJour' => $ajoutsMeteothequeParJour,
             'logs' => $logs
         ]);
-    }    
+    }       
 
     // Promouvoir un utilisateur au rôle admin
     public static function promouvoirAdmin() {
@@ -67,10 +67,16 @@ class ControllerAdmin {
             $utilisateurId = $_POST['utilisateur_id'] ?? null;
             if ($utilisateurId) {
                 $utilisateurRepository = new UtilisateurRepository();
+                $logRepository = new LogRepository();
+                
                 $utilisateur = $utilisateurRepository->select($utilisateurId);
                 if ($utilisateur && $utilisateur->getRole() !== 'admin') {
                     $utilisateur->setRole('admin');
                     $utilisateurRepository->update($utilisateur);
+                    
+                    // Ajouter un log pour la promotion
+                    $logRepository->addLog($utilisateurId, 'promotion', "Utilisateur promu au rôle d'administrateur");
+
                     MessageFlash::ajouter('success', 'Utilisateur promu au rôle d\'admin.');
                 }
             }
@@ -85,13 +91,23 @@ class ControllerAdmin {
             $utilisateurId = $_POST['utilisateur_id'] ?? null;
             if ($utilisateurId) {
                 $utilisateurRepository = new UtilisateurRepository();
-                $utilisateurRepository->delete($utilisateurId);
-                MessageFlash::ajouter('success', 'Utilisateur supprimé avec succès.');
+                $logRepository = new LogRepository();
+                
+                // Supprimer les logs liés à cet utilisateur
+                $logRepository->delete($utilisateurId);
+                
+                // Supprimer l'utilisateur
+                if ($utilisateurRepository->delete($utilisateurId)) {
+                    // Ajouter un log pour l'action de suppression si nécessaire (administrateur)
+                    MessageFlash::ajouter('success', 'Utilisateur supprimé avec succès.');
+                } else {
+                    MessageFlash::ajouter('error', 'Échec de la suppression de l\'utilisateur.');
+                }
             }
             header('Location: ?action=tableauDeBord&controller=admin');
             exit();
         }
-    }
+    }    
 
     // Recupere la meteotheque de l'utilisateur
     public static function getMeteotheque() {

@@ -3,6 +3,7 @@
 namespace App\Meteo\Controller;
 
 use App\Meteo\Model\DataRepository\MeteothequeRepository;
+use App\Meteo\Model\DataRepository\LogRepository;
 use App\Meteo\Model\DataObject\Meteotheques;
 
 class ControllerMeteotheque {
@@ -35,6 +36,12 @@ class ControllerMeteotheque {
         );
     
         $success = $repo->sauvegarder($meteo);
+
+        // Ajouter une entrée dans les logs
+        if ($success) {
+            $logRepository = new LogRepository();
+            $logRepository->addLog($utilisateurId, 'ajout_meteotheque');
+        }
     
         echo json_encode([
             'success' => $success,
@@ -71,6 +78,12 @@ class ControllerMeteotheque {
         );
     
         $success = $repo->sauvegarder($meteo);
+
+        // Ajouter une entrée dans les logs
+        if ($success) {
+            $logRepository = new LogRepository();
+            $logRepository->addLog($utilisateurId, 'ajout_meteotheque');
+        }
     
         echo json_encode([
             'success' => $success,

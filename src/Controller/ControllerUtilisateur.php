@@ -178,7 +178,6 @@ class ControllerUtilisateur {
     public static function update() {
         $id = $_GET['id'] ?? null;
 
-        // Si la requête est GET, afficher le formulaire pour l'utilisateur
         if ($_SERVER['REQUEST_METHOD'] === 'GET' && $id) {
             $repository = new UtilisateurRepository();
             $utilisateur = $repository->select($id);
@@ -194,20 +193,16 @@ class ControllerUtilisateur {
                 header('Location: /SAE3.01/Web/frontController.php?action=readAll&controller=utilisateur');
                 exit();
             }
-        } 
-        // Si la requête est POST, traiter la modification
-        elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && $id) {
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && $id) {
             $nom = htmlspecialchars($_POST['nom'] ?? '');
             $prenom = htmlspecialchars($_POST['prenom'] ?? '');
             $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
 
-            // Validation des champs
             if ($nom && $prenom && $email) {
                 $repository = new UtilisateurRepository();
                 $utilisateur = $repository->select($id);
 
                 if ($utilisateur) {
-                    // Modifier directement les données
                     $utilisateur = new Utilisateur(
                         $utilisateur->getId(),
                         $nom,
@@ -219,7 +214,9 @@ class ControllerUtilisateur {
                         $utilisateur->getEtatCompte()
                     );
 
-                    // Mise à jour dans la base de données
+                    $logRepository = new LogRepository();
+                    $logRepository->addLog($id, 'modification', "Modification des informations de l'utilisateur");
+
                     if ($repository->update($utilisateur)) {
                         MessageFlash::ajouter('success', "Utilisateur modifié avec succès.");
                     } else {
@@ -232,7 +229,6 @@ class ControllerUtilisateur {
                 MessageFlash::ajouter('error', "Veuillez remplir tous les champs.");
             }
 
-            // Redirection après traitement
             header('Location: /SAE3.01/Web/frontController.php?action=readAll&controller=utilisateur');
             exit();
         }
@@ -242,12 +238,21 @@ class ControllerUtilisateur {
         if (isset($_GET['id'])) {
             $id = $_GET['id'];
             $repository = new UtilisateurRepository();
+            $meteothequeRepository = new MeteothequeRepository();
+            $logRepository = new LogRepository();
+    
+            // Supprimer les entrées dans la table `meteotheques` associées à l'utilisateur
+            $meteothequeRepository->delete($id);
     
             // Vérifie si l'utilisateur connecté est bien celui qu'il souhaite supprimer
             if (isset($_SESSION['utilisateur_id']) && $_SESSION['utilisateur_id'] == $id) {
-                if ($repository->delete($id)) {
+                if ($repository->delete($id)) {    
                     self::deconnexion();
                     MessageFlash::ajouter('success', "Votre compte a été supprimé avec succès.");
+    
+                    // Ajouter un log pour la suppression
+                    $logRepository->addLog($id, 'suppression', "Suppression de l'utilisateur par lui-même");
+    
                     header('Location: /SAE3.01/Web/frontController.php');
                     exit;
                 } else {
@@ -261,71 +266,8 @@ class ControllerUtilisateur {
         }
     
         header('Location: /SAE3.01/Web/frontController.php');
-        exit;
-    }
-    
-
-    public static function changerRole() {
-        $id = $_GET['id'] ?? null;
-
-        // Seul un compte admin peut changer le role d'un utilisateur
-        if ($_SESSION['role'] !== 'admin') {
-            \App\Meteo\Lib\MessageFlash::ajouter('error', "Vous n'avez pas les permissions pour modifier les rôles.");
-            header('Location: /SAE3.01/Web/frontController.php?action=readAll&controller=utilisateur');
-            exit();
-        }        
-    
-        // Si la requête est GET, afficher le formulaire
-        if ($_SERVER['REQUEST_METHOD'] === 'GET' && $id) {
-            $repository = new UtilisateurRepository();
-            $utilisateur = $repository->select($id);
-    
-            if ($utilisateur) {
-                self::afficheVue('view.php', [
-                    'utilisateur' => $utilisateur,
-                    'pagetitle' => "Changer le rôle d'un utilisateur",
-                    'cheminVueBody' => 'utilisateur/changerRole.php'
-                ]);
-            } else {
-                MessageFlash::ajouter('error', "Utilisateur introuvable.");
-                header('Location: /SAE3.01/Web/frontController.php?action=readAll&controller=utilisateur');
-                exit();
-            }
-        }
-        // Si la requête est POST, traiter la soumission du formulaire
-        elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $id = $_POST['id'] ?? null;
-            $nouveauRole = $_POST['role'] ?? null;
-    
-            if (!$id || !$nouveauRole) {
-                MessageFlash::ajouter('error', "ID ou rôle manquant.");
-                header('Location: /SAE3.01/Web/frontController.php?action=readAll&controller=utilisateur');
-                exit();
-            }
-    
-            $repository = new UtilisateurRepository();
-            $utilisateur = $repository->select($id);
-    
-            if (!$utilisateur) {
-                MessageFlash::ajouter('error', "Utilisateur introuvable.");
-                header('Location: /SAE3.01/Web/frontController.php?action=readAll&controller=utilisateur');
-                exit();
-            }
-    
-            // Modifier le rôle dans l'objet utilisateur
-            $utilisateur->setRole($nouveauRole);
-    
-            // Mettre à jour l'utilisateur dans la base de données
-            if ($repository->update($utilisateur)) {
-                MessageFlash::ajouter('success', "Rôle mis à jour avec succès.");
-            } else {
-                MessageFlash::ajouter('error', "Erreur lors de la mise à jour du rôle.");
-            }
-    
-            header('Location: /SAE3.01/Web/frontController.php?action=readAll&controller=utilisateur');
-            exit();
-        }
-    }               
+        exit();
+    }                      
 
     public static function afficheVue(string $cheminVue, array $parametres = []): void {
         extract($parametres); // Crée des variables à partir du tableau $parametres
