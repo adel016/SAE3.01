@@ -3,6 +3,7 @@
 namespace App\Meteo\Controller;
 
 use App\Meteo\Model\DataRepository\UtilisateurRepository;
+use App\Meteo\Model\DataRepository\MeteothequeRepository;
 use App\Meteo\Model\DataRepository\LogRepository;
 use App\Meteo\Model\DataObject\Utilisateur;
 use App\Meteo\Lib\MessageFlash;
@@ -15,27 +16,37 @@ class ControllerUtilisateur {
         ]);
     }
 
-    public static function readAll(): void {    
+    public static function readAll(): void {
         // Vérifie si l'utilisateur est connecté
         if (!isset($_SESSION['utilisateur_id'])) {
             MessageFlash::ajouter('error', "Vous devez être connecté pour voir cette page.");
             header('Location: /SAE3.01/Web/frontController.php?action=connexion&controller=utilisateur');
             exit();
         }
-    
-        // Recupere les infos de l'utilisateur
+
+        // Récupère les informations de l'utilisateur
         $repository = new UtilisateurRepository();
         $utilisateurId = $_SESSION['utilisateur_id'];
         $utilisateur = $repository->select($utilisateurId);
-    
-        // Affiche la vue avec l'utilisateur en question
+
+        if (!$utilisateur) {
+            MessageFlash::ajouter('error', "Utilisateur introuvable.");
+            header('Location: /SAE3.01/Web/frontController.php?action=connexion&controller=utilisateur');
+            exit();
+        }
+
+        // Récupère les requêtes Meteothèque de l'utilisateur
+        $meteothequeRepo = new MeteothequeRepository();
+        $requetes = $meteothequeRepo->findByUserId($utilisateurId);
+
+        // Affiche la vue avec les infos utilisateur et sa Meteothèque
         self::afficheVue('view.php', [
             'utilisateur' => $utilisateur,
+            'requetes' => $requetes,
             'pagetitle' => "Profil utilisateur",
             'cheminVueBody' => "utilisateur/list.php"
         ]);
     }
-    
 
     public static function inscription() {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
