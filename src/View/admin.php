@@ -38,7 +38,7 @@
                 <?php if (isset($_SESSION['utilisateur_id'])): ?>
                     <div class="d-flex align-items-center">
                         <span class="me-3"><?= htmlspecialchars($_SESSION['prenom'] ?? '') ?> <?= htmlspecialchars($_SESSION['nom'] ?? '') ?></span>
-                        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=readProfile&controller=utilisateur">
+                        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=readAll&controller=utilisateur">
                             <img src="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/img/profile.jpg" alt="Profil" class="rounded-circle" style="width: 40px; height: 40px;">
                         </a>
                     </div>

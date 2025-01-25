@@ -71,6 +71,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    const saveUserRequest = (regionName) => {
+        fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=saveRequest&controller=meteotheque', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ region: regionName })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log(`Requête enregistrée pour la région : ${regionName}`);
+                } else {
+                    console.log('Utilisateur non connecté ou échec de l\'enregistrement.');
+                }
+            })
+            .catch(error => console.error('Erreur lors de l\'enregistrement de la requête :', error));
+    };
+
     const loadHeatmapData = (startDate, endDate) => {
         if (!geojsonData) {
             console.error('Les données GeoJSON ne sont pas chargées.');
@@ -132,7 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         };
                     },
                     onEachFeature: (feature, layer) => {
-                        // Ajouter un événement de clic pour chaque région
                         layer.on('click', () => {
                             const regionName = feature.properties.nom;
                             const avgTemp = avgTemps[regionName] || 'Aucune donnée';
@@ -143,6 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <strong>Température moyenne :</strong> ${avgTemp !== 'Aucune donnée' ? `${avgTemp.toFixed(1)}°C` : avgTemp}
                                 </li>
                             `;
+                            saveUserRequest(regionName); // Enregistrer la requête
                         });
                     }
                 }).addTo(map);
@@ -174,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const bounds = L.geoJSON(region).getBounds();
             map.fitBounds(bounds);
 
-            // Afficher les informations de la région
             const regionTemps = avgTemps[region.properties.nom] || 'Aucune donnée';
             const temperatureList = document.getElementById('temperatureList');
             temperatureList.innerHTML = `
@@ -183,13 +199,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <strong>Température moyenne :</strong> ${regionTemps !== 'Aucune donnée' ? `${regionTemps.toFixed(1)}°C` : regionTemps}
                 </li>
             `;
+            saveUserRequest(region.properties.nom); // Enregistrer la requête
         } else {
             alert('Aucune région correspondante trouvée.');
         }
     };
 
-
-    // Charger les données GeoJSON des régions
     fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/gjson/regions.geojson')
         .then(response => response.json())
         .then(data => {

@@ -1,5 +1,9 @@
 <?php
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Démarrer la session au début
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -7,7 +11,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/../src/Lib/Psr4AutoloaderClass.php';
 
-use App\Meteo\Lib\Psr4AutoloaderClass;
+use \App\Meteo\Lib\Psr4AutoloaderClass;
 
 // Initialisation de l'autoloader
 $loader = new Psr4AutoloaderClass();

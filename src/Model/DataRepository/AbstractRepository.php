@@ -45,7 +45,7 @@ abstract class AbstractRepository {
         return $result ? $this->construire($result) : null;
     }
 
-    // Methode specifique pour recuperer un objet avec son email
+    // Methode specifique pour recuperer un utilisateur avec son email (unique methode)
     public function selectByEmail(string $email): ?Utilisateur {
         $pdo = DatabaseConnection::getPdo();
         $query = "SELECT * FROM Utilisateurs WHERE email = :email";
@@ -71,7 +71,7 @@ abstract class AbstractRepository {
         return null; // Aucun utilisateur trouvé
     }
           
-    // Methode specifique pour recuperer un objet avec sa region
+    // Methode specifique pour recuperer une STATION avec sa region (unique methode)
     public function selectByReg(string $region): ?array {
         $pdo = DatabaseConnection::getPdo();
         $sql = "SELECT * FROM stations WHERE region = :region";
@@ -85,6 +85,23 @@ abstract class AbstractRepository {
         }
         return $stations;
     }
+
+    // Methode specifique pour recuperer la meteotheque d'un utilisateur (unique methode)
+    public function findByUserId(int $id): array {
+        $pdo = DatabaseConnection::getPdo();
+        $sql = "SELECT * FROM " . $this->getNomTable() . " WHERE " . $this->getPrimaryKey() . " = :id ORDER BY date_creation DESC";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':id' => $id]);
+    
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+        $requetes = [];
+        foreach ($result as $row) {
+            $requetes[] = $this->construire($row);
+        }
+    
+        return $requetes;
+    }    
 
     // Méthode générique pour supprimer un objet par clé primaire
     public function delete(string $id): bool {

@@ -59,6 +59,7 @@ const stationMarkers = [];
 
 const defaultRegionName = "Île-de-France";
 
+// Charger les données GeoJSON et station
 Promise.all([
     fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/gjson/regions.geojson').then(res => res.json()),
     fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=getSynopData&controller=api').then(res => res.json())
@@ -140,6 +141,7 @@ function addStationMarker(station) {
 }
 
 function showRegionData(regionName) {
+    // Afficher les informations de la région
     stationMarkers.forEach(marker => map.removeLayer(marker));
     stationMarkers.length = 0;
 
@@ -177,26 +179,62 @@ function showRegionData(regionName) {
         const bounds = L.geoJSON(matchingRegion).getBounds();
         map.fitBounds(bounds);
     }
+
+    // Si l'utilisateur est connecté, enregistrer la requête
+    saveRegionRequest(regionName);
+}
+
+function saveRegionRequest(regionName) {
+    fetch('http://localhost:8888/SAE3.01/Web/frontController.php?action=saveRequest&controller=meteotheque', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ region: regionName })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP ! statut : ${response.status}`);
+        }
+        return response.text(); // Obtenir d'abord la réponse sous forme de texte
+    })
+    .then(text => {
+        try {
+            return JSON.parse(text); // Essayer de l'analyser comme du JSON
+        } catch (e) {
+            console.error('La réponse du serveur n\'est pas un JSON valide:', text);
+            throw new Error('Réponse JSON invalide du serveur');
+        }
+    })
+    .then(data => {
+        if (data.success) {
+            console.log('Requête enregistrée avec succès');
+        } else {
+            console.log('Aucune sauvegarde effectuée (utilisateur non connecté ou autre problème).');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur lors de l\'enregistrement de la requête:', error);
+    });
 }
 
 function calculateWeatherData(stations) {
+    console.log("Stations reçues :", stations);
+
     const temps = stations.map(station => parseFloat(station.temp)).filter(temp => !isNaN(temp));
-    const humidities = stations.map(station => parseFloat(station.humidity)).filter(humidity => !isNaN(humidity));
+    const humidities = stations.map(station => parseFloat(station.humidity)).filter(humidity => !isNaN(humidity)); // Ligne concernée
     const windSpeeds = stations.map(station => parseFloat(station.windSpeed)).filter(windSpeed => !isNaN(windSpeed));
 
     const avg = arr => arr.length > 0 ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1) : '--';
     const min = arr => arr.length > 0 ? Math.min(...arr).toFixed(1) : '--';
     const max = arr => arr.length > 0 ? Math.max(...arr).toFixed(1) : '--';
 
-    const avgTemp = avg(temps);
     return {
-        temp: avgTemp,
+        temp: avg(temps),
         maxTemp: max(temps),
         minTemp: min(temps),
         humidity: avg(humidities),
         windSpeed: avg(windSpeeds),
-        icon: getWeatherIcon(avgTemp),
-        condition: getWeatherCondition(avgTemp),
+        icon: getWeatherIcon(avg(temps)),
+        condition: getWeatherCondition(avg(temps)),
         rainChance: calculateRainChance(avg(humidities))
     };
 }
