@@ -2,7 +2,7 @@
 
 namespace App\Meteo\Model\DataObject;
 
-class Meteotheque {
+class Meteotheques {
     private int $meteoId;
     private int $utilisateurId;
     private string $nomCollection;

@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const saveUserRequest = (regionName) => {
-        fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=saveRequest&controller=meteotheque', {
+        fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=saveRequestThermique&controller=meteotheque', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ region: regionName })
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    console.log(`Requête enregistrée pour la région : ${regionName}`);
+                    console.log(`Recherche sur la carte thermique sur la région : ${regionName}`);
                 } else {
                     console.log('Utilisateur non connecté ou échec de l\'enregistrement.');
                 }

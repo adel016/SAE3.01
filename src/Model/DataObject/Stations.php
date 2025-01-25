@@ -2,7 +2,7 @@
 
     namespace App\Meteo\Model\DataObject;
 
-    class Station {
+    class Stations {
         private int $stationId;
         private ?string $numero;
         private float $latitude;

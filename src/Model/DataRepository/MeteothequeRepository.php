@@ -2,7 +2,7 @@
 
 namespace App\Meteo\Model\DataRepository;
 
-use App\Meteo\Model\DataObject\Meteotheque;
+use App\Meteo\Model\DataObject\Meteotheques;
 
 class MeteothequeRepository extends AbstractRepository {
     protected function getNomTable(): string {
@@ -18,8 +18,8 @@ class MeteothequeRepository extends AbstractRepository {
     }
 
     // Méthode pour construire un objet Meteotheque à partir d'un tableau de données
-    protected function construire(array $data): Meteotheque {
-        return new Meteotheque(
+    protected function construire(array $data): Meteotheques {
+        return new Meteotheques(
             $data['meteo_id'],
             $data['utilisateur_id'],
             $data['nom_collection'],

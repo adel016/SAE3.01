@@ -2,7 +2,7 @@
 
 namespace App\Meteo\Model\DataRepository;
 
-use App\Meteo\Model\DataObject\Station;
+use App\Meteo\Model\DataObject\Stations;
 use App\Meteo\Model\DataRepository\DatabaseConnection;
 use App\Meteo\Model\DataObject\Utilisateur;
 use PDO;
@@ -87,21 +87,16 @@ abstract class AbstractRepository {
     }
 
     // Methode specifique pour recuperer la meteotheque d'un utilisateur (unique methode)
-    public function findByUserId(int $id): array {
+    public function findByUserId(int $userId): array {
         $pdo = DatabaseConnection::getPdo();
-        $sql = "SELECT * FROM " . $this->getNomTable() . " WHERE " . $this->getPrimaryKey() . " = :id ORDER BY date_creation DESC";
+        $sql = "SELECT * FROM " . $this->getNomTable() . " WHERE utilisateur_id = :userId ORDER BY date_creation DESC";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([':id' => $id]);
-    
+        $stmt->execute(['userId' => $userId]);
+
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-        $requetes = [];
-        foreach ($result as $row) {
-            $requetes[] = $this->construire($row);
-        }
-    
-        return $requetes;
-    }    
+
+        return array_map([$this, 'construire'], $result);
+    }  
 
     // Méthode générique pour supprimer un objet par clé primaire
     public function delete(string $id): bool {
