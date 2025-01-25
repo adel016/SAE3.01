@@ -2,6 +2,7 @@
 
 namespace App\Meteo\Controller;
 
+use App\Meteo\Model\DataRepository\MeteothequeRepository;
 use App\Meteo\Model\DataRepository\UtilisateurRepository;
 use App\Meteo\Model\DataRepository\LogRepository;
 use App\Meteo\Lib\MessageFlash;
@@ -79,6 +80,29 @@ class ControllerAdmin {
             header('Location: ?action=tableauDeBord&controller=admin');
             exit();
         }
+    }
+
+    // Recupere la meteotheque de l'utilisateur
+    public static function getMeteotheque() {
+        $userId = $_GET['user_id'] ?? null;
+    
+        if (!$userId) {
+            echo json_encode(['success' => false, 'message' => 'Identifiant utilisateur manquant.']);
+            return;
+        }
+    
+        $meteothequeRepo = new MeteothequeRepository();
+        $requetes = $meteothequeRepo->findByUserId((int) $userId);
+    
+        $formattedRequetes = array_map(function($requete) {
+            return [
+                'nomCollection' => $requete->getNomCollection(),
+                'description' => $requete->getDescription(),
+                'dateCreation' => $requete->getDateCreation(),
+            ];
+        }, $requetes);
+    
+        echo json_encode(['success' => true, 'requetes' => $formattedRequetes]);
     }
 
     // Méthode générique pour afficher une vue
