@@ -25,30 +25,41 @@ class ControllerAdmin {
     // Affiche les statistiques et logs dans une vue dédiée
     public static function StatistiquesEtLogs() {
         $logRepository = new LogRepository();
-
+    
         // Récupérer les statistiques générales
         $nombreInscriptions = $logRepository->countByAction('inscription');
         $nombreConnexions = $logRepository->countByAction('connexion');
-
+        $nombrePromotions = $logRepository->countByAction('promotion');
+        $nombreSuppressions = $logRepository->countByAction('suppression');
+        $nombreAjoutsMeteotheque = $logRepository->countByAction('ajout_meteotheque');
+    
         // Récupérer les données par jour pour les graphiques
         $inscriptionsParJour = $logRepository->getActionsParJour('inscription');
         $connexionsParJour = $logRepository->getActionsParJour('connexion');
-
+        $promotionsParJour = $logRepository->getActionsParJour('promotion');
+        $suppressionsParJour = $logRepository->getActionsParJour('suppression');
+        $ajoutsMeteothequeParJour = $logRepository->getActionsParJour('ajout_meteotheque');
+    
         // Récupérer tous les logs
         $logs = $logRepository->getAll();
-
+    
         // Appeler la vue avec les données nécessaires
         self::afficheVue('admin.php', [
             'pagetitle' => 'Statistiques',
             'cheminVueBody' => 'admin/statistiques.php',
             'nombreInscriptions' => $nombreInscriptions,
             'nombreConnexions' => $nombreConnexions,
+            'nombrePromotions' => $nombrePromotions,
+            'nombreSuppressions' => $nombreSuppressions,
+            'nombreAjoutsMeteotheque' => $nombreAjoutsMeteotheque,
             'inscriptionsParJour' => $inscriptionsParJour,
             'connexionsParJour' => $connexionsParJour,
+            'promotionsParJour' => $promotionsParJour,
+            'suppressionsParJour' => $suppressionsParJour,
+            'ajoutsMeteothequeParJour' => $ajoutsMeteothequeParJour,
             'logs' => $logs
         ]);
-    }
-    
+    }    
 
     // Promouvoir un utilisateur au rôle admin
     public static function promouvoirAdmin() {
