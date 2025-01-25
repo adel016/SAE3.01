@@ -25,24 +25,24 @@ class ControllerAdmin {
     // Affiche les statistiques et logs dans une vue dédiée
     public static function StatistiquesEtLogs() {
         $logRepository = new LogRepository();
-    
+
         // Récupérer les statistiques générales pour chaque action
         $nombreInscriptions = $logRepository->countByAction('inscription');
         $nombreConnexions = $logRepository->countByAction('connexion');
         $nombrePromotions = $logRepository->countByAction('promotion');
-        $nombreSuppressions = $logRepository->countByAction('suppression');
+        $nombreModifications = $logRepository->countByAction('modification');
         $nombreAjoutsMeteotheque = $logRepository->countByAction('ajout_meteotheque');
-    
+
         // Récupérer les données par jour pour les graphiques
         $inscriptionsParJour = $logRepository->getActionsParJour('inscription');
         $connexionsParJour = $logRepository->getActionsParJour('connexion');
         $promotionsParJour = $logRepository->getActionsParJour('promotion');
-        $suppressionsParJour = $logRepository->getActionsParJour('suppression');
+        $modificationsParJour = $logRepository->getActionsParJour('modification');
         $ajoutsMeteothequeParJour = $logRepository->getActionsParJour('ajout_meteotheque');
-    
+
         // Récupérer tous les logs pour affichage dans un tableau
         $logs = $logRepository->getAll();
-    
+
         // Appeler la vue avec toutes les données nécessaires
         self::afficheVue('admin.php', [
             'pagetitle' => 'Statistiques',
@@ -50,16 +50,16 @@ class ControllerAdmin {
             'nombreInscriptions' => $nombreInscriptions,
             'nombreConnexions' => $nombreConnexions,
             'nombrePromotions' => $nombrePromotions,
-            'nombreSuppressions' => $nombreSuppressions,
+            'nombreModifications' => $nombreModifications,
             'nombreAjoutsMeteotheque' => $nombreAjoutsMeteotheque,
             'inscriptionsParJour' => $inscriptionsParJour,
             'connexionsParJour' => $connexionsParJour,
             'promotionsParJour' => $promotionsParJour,
-            'suppressionsParJour' => $suppressionsParJour,
+            'modificationsParJour' => $modificationsParJour,
             'ajoutsMeteothequeParJour' => $ajoutsMeteothequeParJour,
             'logs' => $logs
         ]);
-    }       
+    }
 
     // Promouvoir un utilisateur au rôle admin
     public static function promouvoirAdmin() {

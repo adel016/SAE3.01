@@ -65,8 +65,8 @@
             <div class="col-md-6">
                 <div class="card text-center shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title">Nombre de suppression</h5>
-                        <p class="display-4 text-danger"><?= $nombreSuppressions ?? 0 ?></p>
+                        <h5 class="card-title">Nombre de modifications</h5>
+                        <p class="display-4 text-danger"><?= $nombreModifications ?? 0 ?></p>
                     </div>
                 </div>
             </div>
@@ -140,8 +140,8 @@ const inscriptionsConnexionsChart = new Chart(ctx, {
                 borderWidth: 1
             },
             {
-                label: 'Suppressions',
-                data: <?= json_encode($suppressionsParJour) ?>,
+                label: 'Modifications',
+                data: <?= json_encode($modificationsParJour) ?>,
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
                 borderColor: 'rgba(255, 99, 132, 1)',
                 borderWidth: 1
@@ -173,4 +173,3 @@ const inscriptionsConnexionsChart = new Chart(ctx, {
     }
 });
 </script>
-
