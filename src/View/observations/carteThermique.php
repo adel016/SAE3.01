@@ -71,22 +71,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    const saveUserRequest = (regionName) => {
+    const saveUserRequest = (regionName, avgTempDetails) => {
         fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=saveRequestThermique&controller=meteotheque', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ region: regionName })
+            body: JSON.stringify({ 
+                region: regionName,
+                details: avgTempDetails // Inclure les détails des températures moyennes
+            })
         })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    console.log(`Recherche sur la carte thermique sur la région : ${regionName}`);
+                    console.log(`Requête enregistrée avec succès pour la région : ${regionName}`);
                 } else {
                     console.log('Utilisateur non connecté ou échec de l\'enregistrement.');
                 }
             })
             .catch(error => console.error('Erreur lors de l\'enregistrement de la requête :', error));
     };
+
 
     const loadHeatmapData = (startDate, endDate) => {
         if (!geojsonData) {
@@ -126,11 +130,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 avgTemps = {}; // Réinitialiser les températures moyennes
+                const avgTempDetails = {}; // Détails des températures par région pour l'enregistrement
+
                 Object.keys(regionTemps).forEach(regionName => {
                     const temps = regionTemps[regionName];
                     const sum = temps.reduce((a, b) => a + b, 0);
                     const avg = sum / temps.length;
                     avgTemps[regionName] = avg;
+
+                    // Construire les détails des températures
+                    avgTempDetails[regionName] = `Température Moyenne: ${avg.toFixed(1)}°C`;
                 });
 
                 updateTemperatureInfo(avgTemps);
@@ -159,7 +168,10 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <strong>Température moyenne :</strong> ${avgTemp !== 'Aucune donnée' ? `${avgTemp.toFixed(1)}°C` : avgTemp}
                                 </li>
                             `;
-                            saveUserRequest(regionName); // Enregistrer la requête
+
+                            // Enregistrer la requête avec les détails des températures moyennes
+                            const details = avgTempDetails[regionName] || 'Aucune donnée disponible';
+                            saveUserRequest(regionName, details);
                         });
                     }
                 }).addTo(map);

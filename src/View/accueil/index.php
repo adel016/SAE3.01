@@ -141,7 +141,6 @@ function addStationMarker(station) {
 }
 
 function showRegionData(regionName) {
-    // Afficher les informations de la région
     stationMarkers.forEach(marker => map.removeLayer(marker));
     stationMarkers.length = 0;
 
@@ -180,40 +179,42 @@ function showRegionData(regionName) {
         map.fitBounds(bounds);
     }
 
-    // Si l'utilisateur est connecté, enregistrer la requête
-    saveRegionRequest(regionName);
+    // Détails des stations pour la description
+    const details = uniqueStations
+        .map(station => `${station.ville}: Temp ${station.temp}°C, Humidité ${station.humidity}%`)
+        .join("; ");
+
+    // Enregistrer la requête avec les détails
+    saveRegionRequest(regionName, details);
 }
 
-function saveRegionRequest(regionName) {
-    fetch('http://localhost:8888/SAE3.01/Web/frontController.php?action=saveRequest&controller=meteotheque', {
+function saveRegionRequest(regionName, details) {
+    const url = '<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=saveRequest&controller=meteotheque';
+
+    fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ region: regionName })
+        body: JSON.stringify({
+            region: regionName,
+            details: details // Inclure les détails des stations
+        })
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Erreur HTTP ! statut : ${response.status}`);
-        }
-        return response.text(); // Obtenir d'abord la réponse sous forme de texte
-    })
-    .then(text => {
-        try {
-            return JSON.parse(text); // Essayer de l'analyser comme du JSON
-        } catch (e) {
-            console.error('La réponse du serveur n\'est pas un JSON valide:', text);
-            throw new Error('Réponse JSON invalide du serveur');
-        }
-    })
-    .then(data => {
-        if (data.success) {
-            console.log('Requête enregistrée avec succès');
-        } else {
-            console.log('Aucune sauvegarde effectuée (utilisateur non connecté ou autre problème).');
-        }
-    })
-    .catch(error => {
-        console.error('Erreur lors de l\'enregistrement de la requête:', error);
-    });
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP : ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                console.log('Requête enregistrée avec succès.');
+            } else {
+                console.warn('Erreur lors de l\'enregistrement :', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors de l\'enregistrement de la requête :', error);
+        });
 }
 
 function calculateWeatherData(stations) {
