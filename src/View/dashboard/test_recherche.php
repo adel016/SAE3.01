@@ -59,6 +59,9 @@ function fetchData() {
     const date_debut = document.getElementById('date_debut').value;
     const date_fin = document.getElementById('date_fin').value;
 
+    // Récupérer le format d'affichage (JSON ou Tableau)
+    const displayMode = document.querySelector('input[name="display-mode"]:checked').value;
+
     const url = '<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=apiRechercheAvancee&controller=tableauDeBord&libgeo=' + 
                 encodeURIComponent(libgeo) + 
                 '&region=' + encodeURIComponent(region) + 
@@ -68,29 +71,16 @@ function fetchData() {
                 '&date_fin=' + date_fin;
 
     fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            const displayMode = document.querySelector('input[name="display-mode"]:checked').value;
-
-            if (displayMode === 'json') {
-                document.getElementById('result-json').textContent = JSON.stringify(data, null, 2);
-                document.getElementById('result-json').style.display = 'block';
-                document.getElementById('result-table').style.display = 'none';
-            } else {
+            if (data.results && data.results.length > 0) {
                 const table = document.getElementById('result-table');
                 const tbody = table.querySelector('tbody');
                 tbody.innerHTML = '';
 
-                // Utiliser data.results directement
-                if (data && data.results && data.results.length > 0) {
+                if (displayMode === 'table') {
                     data.results.forEach(record => {
-                        const fields = record; // La structure semble être plate
-                        
+                        const fields = record;
                         const row = document.createElement('tr');
                         row.innerHTML = `
                             <td>${fields.nom_reg || 'N/A'}</td>
@@ -106,17 +96,39 @@ function fetchData() {
                         `;
                         tbody.appendChild(row);
                     });
+
                     table.style.display = 'table';
+                    document.getElementById('result-json').style.display = 'none';
                 } else {
-                    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;">Aucun résultat trouvé.</td></tr>`;
-                    table.style.display = 'table';
+                    document.getElementById('result-json').textContent = JSON.stringify(data, null, 2);
+                    document.getElementById('result-json').style.display = 'block';
+                    table.style.display = 'none';
                 }
-                document.getElementById('result-json').style.display = 'none';
+
+                // Sauvegarder dans la Météothèque avec le format d'affichage
+                saveToMeteotheque({ libgeo, region, nom_dept, date_debut, date_fin, displayMode });
+            } else {
+                alert('Aucun résultat trouvé.');
             }
         })
         .catch(error => {
-            console.error('Erreur lors de la récupération des données:', error);
-            alert("Une erreur est survenue lors de la récupération des données.");
+            console.error('Erreur lors de la récupération des données :', error);
+            alert('Une erreur est survenue lors de la récupération des données.');
+        });
+}
+
+function saveToMeteotheque(data) {
+    fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=saveRequestTableaudeBordJSONouTableau&controller=meteotheque', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+        .then((response) => response.json())
+        .then((result) => {
+            console.log(result.message); // Afficher le message de succès ou d'erreur
+        })
+        .catch((error) => {
+            console.error('Erreur lors de la sauvegarde dans la Météothèque :', error);
         });
 }
 </script>

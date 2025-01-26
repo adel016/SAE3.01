@@ -149,6 +149,9 @@
                     const windSpeedData = data.results.map((record) => record.ff || null);
 
                     displayChart(labels, tempData, humidityData, windSpeedData);
+
+                    // Sauvegarder dans la Météothèque
+                    saveToMeteotheque({ libgeo, region, nom_dept, date_debut, date_fin });
                 } else {
                     alert('Aucun résultat trouvé.');
                 }
@@ -158,4 +161,20 @@
                 alert('Une erreur est survenue lors de la récupération des données.');
             });
     }
+
+    function saveToMeteotheque(data) {
+        fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=saveRequestTableaudeBordGraphique&controller=meteotheque', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+            .then((response) => response.json())
+            .then((result) => {
+                console.log(result.message); // Afficher le message de succès ou d'erreur
+            })
+            .catch((error) => {
+                console.error('Erreur lors de la sauvegarde dans la Météothèque :', error);
+            });
+    }
+
 </script>
