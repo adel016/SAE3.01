@@ -7,57 +7,6 @@
     <title><?= htmlspecialchars($pagetitle ?? ""); ?></title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
     <link rel="stylesheet" href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/css/index.css" v=<?= time(); ?>>
-    <style>
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-        }
-
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-
-        .dropdown-content a:hover {
-            background-color: #f1f1f1;
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-
-        .dropdown:hover .dropbtn {
-            background-color: #3e8e41;
-        }
-
-        .dropbtn {
-            text-decoration: none;
-            color: #004080;
-            background-color: rgba(255, 255, 255, 0.7);
-            border: 2px solid #004080;
-            border-radius: 5px;
-            padding: 10px 15px;
-            margin: 0 5px;
-            transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .dropbtn:hover {
-            transform: scale(1.1);
-            background-color: #004080;
-            color: #FFFFFF;
-        }
-    </style>
 </head>
 <body>
     <header>

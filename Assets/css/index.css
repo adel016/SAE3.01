@@ -65,6 +65,56 @@ h1 {
     font-size: 2rem;
 }
 
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+    background-color: #3e8e41;
+}
+
+.dropbtn {
+    text-decoration: none;
+    color: #004080;
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 2px solid #004080;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin: 0 5px;
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+.dropbtn:hover {
+    transform: scale(1.1);
+    background-color: #004080;
+    color: #FFFFFF;
+}
+
 /* IMAGES */
 .compte-lien {
     text-decoration: none;
@@ -785,4 +835,142 @@ textarea {
     color: white;
     border-radius: 4px;
     border: solid 2px white;
+}
+
+/* SECTION - TABLEAU DE BORD */
+.data-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Section du formulaire */
+.form-section {
+    flex: 1;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+
+.form-section label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-section input,
+.form-section select {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.form-section input::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+.form-section .checkbox-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.form-section .fetch-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-section .fetch-button:hover {
+    background-color: #0056b3;
+}
+
+/* Section du graphique */
+.chart-container {
+    flex: 2;
+    height: 500px;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#weatherChart {
+    width: 100%;
+    height: 100%;
+}
+
+canvas {
+    display: block;
+    max-width: 100%;
+}
+
+/* Section des résultats */
+.result-container {
+    margin: 20px auto;
+    padding: 20px;
+    max-width: 1200px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table th,
+table td {
+    text-align: left;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+table th {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .data-container {
+        flex-direction: column;
+    }
+
+    .form-section {
+        max-width: 100%;
+    }
+
+    .chart-container {
+        max-width: 100%;
+    }
 }
