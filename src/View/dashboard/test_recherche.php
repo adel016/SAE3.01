@@ -1,3 +1,4 @@
+<h1>Recherche libre</h1>
 <div class="data-container">
     <!-- Section du formulaire -->
     <div class="form-section">
@@ -26,11 +27,31 @@
         <button onclick="fetchData()">Rechercher</button>
     </div>
 
+    <!-- Boutons de téléchargement et cases à cocher -->
+    <div style="margin-top: 20px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+        <div class="column-toggle" style="display: none; flex-grow: 1;">
+            <label><input type="checkbox" class="column-checkbox" data-column="0" checked> Région</label>
+            <label><input type="checkbox" class="column-checkbox" data-column="1" checked> Département</label>
+            <label><input type="checkbox" class="column-checkbox" data-column="2" checked> Ville</label>
+            <label><input type="checkbox" class="column-checkbox" data-column="3" checked> Date</label>
+            <label><input type="checkbox" class="column-checkbox" data-column="4" checked> Vitesse du vent</label>
+            <label><input type="checkbox" class="column-checkbox" data-column="5" checked> Pression</label>
+            <label><input type="checkbox" class="column-checkbox" data-column="6" checked> Humidité</label>
+            <label><input type="checkbox" class="column-checkbox" data-column="7" checked> Température</label>
+            <label><input type="checkbox" class="column-checkbox" data-column="8" checked> Visibilité</label>
+            <label><input type="checkbox" class="column-checkbox" data-column="9" checked> Pression au niveau de la mer</label>
+        </div>
+        <div class="download-buttons" style="display: none;">
+            <button onclick="downloadData('json')">Télécharger JSON</button>
+            <button onclick="downloadData('csv')">Télécharger CSV</button>
+        </div>
+    </div>
+
     <!-- Section des résultats -->
     <div class="result-section">
         <h3>Résultats</h3>
-        <div id="result-json"></div>
-        <table id="result-table">
+        <div id="result-json" style="white-space: pre-wrap; display: none;"></div>
+        <table id="result-table" style="display: none; margin-top: 20px;">
             <thead>
                 <tr>
                     <th>Région</th>
@@ -51,6 +72,8 @@
 </div>
 
 <script>
+let fetchedData = []; // Variable globale pour stocker les données récupérées
+
 function fetchData() {
     const libgeo = document.getElementById('libgeo').value;
     const region = document.getElementById('region').value;
@@ -74,6 +97,8 @@ function fetchData() {
         .then(response => response.json())
         .then(data => {
             if (data.results && data.results.length > 0) {
+                fetchedData = data.results; // Stocker les données pour le téléchargement
+
                 const table = document.getElementById('result-table');
                 const tbody = table.querySelector('tbody');
                 tbody.innerHTML = '';
@@ -99,14 +124,15 @@ function fetchData() {
 
                     table.style.display = 'table';
                     document.getElementById('result-json').style.display = 'none';
+                    document.querySelector('.column-toggle').style.display = 'block';
                 } else {
                     document.getElementById('result-json').textContent = JSON.stringify(data, null, 2);
                     document.getElementById('result-json').style.display = 'block';
                     table.style.display = 'none';
+                    document.querySelector('.column-toggle').style.display = 'none';
                 }
 
-                // Sauvegarder dans la Météothèque avec le format d'affichage
-                saveToMeteotheque({ libgeo, region, nom_dept, date_debut, date_fin, displayMode });
+                document.querySelector('.download-buttons').style.display = 'block';
             } else {
                 alert('Aucun résultat trouvé.');
             }
@@ -117,18 +143,135 @@ function fetchData() {
         });
 }
 
-function saveToMeteotheque(data) {
-    fetch('<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=saveRequestTableaudeBordJSONouTableau&controller=meteotheque', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    })
-        .then((response) => response.json())
-        .then((result) => {
-            console.log(result.message); // Afficher le message de succès ou d'erreur
-        })
-        .catch((error) => {
-            console.error('Erreur lors de la sauvegarde dans la Météothèque :', error);
-        });
+function downloadData(format) {
+    if (fetchedData.length === 0) {
+        alert('Aucune donnée à télécharger.');
+        return;
+    }
+
+    if (format === 'json') {
+        const blob = new Blob([JSON.stringify(fetchedData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'data.json';
+        a.click();
+    } else if (format === 'csv') {
+        const csvHeaders = ['Région', 'Département', 'Ville', 'Date', 'Vitesse du vent', 'Pression', 'Humidité', 'Température', 'Visibilité', 'Pression au niveau de la mer'];
+        const csvRows = fetchedData.map(record => [
+            record.nom_reg || 'N/A',
+            record.nom_dept || 'N/A',
+            record.libgeo || 'N/A',
+            record.date || 'N/A',
+            record.ff || 'N/A',
+            record.pmer || 'N/A',
+            record.u || 'N/A',
+            record.tc || 'N/A',
+            record.vv || 'N/A',
+            record.pres || 'N/A'
+        ]);
+
+        const csvContent = [csvHeaders.join(','), ...csvRows.map(row => row.join(','))].join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'data.csv';
+        a.click();
+    }
 }
+
+// Masquer/afficher des colonnes selon les cases cochées
+document.addEventListener('change', (e) => {
+    if (e.target.classList.contains('column-checkbox')) {
+        const column = e.target.dataset.column;
+        const table = document.getElementById('result-table');
+        const cells = table.querySelectorAll(`td:nth-child(${parseInt(column) + 1}), th:nth-child(${parseInt(column) + 1})`);
+        cells.forEach(cell => {
+            cell.style.display = e.target.checked ? '' : 'none';
+        });
+    }
+});
 </script>
+
+<style> /* Styles CSS pour la page */           
+
+.data-container {
+    margin-left: -50px;
+    margin: 0 auto;
+    padding: 20px;
+}    
+
+.form-section {
+    margin-bottom: 20px;
+}   
+
+.form-section label {
+    display: block;
+    margin-bottom: 5px;
+}   
+
+.form-section input {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+.form-section button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.column-toggle {
+    margin-top: 20px;
+    display: none;
+}
+
+
+.column-toggle label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.download-buttons {
+    display: none;
+}
+
+.download-buttons button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.result-section {
+    margin-top: 20px;
+}
+
+.result-section h3 {
+    margin-right: 850px;
+    text-align: left; /* Ajoutez cette ligne pour aligner le titre à gauche */
+}
+
+#result-json {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+#result-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#result-table th, #result-table td {
+    border: 1px solid #ccc;
+    padding: 5px;
+}
+
+</style>
+

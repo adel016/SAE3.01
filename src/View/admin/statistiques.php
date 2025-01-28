@@ -1,6 +1,8 @@
-<header class="bg-primary text-white text-center py-4 mb-4">
+<header class="titrestat">
     <h1>Statistiques</h1>
 </header>
+
+<br>
 
 <div class="container">
     <!-- Formulaire de filtre -->
@@ -173,3 +175,36 @@ const inscriptionsConnexionsChart = new Chart(ctx, {
     }
 });
 </script>
+
+<style>
+
+html, body {
+    font-family: Arial, sans-serif;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to bottom, #E3F0FF 0%, #FFF9E6 50%, #FDF7DA 100%) no-repeat;
+    background-attachment: fixed;
+}
+
+footer {
+    margin-top: 50px; /* Ajoute un espace au-dessus du footer */
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+    background: linear-gradient(to bottom, #FDF7DA 0%, #FFF9E6 15%, #E3F0FF 100%) no-repeat;
+    border-radius: 10px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.884);
+}
+
+/* Centrer le titre "Liste des utilisateurs" */
+.titrestat {
+    text-align: center;
+    width: 98%;
+    color: #649fdf;
+    font-size: 2rem;
+    font-weight: bold;
+    margin-top: 30px;
+}
+
+</style>

@@ -1,6 +1,7 @@
 <h1>Carte Thermique de la France</h1>
 <main class="conteneur">
-    <div class="controls">
+    <div class="map-and-info">
+        <div class="map-section">
         <div class="date-picker">
             <label for="dateStart">Date de début :</label>
             <input type="date" id="dateStart">
@@ -8,25 +9,135 @@
             <input type="date" id="dateEnd">
             <button id="updateMap" class="bton">Mettre à jour la carte</button>
         </div>
-
-        <div class="region-search-bar">
-            <label for="regionSearch">Rechercher une région :</label>
-            <input type="text" id="regionSearch" placeholder="Entrez le nom de la région">
-            <button id="searchRegion" class="bton">Rechercher</button>
-            <button id="resetView" class="bton bton-reset">Réinitialiser la vue</button>
+            <div id="mapContainer" class="map"></div>
         </div>
-    </div>
-
-    <div class="map-and-info">
-        <div id="mapContainer"></div>
-        <div id="temperatureDetails">
-            <h2>Informations sur les températures</h2>
-            <ul id="temperatureList">
-                <!-- Les informations de température seront insérées ici -->
-            </ul>
+        <div class="info-section">
+            <div class="region-search-bar">
+                <div class="region-search">
+                    <div class="search-bar">
+                        <input type="text" id="regionInput" placeholder="Entrez le nom de la région ou de la station">
+                        <button id="searchRegion">🔍</button>
+                    </div>
+                </div>
+                <div class="search-container">
+      
+                <button class="btn-reset">Réinitialiser</button>
+                </div>
+            </div>
+            <div id="temperatureDetails" class="info">
+                <h2>Informations sur les températures</h2>
+                <ul id="temperatureList">
+                    <!-- Les informations de température seront insérées ici -->
+                </ul>
+            </div>
         </div>
     </div>
 </main>
+
+<style>
+    .conteneur {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .map-and-info {
+        display: flex;
+        width: 100%;
+    }
+
+    .map-section, .info-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .date-picker {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ccc;
+    width: 92%; /* Augmentez la largeur */
+    margin: 0 auto; /* Centre la barre */
+}
+
+.date-picker label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.date-picker input {
+    width: 40%;
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.date-picker button {
+    align-self: flex-start;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px; /* Espace entre les inputs et le bouton */
+}
+
+.date-picker button:hover {
+    background-color: #0056b3;
+}
+
+    .region-search-bar {
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-bottom: 1px solid #ccc;
+        width: 92%; /* Augmentez la largeur */
+        margin: 0 auto; /* Centre la barre */
+    }
+
+    .map {
+        flex: 1;
+        height: 500px;
+        min-height: 500px;
+    }
+
+    .info {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+    }
+
+
+.search-container {
+    display: flex;
+    align-items: center;
+}
+
+.search-bar {
+    flex-grow: 1;
+}
+
+.btn-update, .btn-reset {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 200px; /* Adjust the margin to separate it from the search bar */
+}
+
+.btn-update:hover, .btn-reset:hover {
+    background-color: #0056b3;
+}
+
+
+</style>
 
 <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
@@ -90,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(error => console.error('Erreur lors de l\'enregistrement de la requête :', error));
     };
-
 
     const loadHeatmapData = (startDate, endDate) => {
         if (!geojsonData) {
@@ -238,6 +348,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('resetView').addEventListener('click', resetMapView);
-    document.getElementById('searchRegion').addEventListener('click', searchRegion);
+    document.getElementById('searchRegion').addEventListener('click', function() {
+        var region = document.getElementById('regionInput').value;
+        if (region) {
+            // Effectuer l'action de recherche ici
+            console.log('Recherche de la région : ' + region);
+            // Vous pouvez ajouter ici le code pour effectuer la recherche et mettre à jour la carte
+        } else {
+            alert('Veuillez entrer le nom d\'une région ou d\'une station.');
+        }
+    });
 });
 </script>

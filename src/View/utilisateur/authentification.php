@@ -20,26 +20,35 @@
     <div id="inscriptionForm">
         <h3>Inscription</h3>
         <form action="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=inscription&controller=utilisateur" method="POST">
-            <label for="nom">Nom :</label>
-            <input type="text" name="nom" id="nom" required><br><br>
+                <label for="nom">Nom :</label>
+                <input type="text" name="nom" id="nom" required><br><br>
 
-            <label for="prenom">Prénom :</label>
-            <input type="text" name="prenom" id="prenom" required><br><br>
+                <label for="prenom">Prénom :</label>
+                <input type="text" name="prenom" id="prenom" required><br><br>
 
-            <label for="email">Email :</label>
-            <input type="email" name="email" id="email" required><br><br>
+                <label for="email">Email :</label>
+                <input type="email" name="email" id="email" required><br><br>
 
-            <label for="motdepasse">Mot de passe :</label>
-            <input type="password" name="motdepasse" id="motdepasse" required><br><br>
+                <label for="motdepasse">Mot de passe :</label>
+                <input type="password" name="motdepasse" id="motdepasse" required><br><br>
 
             <button type="submit">S'inscrire</button>
         </form>
     </div>
 </section>
 
+<style>
+    #connexionForm, #inscriptionForm {
+        margin-left: 150px; /* Ajustez cette valeur selon vos besoins */
+        border: 2px solid blue;
+        background: rgba(55, 175, 255, 0.23); /* Fond bleu légèrement transparent */
+    }
+</style>
+
 <script>
     // Affiche le formulaire de connexion au départ
     document.getElementById('connexionForm').style.display = 'block';
+    document.getElementById('inscriptionForm').style.display = 'none';
 
     // Variable pour garder la trace de l'état actuel (connexion ou inscription)
     let isConnexion = true;

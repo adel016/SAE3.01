@@ -193,7 +193,32 @@ abstract class AbstractRepository {
 
         return array_map([$this, 'construire'], $result);
     }
-    
+
+    public function getAllMeteotheques($userId) {
+        $sql = "SELECT nom_collection AS nom, description, date_creation AS date
+                FROM " . $this->getNomTable() . "
+                WHERE utilisateur_id = :userId";
+        $pdo = DatabaseConnection::getPdo();
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['userId' => $userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+     
+
+    // Methode specifique pour recuperer la meteotheque d'un utilisateur (unique methode)
+    public function getAllUtilisateurs() {
+        $sql = "
+            SELECT DISTINCT 
+                u.utilisateur_id AS id, 
+                u.nom AS nom,
+                u.prenom AS prenom 
+            FROM meteotheques m
+            JOIN utilisateurs u ON m.utilisateur_id = u.utilisateur_id
+        ";
+        $pdo = DatabaseConnection::getPdo();
+        $stmt = $pdo->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }    
 }
 
 ?>

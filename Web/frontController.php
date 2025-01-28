@@ -3,7 +3,6 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-
 // Démarrer la session au début
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -25,6 +24,8 @@ $action = htmlspecialchars($_GET['action'] ?? 'default', ENT_QUOTES, 'UTF-8');
 // Déterminer la classe du contrôleur
 if ($controller === 'tableauDeBord') {
     $controllerClass = "App\\Meteo\\Controller\\TableauDeBordController";
+} elseif ($controller === 'contact') {
+    $controllerClass = "App\\Meteo\\Controller\\ContactController";
 } else {
     $controllerClass = "App\\Meteo\\Controller\\Controller" . ucfirst($controller);
 }
@@ -46,5 +47,4 @@ try {
     $message = htmlspecialchars($e->getMessage());
     require __DIR__ . '/../src/View/error.php';
 }
-
 ?>

@@ -18,6 +18,7 @@
                     <li><span class="icon">🌬</span> Vent: -- Km/h</li>
                 </ul>
             </div>
+            <hr>
             <div class="stations-list">
                 <h3>Stations dans la région :</h3>
                 <ul id="stations-list">
@@ -28,13 +29,15 @@
 
         <div class="carte">
             <!-- Barre de recherche -->
-            <div class="region-search">
-                <label for="regionInput">Rechercher une région ou une station :</label>
+        <div class="region-search">
+            <div class="search-bar">
                 <input type="text" id="regionInput" placeholder="Entrez le nom de la région ou de la station">
-                <button id="searchRegionButton">Rechercher</button>
+                <button id="searchRegionButton">🔍</button>
             </div>
+        </div>
 
-            <!-- Carte interactive -->
+        <br>
+        <!-- Carte interactive -->
             <div class="map-container">
                 <div id="map"></div>
             </div>
@@ -78,9 +81,9 @@ Promise.all([
             onEachFeature: (feature, layer) => {
                 layer.on('mouseover', () => {
                     layer.setStyle({
-                        color: 'lightgreen',
+                        color: 'yellow',
                         weight: 2,
-                        fillColor: 'lightgreen',
+                        fillColor:'gold',
                         fillOpacity: 0.7,
                     });
                 });

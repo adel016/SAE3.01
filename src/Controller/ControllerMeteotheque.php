@@ -2,11 +2,65 @@
 
 namespace App\Meteo\Controller;
 
+use App\Meteo\Model\DataRepository\UtilisateurRepository;
 use App\Meteo\Model\DataRepository\MeteothequeRepository;
 use App\Meteo\Model\DataRepository\LogRepository;
 use App\Meteo\Model\DataObject\Meteotheques;
+use Exception;
 
 class ControllerMeteotheque {
+    // Montre toutes les meteotheques des utilisateurs existants
+    public static function readAll() {
+        $repo = new MeteothequeRepository();
+        $utilisateurs = $repo->getAllUtilisateurs(); // Méthode à implémenter dans `MeteothequeRepository`
+    
+        self::afficheVue('view.php', [
+            'pagetitle' => 'MeteoVision - Meteotheques',
+            'utilisateurs' => $utilisateurs,
+            'cheminVueBody' => 'meteotheque/list.php'
+        ]);
+    }
+
+    public static function readMeteothequeByUser() {
+        $userId = $_GET['user_id'] ?? null;
+    
+        if (!$userId || !ctype_digit($userId)) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'ID utilisateur invalide.']);
+            return;
+        }
+    
+        try {
+            $repo = new MeteothequeRepository();
+    
+            // Récupérer les informations de l'utilisateur
+            $utilisateurRepo = new UtilisateurRepository();
+            $utilisateur = $utilisateurRepo->select($userId);
+    
+            if (!$utilisateur) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Utilisateur introuvable.']);
+                return;
+            }
+    
+            // Récupérer les météothèques associées
+            $meteotheques = $repo->getAllMeteotheques((int) $userId);
+    
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => true,
+                'user' => [
+                    'nom' => $utilisateur->getNom(),
+                    'prenom' => $utilisateur->getPrenom(),
+                ],
+                'results' => $meteotheques,
+            ]);
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Erreur interne : ' . $e->getMessage()]);
+        }
+    }           
+
     // Enregistre une requête pour la carte interactive
     public static function saveRequest() {
         if (!isset($_SESSION['utilisateur_id'])) {
@@ -183,6 +237,11 @@ class ControllerMeteotheque {
             'message' => $success ? 'Requête sauvegardée avec succès.' : 'Erreur lors de la sauvegarde.'
         ]);
     }    
+
+    public static function afficheVue(string $cheminVue, array $parametres = []): void {
+        extract($parametres);
+        require __DIR__ . '/../view/' . $cheminVue;
+    }
     
 }
 ?>
