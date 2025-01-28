@@ -861,7 +861,6 @@ textarea {
     background-color: #007acc;
     color: #fff;
 }
-
 /* Responsive Design */
 @media screen and (max-width: 600px) {
     .formulaire {

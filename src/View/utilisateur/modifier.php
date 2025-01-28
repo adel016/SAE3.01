@@ -11,3 +11,10 @@
 
     <button type="submit">Modifier</button>
 </form>
+<div class="footer2"> </div>
+
+<style>
+.footer2 {
+    margin-bottom: 220px;
+}
+</style>

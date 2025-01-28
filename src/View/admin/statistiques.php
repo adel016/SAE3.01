@@ -174,6 +174,8 @@ const inscriptionsConnexionsChart = new Chart(ctx, {
         }
     }
 });
+
+
 </script>
 
 <style>
