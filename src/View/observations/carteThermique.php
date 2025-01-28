@@ -13,7 +13,7 @@
             </div>
             <div class="info-section">
                 <div class="region-search-bar">
-                    <label for="regionSearch">Rechercher une région :</label>
+                    <label for="regionSearch"></label>
                     <input type="text" id="regionSearch" placeholder="Entrez le nom de la région">
                     <button id="searchRegion" class="bton">Rechercher</button>
                     <button id="resetView" class="bton bton-reset">Réinitialiser la vue</button>
@@ -240,3 +240,108 @@
             document.getElementById('searchRegion').addEventListener('click', searchRegion);
         });
     </script>
+
+<style>
+    .conteneur {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .map-and-info {
+        display: flex;
+        width: 100%;
+    }
+
+    .map-section, .info-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .date-picker {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ccc;
+    width: 92%; /* Augmentez la largeur */
+    margin: 0 auto; /* Centre la barre */
+}
+
+.date-picker label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.date-picker input {
+    width: 40%;
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.date-picker button {
+    align-self: flex-start;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px; /* Espace entre les inputs et le bouton */
+}
+
+.date-picker button:hover {
+    background-color: #0056b3;
+}
+
+    .region-search-bar {
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-bottom: 1px solid #ccc;
+        width: 92%; /* Augmentez la largeur */
+        margin: 0 auto; /* Centre la barre */
+    }
+
+    .map {
+        flex: 1;
+        height: 500px;
+        min-height: 500px;
+    }
+
+    .info {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+    }
+
+
+.search-container {
+    display: flex;
+    align-items: center;
+}
+
+.search-bar {
+    flex-grow: 1;
+}
+
+.btn-update, .btn-reset {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 200px; /* Adjust the margin to separate it from the search bar */
+}
+
+.btn-update:hover, .btn-reset:hover {
+    background-color: #0056b3;
+}
+
+
+</style>
