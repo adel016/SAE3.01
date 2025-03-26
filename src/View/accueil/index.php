@@ -11,7 +11,6 @@
             </div>
             <div class="weather-details">
                 <h2 id="weather-condition">--</h2>
-                <p id="rain-chance">--% de chance de pluie</p>
                 <ul id="weather-stats">
                     <li><span class="icon">🌡</span> Max/Min: --°/--°</li>
                     <li><span class="icon">💧</span> Humidité: --%</li>
@@ -135,8 +134,7 @@ function addStationMarker(station) {
                 windSpeed,
                 icon: getWeatherIcon(temp),
                 condition: getWeatherCondition(temp),
-                rainChance: calculateRainChance(humidity)
-            });
+            }, true);  // Ajoutez ce paramètre pour indiquer qu'il s'agit d'une station
         });
 
         stationMarkers.push(marker);
@@ -239,25 +237,28 @@ function calculateWeatherData(stations) {
         windSpeed: avg(windSpeeds),
         icon: getWeatherIcon(avg(temps)),
         condition: getWeatherCondition(avg(temps)),
-        rainChance: calculateRainChance(avg(humidities))
     };
 }
 
-function updateWeatherData(regionName, weatherData) {
-    document.getElementById('region-name').textContent = regionName;
+function updateWeatherData(name, weatherData, isStation = false) {
+    document.getElementById('region-name').textContent = name;
     const now = new Date();
     document.getElementById('current-time').textContent = `À ${now.getHours()}h${String(now.getMinutes()).padStart(2, '0')}`;
-
     document.getElementById('temperature').textContent = `${weatherData.temp}°`;
     document.getElementById('weather-icon').src = weatherData.icon;
     document.getElementById('weather-icon').alt = weatherData.condition;
     document.getElementById('weather-condition').textContent = weatherData.condition;
-    document.getElementById('rain-chance').textContent = `${weatherData.rainChance.toFixed(1)}% de chance de pluie`;
-    document.getElementById('weather-stats').innerHTML = `
-        <li><span class="icon">🌡</span> Max/Min: ${weatherData.maxTemp}°/${weatherData.minTemp}°</li>
+    
+    let statsHTML = `
         <li><span class="icon">💧</span> Humidité: ${weatherData.humidity}%</li>
         <li><span class="icon">🌬</span> Vent: ${weatherData.windSpeed} Km/h</li>
     `;
+    
+    if (!isStation) {
+        statsHTML = `<li><span class="icon">🌡</span> Max/Min: ${weatherData.maxTemp}°/${weatherData.minTemp}°</li>` + statsHTML;
+    }
+    
+    document.getElementById('weather-stats').innerHTML = statsHTML;
 }
 
 document.getElementById('searchRegionButton').addEventListener('click', () => {
@@ -306,7 +307,4 @@ function getWeatherCondition(temperature) {
     return 'Chaud';
 }
 
-function calculateRainChance(humidity) {
-    return Math.min(humidity, 100);
-}
 </script>

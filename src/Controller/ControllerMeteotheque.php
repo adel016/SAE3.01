@@ -236,7 +236,50 @@ class ControllerMeteotheque {
             'success' => $success,
             'message' => $success ? 'Requête sauvegardée avec succès.' : 'Erreur lors de la sauvegarde.'
         ]);
-    }    
+    }
+
+    public static function deleteMeteotheque() {
+        if (!isset($_SESSION['utilisateur_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Utilisateur non connecté.']);
+            return;
+        }
+    
+        $meteoId = $_GET['meteo_id'] ?? null;
+        $utilisateurId = $_SESSION['utilisateur_id'];
+    
+        if (!$meteoId || !ctype_digit($meteoId)) {
+            echo json_encode(['success' => false, 'message' => 'ID de la météothèque invalide.']);
+            return;
+        }
+    
+        try {
+            $repo = new MeteothequeRepository();
+            $meteo = $repo->select($meteoId);
+    
+            if (!$meteo || $meteo->getUtilisateurId() !== (int) $utilisateurId) {
+                echo json_encode(['success' => false, 'message' => 'Accès refusé ou météothèque introuvable.']);
+                return;
+            }
+    
+            $success = $repo->delete($meteoId);
+    
+            if ($success) {
+                $logRepository = new LogRepository();
+                $logRepository->addLog($utilisateurId, 'suppression_meteotheque');
+            }
+    
+            echo json_encode([
+                'success' => $success,
+                'message' => $success ? 'Météothèque supprimée avec succès.' : 'Erreur lors de la suppression.'
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Erreur interne : ' . $e->getMessage()]);
+        }
+
+        header('Location: /SAE3.01/Web/frontController.php?action=readAll&controller=utilisateur');
+        exit();
+    }
+    
 
     public static function afficheVue(string $cheminVue, array $parametres = []): void {
         extract($parametres);

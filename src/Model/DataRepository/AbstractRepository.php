@@ -97,15 +97,32 @@ abstract class AbstractRepository {
         return $stmt->execute($params);
     }
 
-    ////////////// LOGS /////////////////
-    public function countByAction($action) {
-        $query = "SELECT COUNT(*) as count FROM " . $this->getNomTable() . " WHERE action = :action";
-        $stmt = DatabaseConnection::getPdo()->prepare($query);
-        $stmt->bindParam(':action', $action);
+    ////////////// LOGS //////////////
+    public function countByAction(string $action, ?string $dateDebut = null, ?string $dateFin = null): int {
+        $query = "SELECT COUNT(*) FROM Logs WHERE action = :action";
+        
+        if ($dateDebut) {
+            $query .= " AND timestamp >= :dateDebut";
+        }
+        if ($dateFin) {
+            $query .= " AND timestamp <= :dateFin";
+        }
+    
+        $pdo = DatabaseConnection::getPdo();
+        $stmt = $pdo->prepare($query);
+        $stmt->bindValue(':action', $action, PDO::PARAM_STR);
+    
+        if ($dateDebut) {
+            $stmt->bindValue(':dateDebut', $dateDebut, PDO::PARAM_STR);
+        }
+        if ($dateFin) {
+            $stmt->bindValue(':dateFin', $dateFin, PDO::PARAM_STR);
+        }
+    
         $stmt->execute();
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result['count'];
+        return (int) $stmt->fetchColumn();
     }
+    
 
     public function addLog($utilisateurId, $action, $description = null) {
         $query = "INSERT INTO " . $this->getNomTable() . " (utilisateur_id, action, description, timestamp) 

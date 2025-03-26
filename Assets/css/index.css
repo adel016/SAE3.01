@@ -184,6 +184,7 @@ hr {
 
 footer {
     margin-top: 50px; /* Ajoute un espace au-dessus du footer */
+    position: sticky;
     text-align: center;
     padding: 20px;
     font-size: 14px;
@@ -693,15 +694,29 @@ input[type="text"]:focus {
     flex-direction: column;
     gap: 2rem;
     margin: 2rem auto;
-    max-width: 800px;
+    max-width: 1500px;
 }
 
-.user-profile,
+.meteotheque h2 {
+    text-align: center;
+}
+
+.user-profile {    
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 800px;
+    text-align: start;
+    padding: 2rem;
+    margin: auto;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 .meteotheque {
     background: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 8px;
-    padding: 1.5rem;
+    padding: 2rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -711,14 +726,22 @@ input[type="text"]:focus {
 }
 
 .meteotheque-list {
-    list-style: none;
-    padding: 0;
-    margin: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .meteotheque-item {
-    padding: 0.5rem;
-    border-bottom: 1px solid #eee;
+    flex: 1;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.meteotheque-row {
+    display: flex;
+    gap: 20px;
 }
 
 .meteotheque-item:last-child {

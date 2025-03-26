@@ -20,15 +20,20 @@
     <section class="meteotheque">
         <h2>Votre Meteothèque</h2>
         <?php if (!empty($requetes)): ?>
-            <ul class="meteotheque-list">
-                <?php foreach ($requetes as $requete): ?>
-                    <li class="meteotheque-item">
-                        <strong>Nom de la collection :</strong> <?= htmlspecialchars($requete->getNomCollection()) ?><br>
-                        <strong>Description :</strong> <?= htmlspecialchars($requete->getDescription()) ?><br>
-                        <strong>Date :</strong> <?= htmlspecialchars($requete->getDateCreation()) ?>
-                    </li>
+            <div class="meteotheque-list">
+                <?php foreach (array_chunk($requetes, 3) as $groupe): ?>
+                    <div class="meteotheque-row">
+                        <?php foreach ($groupe as $requete): ?>
+                            <div class="meteotheque-item">
+                                <strong>Nom de la collection :</strong> <?= htmlspecialchars($requete->getNomCollection()) ?><br>
+                                <strong>Description :</strong> <?= htmlspecialchars($requete->getDescription()) ?><br>
+                                <strong>Date :</strong> <?= htmlspecialchars($requete->getDateCreation()) ?><br>
+                                <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=deleteMeteotheque&controller=meteotheque&meteo_id=<?= $requete->getMeteoId() ?>" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer votre enregistrement ? Cette action est irréversible.');">Supprimer</a>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
                 <?php endforeach; ?>
-            </ul>
+            </div>
         <?php else: ?>
             <p>Aucune requête enregistrée dans votre Meteothèque.</p>
         <?php endif; ?>

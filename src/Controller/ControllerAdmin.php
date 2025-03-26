@@ -24,6 +24,9 @@ class ControllerAdmin {
 
     // Affiche les statistiques et logs dans une vue dédiée
     public static function StatistiquesEtLogs() {
+        $dateDebut = $_POST['dateDebut'] ?? null;
+        $dateFin = $_POST['dateFin'] ?? null;
+
         $logRepository = new LogRepository();
 
         // Récupérer les statistiques générales pour chaque action
@@ -59,6 +62,9 @@ class ControllerAdmin {
             'ajoutsMeteothequeParJour' => $ajoutsMeteothequeParJour,
             'logs' => $logs
         ]);
+
+        header('Location: ?action=StatistiquesEtLogs&controller=admin');
+        exit();
     }
 
     // Promouvoir un utilisateur au rôle admin
