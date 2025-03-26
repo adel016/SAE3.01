@@ -22,31 +22,48 @@ class ControllerAdmin {
         ]);
     }
 
-    // Affiche les statistiques et logs dans une vue dédiée
     public static function StatistiquesEtLogs() {
         $dateDebut = $_POST['dateDebut'] ?? null;
         $dateFin = $_POST['dateFin'] ?? null;
-
+    
         $logRepository = new LogRepository();
-
-        // Récupérer les statistiques générales pour chaque action
-        $nombreInscriptions = $logRepository->countByAction('inscription');
-        $nombreConnexions = $logRepository->countByAction('connexion');
-        $nombrePromotions = $logRepository->countByAction('promotion');
-        $nombreModifications = $logRepository->countByAction('modification');
-        $nombreAjoutsMeteotheque = $logRepository->countByAction('ajout_meteotheque');
-
-        // Récupérer les données par jour pour les graphiques
-        $inscriptionsParJour = $logRepository->getActionsParJour('inscription');
-        $connexionsParJour = $logRepository->getActionsParJour('connexion');
-        $promotionsParJour = $logRepository->getActionsParJour('promotion');
-        $modificationsParJour = $logRepository->getActionsParJour('modification');
-        $ajoutsMeteothequeParJour = $logRepository->getActionsParJour('ajout_meteotheque');
-
-        // Récupérer tous les logs pour affichage dans un tableau
-        $logs = $logRepository->getAll();
-
-        // Appeler la vue avec toutes les données nécessaires
+    
+        // Si des dates sont fournies, filtrer les logs et statistiques
+        if ($dateDebut && $dateFin) {
+            $dateDebut = date('Y-m-d', strtotime($dateDebut)); // Formatage sécurisé
+            $dateFin = date('Y-m-d', strtotime($dateFin));
+    
+            $nombreInscriptions = $logRepository->countByAction('inscription', $dateDebut, $dateFin);
+            $nombreConnexions = $logRepository->countByAction('connexion', $dateDebut, $dateFin);
+            $nombrePromotions = $logRepository->countByAction('promotion', $dateDebut, $dateFin);
+            $nombreModifications = $logRepository->countByAction('modification', $dateDebut, $dateFin);
+            $nombreAjoutsMeteotheque = $logRepository->countByAction('ajout_meteotheque', $dateDebut, $dateFin);
+    
+            $inscriptionsParJour = $logRepository->getActionsParJour('inscription', $dateDebut, $dateFin);
+            $connexionsParJour = $logRepository->getActionsParJour('connexion', $dateDebut, $dateFin);
+            $promotionsParJour = $logRepository->getActionsParJour('promotion', $dateDebut, $dateFin);
+            $modificationsParJour = $logRepository->getActionsParJour('modification', $dateDebut, $dateFin);
+            $ajoutsMeteothequeParJour = $logRepository->getActionsParJour('ajout_meteotheque', $dateDebut, $dateFin);
+    
+            $logs = $logRepository->getLogsByDate($dateDebut, $dateFin);
+        } else {
+            // Si aucune date n'est fournie, récupérer toutes les données
+            $nombreInscriptions = $logRepository->countByAction('inscription');
+            $nombreConnexions = $logRepository->countByAction('connexion');
+            $nombrePromotions = $logRepository->countByAction('promotion');
+            $nombreModifications = $logRepository->countByAction('modification');
+            $nombreAjoutsMeteotheque = $logRepository->countByAction('ajout_meteotheque');
+    
+            $inscriptionsParJour = $logRepository->getActionsParJour('inscription');
+            $connexionsParJour = $logRepository->getActionsParJour('connexion');
+            $promotionsParJour = $logRepository->getActionsParJour('promotion');
+            $modificationsParJour = $logRepository->getActionsParJour('modification');
+            $ajoutsMeteothequeParJour = $logRepository->getActionsParJour('ajout_meteotheque');
+    
+            $logs = $logRepository->getAll();
+        }
+    
+        // Charger la vue avec les données filtrées
         self::afficheVue('admin.php', [
             'pagetitle' => 'Statistiques',
             'cheminVueBody' => 'admin/statistiques.php',
@@ -62,10 +79,7 @@ class ControllerAdmin {
             'ajoutsMeteothequeParJour' => $ajoutsMeteothequeParJour,
             'logs' => $logs
         ]);
-
-        header('Location: ?action=StatistiquesEtLogs&controller=admin');
-        exit();
-    }
+    }    
 
     // Promouvoir un utilisateur au rôle admin
     public static function promouvoirAdmin() {
@@ -135,7 +149,13 @@ class ControllerAdmin {
             ];
         }, $requetes);
     
-        echo json_encode(['success' => true, 'requetes' => $formattedRequetes]);
+        echo json_encode(['success' => true, 'requetes' => array_map(function($requete) {
+            return [
+                'nomCollection' => htmlspecialchars($requete['nomCollection']),
+                'description' => htmlspecialchars($requete['description']),
+                'dateCreation' => $requete['dateCreation']
+            ];
+        }, $formattedRequetes)]);
     }
 
     // Méthode générique pour afficher une vue

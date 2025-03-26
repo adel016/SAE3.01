@@ -2,9 +2,9 @@
 
 namespace App\Meteo\Model\DataRepository;
 
-use App\Meteo\Model\DataObject\Stations;
 use App\Meteo\Model\DataRepository\DatabaseConnection;
 use App\Meteo\Model\DataObject\Utilisateur;
+use App\Meteo\Model\DataObject\Logs;
 use PDO;
 
 abstract class AbstractRepository {
@@ -98,31 +98,26 @@ abstract class AbstractRepository {
     }
 
     ////////////// LOGS //////////////
-    public function countByAction(string $action, ?string $dateDebut = null, ?string $dateFin = null): int {
-        $query = "SELECT COUNT(*) FROM Logs WHERE action = :action";
-        
-        if ($dateDebut) {
-            $query .= " AND timestamp >= :dateDebut";
-        }
-        if ($dateFin) {
-            $query .= " AND timestamp <= :dateFin";
+    public function countByAction($action, $dateDebut = null, $dateFin = null) {
+        $sql = "SELECT COUNT(*) FROM logs WHERE action = :action";
+    
+        // Ajouter une condition de filtre par date si nécessaire
+        if ($dateDebut && $dateFin) {
+            $sql .= " AND DATE(timestamp) BETWEEN :dateDebut AND :dateFin";
         }
     
         $pdo = DatabaseConnection::getPdo();
-        $stmt = $pdo->prepare($query);
-        $stmt->bindValue(':action', $action, PDO::PARAM_STR);
-    
-        if ($dateDebut) {
-            $stmt->bindValue(':dateDebut', $dateDebut, PDO::PARAM_STR);
-        }
-        if ($dateFin) {
-            $stmt->bindValue(':dateFin', $dateFin, PDO::PARAM_STR);
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':action', $action);
+        
+        if ($dateDebut && $dateFin) {
+            $stmt->bindValue(':dateDebut', $dateDebut);
+            $stmt->bindValue(':dateFin', $dateFin);
         }
     
         $stmt->execute();
-        return (int) $stmt->fetchColumn();
-    }
-    
+        return $stmt->fetchColumn();
+    }   
 
     public function addLog($utilisateurId, $action, $description = null) {
         $query = "INSERT INTO " . $this->getNomTable() . " (utilisateur_id, action, description, timestamp) 
@@ -134,28 +129,54 @@ abstract class AbstractRepository {
         $stmt->execute();
     }
 
-    public function getActionsParJour($action) {
-        $query = "
-            SELECT DAYOFWEEK(timestamp) AS jour, COUNT(*) AS count
-            FROM " . $this->getNomTable() . "
-            WHERE action = :action
-            GROUP BY jour
-        ";
-        $stmt = DatabaseConnection::getPdo()->prepare($query);
-        $stmt->bindParam(':action', $action);
-        $stmt->execute();
+    public function getActionsParJour($action, $dateDebut = null, $dateFin = null) {
+        $sql = "SELECT DATE(timestamp) as jour, COUNT(*) as total 
+                FROM logs 
+                WHERE action = :action";
     
-        // Initialiser un tableau pour les jours de la semaine
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $actionsParJour = array_fill(0, 7, 0); // Dimanche = 1, Samedi = 7
-    
-        foreach ($result as $row) {
-            $jourIndex = $row['jour'] - 1; // Convertir pour commencer à 0
-            $actionsParJour[$jourIndex] = (int) $row['count'];
+        if ($dateDebut && $dateFin) {
+            $sql .= " AND DATE(timestamp) BETWEEN :dateDebut AND :dateFin";
         }
     
-        return $actionsParJour;
-    }
+        $sql .= " GROUP BY DATE(timestamp)";
+    
+        $pdo = DatabaseConnection::getPdo();
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':action', $action);
+        
+        if ($dateDebut && $dateFin) {
+            $stmt->bindValue(':dateDebut', $dateDebut);
+            $stmt->bindValue(':dateFin', $dateFin);
+        }
+    
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }    
+
+    public function getLogsByDate($dateDebut, $dateFin) {
+        $sql = "SELECT * FROM logs WHERE DATE(timestamp) BETWEEN :dateDebut AND :dateFin ORDER BY timestamp DESC";
+        
+        $pdo = DatabaseConnection::getPdo();   
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':dateDebut', $dateDebut);
+        $stmt->bindValue(':dateFin', $dateFin);
+        $stmt->execute();
+        
+        $logsData = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $logs = [];
+        
+        foreach ($logsData as $log) {
+            $logs[] = new Logs(
+                $log['log_id'],
+                $log['user_id'] ?? null, // Use null coalescing operator to handle potential null values
+                $log['action'],
+                $log['timestamp'],
+                $log['description'] ?? ''
+            );
+        }
+        
+        return $logs;
+    }      
 
     ////////////// UTILISATEUR / STATIONS / METEOTHEQUES ///////////////////
     // Methode specifique pour recuperer un utilisateur avec son email (unique methode)
