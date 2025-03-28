@@ -326,6 +326,31 @@ footer:hover { background-color: rgba(173, 216, 230, 0.95); box-shadow: 0px -4px
 input:checked + .slider { background: linear-gradient(90deg, #4CAF50, #2E7D32); }
 input:checked + .slider:before { transform: translateX(34px); }
 
+.toast {
+    position: fixed;
+    top: 10px; /* Plus haut sur l'écran */
+    left: 50%;
+    transform: translateX(-50%);
+    background: #4CAF50;
+    color: white;
+    padding: 20px 30px; /* Plus grand */
+    font-size: 1.5rem; /* Texte plus grand */
+    font-weight: bold;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.hidden {
+    display: none;
+}
+
 /* Ajout de styles pour une transition fluide */
 #tableauStats, #graphiqueStats {
     transition: opacity 0.3s ease-in-out;

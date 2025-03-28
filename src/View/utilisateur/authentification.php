@@ -37,11 +37,16 @@
     </div>
 </section>
 
+<div class="footer2"> </div>
+
 <style>
     #connexionForm, #inscriptionForm {
         margin-left: 150px; /* Ajustez cette valeur selon vos besoins */
         border: 2px solid blue;
         background: rgba(55, 175, 255, 0.23); /* Fond bleu légèrement transparent */
+    }
+    .footer2 {
+        margin-bottom: 220px;
     }
 </style>
 
