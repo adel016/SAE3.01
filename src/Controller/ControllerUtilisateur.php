@@ -11,7 +11,7 @@ use App\Meteo\Lib\MessageFlash;
 class ControllerUtilisateur {
     public static function default() : void {
         self::afficheVue('view.php', [
-            'pagetitle' => "ACCUEIL - METEOVISION",
+            'pagetitle' => "MéteoVision",
             'cheminVueBody' => "accueil/index.php"
         ]);
     }
@@ -43,7 +43,7 @@ class ControllerUtilisateur {
         self::afficheVue('view.php', [
             'utilisateur' => $utilisateur,
             'requetes' => $requetes,
-            'pagetitle' => "Profil utilisateur",
+            'pagetitle' => "MéteoVision - Profil",
             'cheminVueBody' => "utilisateur/list.php"
         ]);
     }
@@ -102,7 +102,7 @@ class ControllerUtilisateur {
         }
         // Si on arrive ici, c'est qu'il y a eu une erreur
         self::afficheVue('view.php', [
-            'pagetitle' => "Inscription",
+            'pagetitle' => "MéteoVision - Inscription",
             'cheminVueBody' => "utilisateur/authentification.php"
         ]);
     }    
@@ -111,7 +111,7 @@ class ControllerUtilisateur {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             // Affiche le formulaire de connexion
             self::afficheVue('view.php', [
-                'pagetitle' => 'CONNEXION',
+                'pagetitle' => 'MéteoVision - Connexion',
                 'cheminVueBody' => 'utilisateur/authentification.php'
             ]);
         } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -151,13 +151,13 @@ class ControllerUtilisateur {
             } catch (\Exception $e) {
                 MessageFlash::ajouter('error', $e->getMessage());
                 self::afficheVue('view.php', [
-                    'pagetitle' => 'CONNEXION',
+                    'pagetitle' => 'MéteoVision - Connexion',
                     'cheminVueBody' => 'utilisateur/authentification.php'
                 ]);
             }
         } else {
             self::afficheVue('view.php', [
-                'pagetitle' => 'CONNEXION',
+                'pagetitle' => 'MéteoVision - Connexion',
                 'cheminVueBody' => 'utilisateur/authentification.php'
             ]);
         }
@@ -185,7 +185,7 @@ class ControllerUtilisateur {
             if ($utilisateur) {
                 self::afficheVue('view.php', [
                     'utilisateur' => $utilisateur,
-                    'pagetitle' => "Modifier un utilisateur",
+                    'pagetitle' => "MéteoVision - Profil",
                     'cheminVueBody' => 'utilisateur/modifier.php'
                 ]);
             } else {

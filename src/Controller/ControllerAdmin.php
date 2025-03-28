@@ -16,7 +16,7 @@ class ControllerAdmin {
 
         // Affiche la vue générique avec la liste des utilisateurs
         self::afficheVue('admin.php', [
-            'pagetitle' => 'Tableau de bord Admin',
+            'pagetitle' => 'MéteoVision - TDB Admin',
             'cheminVueBody' => 'admin/AdminDashBoard.php',
             'utilisateurs' => $utilisateurs,
         ]);
@@ -65,7 +65,7 @@ class ControllerAdmin {
     
         // Charger la vue avec les données filtrées
         self::afficheVue('admin.php', [
-            'pagetitle' => 'Statistiques',
+            'pagetitle' => 'MétéoVision - Statistiques',
             'cheminVueBody' => 'admin/statistiques.php',
             'nombreInscriptions' => $nombreInscriptions,
             'nombreConnexions' => $nombreConnexions,

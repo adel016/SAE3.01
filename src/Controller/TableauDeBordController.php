@@ -55,14 +55,14 @@ class TableauDeBordController {
 
     public static function index() {
         self::afficheVue('view.php', [
-            'pagetitle' => 'Tableau de Bord Météo',
+            'pagetitle' => 'MéteoVision - TDB Recherche Libre',
             'cheminVueBody' => 'dashboard/index.php'
         ]);
     }
 
     public static function rechercheAvancee() {
         self::afficheVue('view.php', [
-            'pagetitle' => 'Recherche Avancée',
+            'pagetitle' => 'MéteoVision - TDB Recherche Avancée',
             'cheminVueBody' => 'dashboard/test_recherche.php'
         ]);
     }

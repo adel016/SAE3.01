@@ -15,7 +15,7 @@ class ControllerMeteotheque {
         $utilisateurs = $repo->getAllUtilisateurs(); // Méthode à implémenter dans `MeteothequeRepository`
     
         self::afficheVue('view.php', [
-            'pagetitle' => 'MeteoVision - Meteotheques',
+            'pagetitle' => 'MéteoVision - Météothèques',
             'utilisateurs' => $utilisateurs,
             'cheminVueBody' => 'meteotheque/list.php'
         ]);

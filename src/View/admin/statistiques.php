@@ -1,4 +1,4 @@
-<header class="titrestat">
+<header class="dashboard-header">
     <h1>Statistiques</h1>
 </header>
 
@@ -76,81 +76,101 @@
     </section>
 
 
-    <!-- Logs -->
-    <section class="mb-4">
-        <h2>Logs</h2>
+    <!-- Bouton pour basculer entre tableau et graphique -->
+    <div class="toggle-container">
+        <span id="toggleLabel">📊 Afficher le Tableau</span>
+        <label class="switch">
+            <input type="checkbox" id="toggleView">
+            <span class="slider"></span>
+        </label>
+    </div>
+
+
+    <!-- Tableau des statistiques -->
+    <section id="tableauStats" style="display: none;">
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Utilisateur</th>
-                    <th>Action</th>
                     <th>Date</th>
+                    <th>Inscriptions</th>
+                    <th>Connexions</th>
+                    <th>Promotions</th>
+                    <th>Modifications</th>
+                    <th>Ajouts Météothèque</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($logs as $log): ?>
+                <?php foreach ($inscriptionsParJour as $key => $data): ?>
                     <tr>
-                        <td><?= htmlspecialchars($log->getLogId()) ?></td>
-                        <td><?= htmlspecialchars($log->getUtilisateurId()) ?></td>
-                        <td><?= htmlspecialchars($log->getAction()) ?></td>
-                        <td><?= htmlspecialchars($log->getTimestamp()) ?></td>
+                        <td><?= htmlspecialchars($data['jour']) ?></td>
+                        <td><?= htmlspecialchars($data['total']) ?></td>
+                        <td><?= htmlspecialchars($connexionsParJour[$key]['total'] ?? 0) ?></td>
+                        <td><?= htmlspecialchars($promotionsParJour[$key]['total'] ?? 0) ?></td>
+                        <td><?= htmlspecialchars($modificationsParJour[$key]['total'] ?? 0) ?></td>
+                        <td><?= htmlspecialchars($ajoutsMeteothequeParJour[$key]['total'] ?? 0) ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
     </section>
 
-    <!-- Graphiques -->
-    <section>
+    <!-- Graphique -->
+    <section id="graphiqueStats">
         <div class="card shadow-sm">
             <div class="card-body">
-                <h2 class="card-title text-center">Graphiques</h2>
+                <h2 class="card-title text-center">Logs des utilisateurs</h2>
                 <canvas id="inscriptionsConnexionsChart" width="400" height="200"></canvas>
             </div>
         </div>
     </section>
+
 </div>
 
 <!-- Script pour le graphique -->
 <script>
+function extractData(data) {
+    return data.map(item => item.total); // Extrait uniquement les valeurs numériques
+}
+
+const labels = <?= json_encode(array_column($inscriptionsParJour, 'jour')) ?>; // Extraire les dates
+
 const ctx = document.getElementById('inscriptionsConnexionsChart').getContext('2d');
 const inscriptionsConnexionsChart = new Chart(ctx, {
     type: 'bar',
     data: {
-        labels: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
+        labels: labels,
         datasets: [
             {
                 label: 'Inscriptions',
-                data: <?= json_encode($inscriptionsParJour) ?>,
+                data: extractData(<?= json_encode($inscriptionsParJour) ?>),
                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
                 borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 1
             },
             {
                 label: 'Connexions',
-                data: <?= json_encode($connexionsParJour) ?>,
+                data: extractData(<?= json_encode($connexionsParJour) ?>),
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1
             },
             {
                 label: 'Promotions',
-                data: <?= json_encode($promotionsParJour) ?>,
+                data: extractData(<?= json_encode($promotionsParJour) ?>),
                 backgroundColor: 'rgba(255, 206, 86, 0.2)',
                 borderColor: 'rgba(255, 206, 86, 1)',
                 borderWidth: 1
             },
             {
                 label: 'Modifications',
-                data: <?= json_encode($modificationsParJour) ?>,
+                data: extractData(<?= json_encode($modificationsParJour) ?>),
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
                 borderColor: 'rgba(255, 99, 132, 1)',
                 borderWidth: 1
             },
             {
                 label: 'Ajouts Meteothèque',
-                data: <?= json_encode($ajoutsMeteothequeParJour) ?>,
+                data: extractData(<?= json_encode($ajoutsMeteothequeParJour) ?>),
                 backgroundColor: 'rgba(153, 102, 255, 0.2)',
                 borderColor: 'rgba(153, 102, 255, 1)',
                 borderWidth: 1
@@ -174,39 +194,34 @@ const inscriptionsConnexionsChart = new Chart(ctx, {
         }
     }
 });
-
-
 </script>
 
-<style>
-
-html, body {
-    font-family: Arial, sans-serif;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(to bottom, #E3F0FF 0%, #FFF9E6 50%, #FDF7DA 100%) no-repeat;
-    background-attachment: fixed;
-}
-
-footer {
-    margin-top: 50px; /* Ajoute un espace au-dessus du footer */
-    text-align: center;
-    padding: 20px;
-    font-size: 14px;
-    background: linear-gradient(to bottom, #FDF7DA 0%, #FFF9E6 15%, #E3F0FF 100%) no-repeat;
-    border-radius: 10px;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.884);
-}
-
-/* Centrer le titre "Liste des utilisateurs" */
-.titrestat {
-    text-align: center;
-    width: 98%;
-    color: #649fdf;
-    font-size: 2rem;
-    font-weight: bold;
-    margin-top: 30px;
-}
-
-</style>
+<script>
+document.getElementById('toggleView').addEventListener('change', function() {
+    const tableau = document.getElementById('tableauStats');
+    const graphique = document.getElementById('graphiqueStats');
+    const toggleLabel = document.getElementById('toggleLabel');
+    
+    if (this.checked) {
+        graphique.style.opacity = '0';
+        setTimeout(() => {
+            graphique.style.display = 'none';
+            tableau.style.display = 'block';
+            setTimeout(() => {
+                tableau.style.opacity = '1';
+            }, 10);
+        }, 300);
+        toggleLabel.innerHTML = "📋 Afficher le Graphique";
+    } else {
+        tableau.style.opacity = '0';
+        setTimeout(() => {
+            tableau.style.display = 'none';
+            graphique.style.display = 'block';
+            setTimeout(() => {
+                graphique.style.opacity = '1';
+            }, 10);
+        }, 300);
+        toggleLabel.innerHTML = "📊 Afficher le Tableau";
+    }
+});
+</script>

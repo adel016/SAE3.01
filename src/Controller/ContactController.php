@@ -5,7 +5,7 @@ namespace App\Meteo\Controller;
 class ContactController {
     public static function show() {
         self::afficheVue('view.php', [
-            'pagetitle' => 'Contact',
+            'pagetitle' => 'MéteoVision - Contact',
             'cheminVueBody' => 'contact.php'
         ]);
     }

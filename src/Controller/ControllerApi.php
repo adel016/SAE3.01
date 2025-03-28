@@ -5,7 +5,7 @@ namespace App\Meteo\Controller;
 class ControllerApi {
     public static function default() {
         self::afficheVue('view.php', [
-            'pagetitle' => 'ACCUEIL - OBSERVATIONS',
+            'pagetitle' => 'MéteoVision - Observations',
             'cheminVueBody' => 'observations/carteThermique.php'
         ]);
     }

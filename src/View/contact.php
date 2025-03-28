@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact</title>
+    <link rel="icon" href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/img/MeteoVision_logo.png"/>
     <link rel="stylesheet" href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/css/index.css" v=<?= time(); ?>">
     <link rel="stylesheet" href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/css/contact.css" v=<?= time(); ?>">
 </head>

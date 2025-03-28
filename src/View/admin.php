@@ -6,6 +6,7 @@
     <title><?= htmlspecialchars($pagetitle ?? "Tableau de bord Admin"); ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="icon" href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/img/MeteoVision_logo.png"/>
     <link rel="stylesheet" href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/css/admin.css" v=<?= time(); ?>>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -17,7 +18,7 @@
                 ☰
             </button>
             <!-- Titre de la marque -->
-            <a class="navbar-brand" href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php">MeteoVision</a>
+            <a class="navbar-brand" href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php">MétéoVision</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -25,7 +26,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=rechercheAvancee&controller=tableauDeBord">Tableau de bord</a>
+                        <a class="nav-link" href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=readAll&controller=Meteotheque">Météothèques</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=default&controller=api">Observations</a>
@@ -54,13 +55,15 @@
     <div id="sidebar" class="sidebar">
         <ul class="nav flex-column">
             <li class="nav-item">
-            <a class="nav-link" href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=readAll&controller=Meteotheque">Meteotheques</a>
+                <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=tableauDeBord&controller=admin" class="admin-dashboard-link">
+                    Tableau de bord admin
+                </a>            
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=StatistiquesEtLogs&controller=admin">Statistiques</a>
+                <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=StatistiquesEtLogs&controller=admin" class="admin-dashboard-link">Statistiques</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=deconnexion&controller=utilisateur">Déconnexion</a>
+                <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=deconnexion&controller=utilisateur" class="admin-dashboard-link">Déconnexion</a>
             </li>
         </ul>
     </div>

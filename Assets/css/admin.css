@@ -1,3 +1,11 @@
+html, body {
+    font-family: Arial, sans-serif;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: white;
+}
+
 /* Sidebar */
 #sidebar {
     position: fixed;
@@ -13,20 +21,10 @@
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
-#sidebar.show {
-    transform: translateX(0);
-}
+#sidebar.show { transform: translateX(0); }
 
-#sidebar ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-#sidebar ul li {
-    padding: 15px;
-}
-
+#sidebar ul { list-style: none; padding: 0; margin: 0; }
+#sidebar ul li { padding: 15px; }
 #sidebar ul li a {
     text-decoration: none;
     color: #333;
@@ -36,107 +34,213 @@
     transition: background-color 0.3s ease;
 }
 
-#sidebar ul li a:hover {
-    background-color: #3498db;
-    color: white;
+#sidebar ul li a:hover { background-color: #3498db; color: white; }
+
+.admin-dashboard-link {
+    text-decoration: none;
+    font-size: 16px;
+    color: #333;
+    font-weight: bold;
+    padding: 8px 15px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
 }
 
+.admin-dashboard-link:hover { background-color: #0077be; color: #fff; }
 
 .dashboard-header {
-    background-color: #f8f9fa;
-    color: #333;
+    background: linear-gradient(135deg, #007bff, #6610f2);
+    color: white;
     text-align: center;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-header::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: rgba(255, 255, 255, 0.1);
+    clip-path: polygon(0 0, 100% 0, 80% 100%, 20% 100%);
+    opacity: 0.3;
 }
 
 .dashboard-header:hover {
-    background-color: #e9ecef;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transform: scale(1.02);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
 }
 
 .dashboard-header h1 {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
     font-weight: bold;
     margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
     animation: fadeIn 1s ease-in-out;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
+
 
 /* Main content */
-.main-content {
-    margin-left: 0;
-    transition: margin-left 0.3s ease-in-out;
-}
+.main-content { transition: margin-left 0.3s ease-in-out; }
+.main-content.collapsed { margin-left: 250px; }
 
-.main-content.collapsed {
-    margin-left: 250px;
-}
-
-/* FOOTER */
+/* Footer */
 footer {
-    background-color: rgba(173, 216, 230, 0.8);
-    color: #004080;
-    font-weight: 1000;
+    background-color: #fff;
+    color: black;
+    font-weight: bold;
     text-align: center;
-    position: fixed;
+    position: sticky;
+    margin-top: 20px;
     bottom: 0;
     width: 100%;
-    padding: 10px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.884);
     backdrop-filter: blur(10px);
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
     z-index: 1000;
 }
 
-footer:hover {
-    background-color: rgba(173, 216, 230, 0.95);
-    box-shadow: 0px -4px 6px rgba(0, 0, 0, 0.2);
-}
+footer:hover { background-color: rgba(173, 216, 230, 0.95); box-shadow: 0px -4px 6px rgba(0, 0, 0, 0.2); }
 
-/* Contenu principal */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #fff;
+/* Section liste des utilisateurs */
+#liste-utilisateurs {
+    background-color: white;
     border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
 }
 
-thead {
+#liste-utilisateurs h2 {
+    color: #2c3e50;
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+}
+
+/* Tableau */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table th, .table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.table thead th {
     background-color: #3498db;
-    color: #fff;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-th, td {
-    padding: 12px;
+.table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
 }
 
-/* COULEUR DES MESSAGES FLASHS */
-/* Styles pour la section des messages flash */
+.table tbody tr:hover {
+    background-color: #e8f4f8;
+    transition: background-color 0.3s ease;
+}
+
+/* Boutons */
+.btn {
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    border-color: #3498db;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+}
+
+.btn-danger {
+    background-color: #e74c3c;
+    border-color: #e74c3c;
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+    border-color: #c0392b;
+}
+
+.btn-info {
+    background-color: #2ecc71;
+    border-color: #2ecc71;
+}
+
+.btn-info:hover {
+    background-color: #27ae60;
+    border-color: #27ae60;
+}
+
+/* Conteneur météothèque */
+#meteotheque-container {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 30px;
+}
+
+#meteotheque-container h3 {
+    color: #2c3e50;
+    font-size: 1.5em;
+    margin-bottom: 15px;
+}
+
+#meteotheque-content .list-group-item {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+#hide-meteotheque {
+    margin-top: 15px;
+}
+
+/* Flash messages */
 .flash-container {
-    position: fixed; /* Fixe la position */
-    bottom: 50px; /* Ajoute une marge de 50px au-dessus du footer */
+    position: fixed;
+    bottom: 50px;
     left: 0;
-    width: 100%; /* Prend toute la largeur */
-    background-color: #f8d7da; /* Couleur de fond par défaut (rouge pâle pour erreur) */
-    z-index: 1500; /* Toujours au-dessus des autres éléments, y compris le footer */
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); /* Ombre douce */
+    width: 100%;
+    background-color: #f8d7da;
+    z-index: 1500;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Messages individuels */
 .flash {
     padding: 10px;
     text-align: center;
@@ -145,26 +249,10 @@ th, td {
     animation: slideIn 0.5s, fadeOut 6s 5s forwards;
 }
 
-/* Styles pour différents types de messages */
-.flash.success {
-    background-color: #d4edda; /* Vert pâle pour succès */
-    color: #155724; /* Vert foncé pour texte */
-}
-
-.flash.error {
-    background-color: #f8d7da; /* Rouge pâle pour erreur */
-    color: #721c24; /* Rouge foncé pour texte */
-}
-
-.flash.warning {
-    background-color: #fff3cd; /* Jaune pâle pour avertissement */
-    color: #856404; /* Jaune foncé pour texte */
-}
-
-.flash.info {
-    background-color: #d1ecf1; /* Bleu pâle pour information */
-    color: #0c5460; /* Bleu foncé pour texte */
-}
+.flash.success { background-color: #d4edda; color: #155724; }
+.flash.error { background-color: #f8d7da; color: #721c24; }
+.flash.warning { background-color: #fff3cd; color: #856404; }
+.flash.info { background-color: #d1ecf1; color: #0c5460; }
 
 .flash .close-btn {
     float: right;
@@ -175,118 +263,71 @@ th, td {
     cursor: pointer;
     color: inherit;
 }
-.flash .close-btn:hover {
-    color: #000; /* Couleur au survol */
-}
 
-/* Responsiveness: Ajoutez des styles pour mobiles si nécessaire */
-@media (max-width: 480px) {
-    .flash {
-        font-size: 12px;
-        padding: 6px;
-    }
-}
+.flash .close-btn:hover { color: #000; }
 
 @keyframes slideIn {
-    from {
-        transform: translateY(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes fadeOut {
-    0% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-    }
+    0% { opacity: 1; }
+    100% { opacity: 0; }
 }
 
-
-/* Dashboard header styles */
-.dashboard-header {
-    background-color: #f8f9fa;
+/* Toggle Switch */
+.toggle-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
 }
 
-/* Styles pour le tableau de la liste des utilisateurs */
-#liste-utilisateurs .table {
-    border-collapse: collapse;
-    width: 80%; /* Définir une largeur maximale */
-    margin: 20px auto; /* Centrer le tableau */
-    font-size: 1rem;
-    text-align: left;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 70px;
+    height: 36px;
 }
 
-#liste-utilisateurs .table th, 
-#liste-utilisateurs .table td {
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-}
+.switch input { opacity: 0; width: 0; height: 0; }
 
-#liste-utilisateurs .table th {
-    background-color: #649fdf;
-    color: white;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-#liste-utilisateurs .table tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-#liste-utilisateurs .table tr:hover {
-    background-color: #f1f1f1;
-}
-
-#liste-utilisateurs .table td {
-    vertical-align: middle;
-}
-
-#liste-utilisateurs .table .btn {
-    padding: 5px 10px;
-    font-size: 0.875rem;
-    border: none;
-    border-radius: 4px;
+.slider {
+    position: absolute;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, #d1d1d1, #bbbbbb);
+    transition: 0.4s;
+    border-radius: 36px;
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Centrer le titre "Liste des utilisateurs" */
-#liste-utilisateurs h2 {
-    text-align: center;
-    width: 98%;
-    color: #649fdf;
-    font-size: 2rem;
-    font-weight: bold;
-    margin-top: 30px;
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 28px;
+    width: 28px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
-/* Bouton Supprimer */
-#liste-utilisateurs .table .btn-delete {
-    background-color: #dc3545; /* Rouge */
-    color: white;
+input:checked + .slider { background: linear-gradient(90deg, #4CAF50, #2E7D32); }
+input:checked + .slider:before { transform: translateX(34px); }
+
+/* Ajout de styles pour une transition fluide */
+#tableauStats, #graphiqueStats {
+    transition: opacity 0.3s ease-in-out;
+    opacity: 1;
 }
-
-#liste-utilisateurs .table .btn-delete:hover {
-    background-color: #c82333;
-}
-
-/* Bouton Promouvoir Admin */
-#liste-utilisateurs .table .btn-promote {
-    background-color: #ffc107; /* Jaune */
-    color: black;
-}
-
-#liste-utilisateurs .table .btn-promote:hover {
-    background-color: #e0a800;
-}
-
-
