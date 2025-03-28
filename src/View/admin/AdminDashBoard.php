@@ -123,5 +123,93 @@
         });
     });
     </script>
+
+
+   <!-- Section Sauvegarde de la base de données -->
+<section id="sauvegarde-bd">
+    <h2>Base de données</h2>
+
+    <!-- Bouton Télécharger la base de données -->
+    <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/download_backup.php" class="btn btn-success">
+        Télécharger la base de données
+    </a>
+
+    <!-- Bouton Sauvegarder la base de données -->
+    <button id="uploadBackupBtn" class="btn btn-warning mt-3">
+        Sauvegarder la base de données
+    </button>
+
+    <!-- Message d'info pour l'upload (apparaît au survol du bouton) -->
+    <div id="uploadMessage" style="display: none; font-size: 12px; color: #555; margin-top: 10px;">
+        Uploader une nouvelle version de la base de données pour les sauvegardes administrateur.
+    </div>
+
+    <!-- Formulaire d'upload de la base de données -->
+    <div id="upload-section" style="display: none; margin-top: 20px;">
+        <h3>Uploader une nouvelle version de la base de données</h3>
+        <form id="upload-form" action="upload_backup.php" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file-upload" class="form-label">Choisissez le fichier SQL :</label>
+                <input type="file" id="file-upload" name="backup-file" accept=".sql" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-warning mt-2">Télécharger</button>
+        </form>
+    </div>
+</section>
+
+<!-- Notification Toast -->
+<div id="toast-notification" class="toast hidden">
+    <p id="toast-message"></p>
+</div>
+
+<script>
+    // Script pour afficher le message au survol du bouton
+    document.getElementById('uploadBackupBtn').addEventListener('mouseover', function() {
+        document.getElementById('uploadMessage').style.display = 'block';
+    });
+
+    document.getElementById('uploadBackupBtn').addEventListener('mouseout', function() {
+        document.getElementById('uploadMessage').style.display = 'none';
+    });
+
+    // Script pour afficher le formulaire de téléchargement au clic sur "Sauvegarder la base de données"
+    document.getElementById('uploadBackupBtn').addEventListener('click', function() {
+        // Afficher le formulaire d'upload de fichier
+        document.getElementById('upload-section').style.display = 'block';
+    });
+
+    // Script de notification Toast
+    function showToast(message) {
+        const toast = document.getElementById("toast-notification");
+        const toastMessage = document.getElementById("toast-message");
+
+        toastMessage.innerText = message;
+        toast.classList.add("show");
+
+        setTimeout(() => {
+            toast.classList.remove("show");
+        }, 3000); // Cache la notification après 3 secondes
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const downloadBtn = document.querySelector("a.btn-success"); // ✅ Sélectionne le bon bouton
+
+        if (downloadBtn) {
+            downloadBtn.addEventListener("click", function (event) {
+                event.preventDefault(); // Évite le téléchargement immédiat pour voir le toast
+                showToast("Sauvegarde de la base de données MeteoVision réussie ✅");
+
+                // Lancer le téléchargement après 1 seconde pour l'effet
+                setTimeout(() => {
+                    window.location.href = downloadBtn.href;
+                }, 1000);
+            });
+        }
+    });
+</script>
+
+
+    
+
 </body>
 </html>

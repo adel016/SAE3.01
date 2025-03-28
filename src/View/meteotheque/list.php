@@ -85,6 +85,9 @@ if (isset($utilisateurs) && count($utilisateurs) > 0) {
 }
 ?>
 
+<div class="footer2"> </div>
+
+
 <style>
 /* PAGE - METEOTHEQUE*/
 
@@ -122,7 +125,9 @@ if (isset($utilisateurs) && count($utilisateurs) > 0) {
     padding: 15px;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 }
-
+.footer2 {
+        margin-bottom: 300px;
+    }
 /* Textes des collections */
 #meteothequeContent ul li strong {
     font-weight: bold;
