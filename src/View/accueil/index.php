@@ -26,17 +26,18 @@
             </div>
         </div>
 
+        <!-- Conteneur carte-->
         <div class="carte">
             <!-- Barre de recherche -->
-        <div class="region-search">
-            <div class="search-bar">
-                <input type="text" id="regionInput" placeholder="Entrez le nom de la région ou de la station">
-                <button id="searchRegionButton">🔍</button>
+            <div class="region-search">
+                <div class="search-bar">
+                    <input type="text" id="regionInput" placeholder="Entrez le nom de la région ou de la station">
+                    <button id="searchRegionButton">🔍</button>
+                </div>
             </div>
-        </div>
 
-        <br>
-        <!-- Carte interactive -->
+            <br>
+            <!-- Carte interactive -->
             <div class="map-container">
                 <div id="map"></div>
             </div>
@@ -101,7 +102,7 @@ Promise.all([
             }
         }).addTo(map);
 
-        showRegionData(defaultRegionName);
+        showRegionData(defaultRegionName, false);
         stationsData.forEach(station => addStationMarker(station));
     })
     .catch(error => {
@@ -128,20 +129,26 @@ function addStationMarker(station) {
         `);
 
         marker.on('click', () => {
-            updateWeatherData(ville, {
-                temp,
-                humidity,
-                windSpeed,
-                icon: getWeatherIcon(temp),
-                condition: getWeatherCondition(temp),
-            }, true);  // Ajoutez ce paramètre pour indiquer qu'il s'agit d'une station
+            if (ville && temp !== undefined && humidity !== undefined && windSpeed !== undefined) {
+                updateWeatherData(ville, {
+                    temp,
+                    humidity,
+                    windSpeed,
+                    icon: getWeatherIcon(temp),
+                    condition: getWeatherCondition(temp),
+                }, true);
+
+                saveStationRequest(ville, temp, humidity, windSpeed);
+            } else {
+                console.error("Données station invalides :", station);
+            }
         });
 
         stationMarkers.push(marker);
     }
 }
 
-function showRegionData(regionName) {
+function showRegionData(regionName, saveRequest = true) {
     stationMarkers.forEach(marker => map.removeLayer(marker));
     stationMarkers.length = 0;
 
@@ -180,42 +187,63 @@ function showRegionData(regionName) {
         map.fitBounds(bounds);
     }
 
-    // Détails des stations pour la description
     const details = uniqueStations
         .map(station => `${station.ville}: Temp ${station.temp}°C, Humidité ${station.humidity}%`)
         .join("; ");
 
-    // Enregistrer la requête avec les détails
-    saveRegionRequest(regionName, details);
+    // Ne pas enregistrer la région par défaut (IDF) au premier chargement
+    if (saveRequest) {
+        saveRegionRequest(regionName, details);
+    }
 }
 
-function saveRegionRequest(regionName, details) {
-    const url = '<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=saveRequest&controller=meteotheque';
+    function saveRegionRequest(regionName, details) {
+        const url = '<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=saveRequest&controller=meteotheque';
+
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                region: regionName,
+                details: details // Inclure les détails des stations
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP : ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    console.log('Requête enregistrée avec succès.');
+                } else {
+                    console.warn('Erreur lors de l\'enregistrement :', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors de l\'enregistrement de la requête :', error);
+            });
+    }
+
+function saveStationRequest(stationName, temp, humidity, windSpeed) {
+    const url = '<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=saveStationRequest&controller=meteotheque';
+
+    const requestData = {
+        station_name: stationName,
+        details: `Température: ${temp}°C, Humidité: ${humidity}%, Vent: ${windSpeed} km/h`
+    };
+
+    console.log("Données envoyées :", requestData);
 
     fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            region: regionName,
-            details: details // Inclure les détails des stations
-        })
+        body: JSON.stringify(requestData)
     })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Erreur HTTP : ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                console.log('Requête enregistrée avec succès.');
-            } else {
-                console.warn('Erreur lors de l\'enregistrement :', data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Erreur lors de l\'enregistrement de la requête :', error);
-        });
+    .then(response => response.json())
+    .then(data => console.log(data.message))
+    .catch(error => console.error('Erreur enregistrement station:', error));
 }
 
 function calculateWeatherData(stations) {
@@ -270,10 +298,13 @@ document.getElementById('searchRegionButton').addEventListener('click', () => {
 
     const matchingStation = stationsData.find(station => station.ville.toLowerCase() === searchInput);
     if (matchingStation) {
-        const { latitude, longitude, ville } = matchingStation;
+        const { latitude, longitude, ville, temp, humidity, windSpeed } = matchingStation;
         if (latitude !== null && longitude !== null) {
             map.setView([latitude, longitude], 10);
             showRegionData(matchingStation.region);
+
+            // Ajouter la station recherchée à la météothèque
+            saveStationRequest(ville, temp, humidity, windSpeed);
         } else {
             alert('Les coordonnées de cette station ne sont pas disponibles.');
         }

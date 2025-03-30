@@ -61,7 +61,7 @@ class ControllerMeteotheque {
         }
     }           
 
-    // Enregistre une requête pour la carte interactive
+    // Enregistre une requête pour la carte interactive (cote Region)
     public static function saveRequest() {
         if (!isset($_SESSION['utilisateur_id'])) {
             echo json_encode(['success' => false, 'message' => 'Utilisateur non connecté.']);
@@ -100,6 +100,49 @@ class ControllerMeteotheque {
         echo json_encode([
             'success' => $success,
             'message' => $success ? 'Requête sauvegardée avec succès.' : 'Erreur lors de la sauvegarde.'
+        ]);
+    }
+    
+    // Enregistre une requete pour la carte interactive (cote Station)
+    public static function saveStationRequest() {
+        if (!isset($_SESSION['utilisateur_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Utilisateur non connecté.']);
+            return;
+        }
+    
+        $data = json_decode(file_get_contents('php://input'), true);
+        if (!$data || !isset($data['station_id']) || !isset($data['mesure']) || !isset($data['valeur'])) {
+            echo json_encode(['success' => false, 'message' => 'Données invalides.']);
+            return;
+        }
+    
+        $stationId = $data['station_id'];
+        $mesure = $data['mesure']; // Exemple : Température, Humidité, Pression
+        $valeur = $data['valeur'];
+        $utilisateurId = $_SESSION['utilisateur_id'];
+    
+        $description = "Station ID: $stationId - Mesure: $mesure - Valeur: $valeur";
+    
+        $repo = new MeteothequeRepository();
+        $meteo = new Meteotheques(
+            0, // ID généré automatiquement
+            $utilisateurId,
+            "Station_$stationId",
+            $description,
+            date('Y-m-d H:i:s')
+        );
+    
+        $success = $repo->sauvegarder($meteo);
+    
+        // Ajouter une entrée dans les logs
+        if ($success) {
+            $logRepository = new LogRepository();
+            $logRepository->addLog($utilisateurId, 'ajout_station_meteo');
+        }
+    
+        echo json_encode([
+            'success' => $success,
+            'message' => $success ? 'Données de la station enregistrées avec succès.' : 'Erreur lors de l’enregistrement.'
         ]);
     }    
 
