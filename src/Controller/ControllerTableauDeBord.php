@@ -2,7 +2,7 @@
 
 namespace App\Meteo\Controller;
 
-class TableauDeBordController {
+class ControllerTableauDeBord {
     public static function apiRechercheAvancee() {
         header('Content-Type: application/json');
 

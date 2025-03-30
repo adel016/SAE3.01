@@ -2,11 +2,13 @@
 
 namespace App\Meteo\Controller;
 
-class ContactController {
+class ControllerContact {
+    
+    // Afficher la page Contact
     public static function show() {
         self::afficheVue('view.php', [
             'pagetitle' => 'MéteoVision - Contact',
-            'cheminVueBody' => 'contact.php'
+            'cheminVueBody' => 'accueil/contact.php'
         ]);
     }
 
@@ -15,3 +17,5 @@ class ContactController {
         require __DIR__ . "/../View/$cheminVue";
     }
 }
+
+?>

@@ -95,6 +95,12 @@
 
     <footer>
         <p>© Site METEO VISION - BUT2.C INFORMATIQUE</p>
+
+        <div class="footer-links">
+            <a href="#">Politique de confidentialité</a>
+            <a href="#">Mentions légales</a>
+            <a href="#">Support</a>
+        </div>
     </footer>
 
     <script>
