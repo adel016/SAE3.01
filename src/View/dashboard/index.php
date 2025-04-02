@@ -42,6 +42,10 @@
         <div id="weatherChartContainer">
             <canvas id="weatherChart"></canvas>
         </div>
+        
+        
+    <button id="downloadChart">Télécharger le Graphique</button>
+
 
         <table id="result-table" style="display: none;">
             <thead>
@@ -193,49 +197,91 @@
                 }
             }
         });
+
+        document.getElementById('downloadChart').style.display = 'block';
+
     }
+
+    document.getElementById('downloadChart').addEventListener('click', function () {
+    // Récupérer le canvas du graphique
+    const canvas = document.getElementById('weatherChart');
+
+    // Récupérer les valeurs des filtres pour nommer le fichier
+    const region = document.getElementById('region').value.trim();
+    const dateDebut = document.getElementById('date_debut').value.trim();
+    const dataType = [];
+    
+    if (document.getElementById('tempCheckbox').checked) dataType.push('Temp');
+    if (document.getElementById('humidityCheckbox').checked) dataType.push('Humidite');
+    if (document.getElementById('windSpeedCheckbox').checked) dataType.push('Vent');
+
+    // Construire un nom de fichier basé sur les filtres (exclure les champs vides)
+    let fileNameParts = [];
+    if (region) fileNameParts.push(region);
+    if (dateDebut) fileNameParts.push(dateDebut);
+    if (dataType.length > 0) fileNameParts.push(dataType.join('-'));
+
+    // Si tous les champs sont vides, mettre un nom par défaut
+    const fileName = (fileNameParts.length > 0 ? fileNameParts.join('_') : 'Graphique') + '.png';
+
+    // Télécharger l'image
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = fileName.replace(/\s+/g, '_'); // Remplacer les espaces par des underscores
+    link.click();
+});
+
+
 
     // Fonction pour récupérer et afficher les résultats
     function fetchData() {
-        const libgeo = document.getElementById('libgeo').value;
-        const region = document.getElementById('region').value;
-        const nom_dept = document.getElementById('nom_dept').value;
-        const codegeo = document.getElementById('codegeo').value;
-        const date_debut = document.getElementById('date_debut').value;
-        const date_fin = document.getElementById('date_fin').value;
+    const libgeo = document.getElementById('libgeo').value.trim();
+    const region = document.getElementById('region').value.trim();
+    const nom_dept = document.getElementById('nom_dept').value.trim();
+    const codegeo = document.getElementById('codegeo').value.trim();
+    const date_debut = document.getElementById('date_debut').value.trim();
+    const date_fin = document.getElementById('date_fin').value.trim();
 
-        // Récupérer le choix de la granularité
-        const granularite = document.getElementById('granulariteSelect').value;
+    // Récupérer le choix de la granularité
+    const granularite = document.getElementById('granulariteSelect').value;
 
-        let adjustedDateDebut = date_debut;
-        let adjustedDateFin = date_fin;
+    let adjustedDateDebut = date_debut || ''; // Ne pas mettre "inconnu"
+    let adjustedDateFin = date_fin || '';
 
-        if (granularite === 'month' && date_debut) {
-            // Si la granularité est mensuelle, ajuster date_fin au dernier jour du mois
-            const debutDate = new Date(date_debut);
-            adjustedDateFin = new Date(debutDate.getFullYear(), debutDate.getMonth() + 1, 0).toISOString().split('T')[0];
-        } else if (granularite === 'week' && date_debut) {
-            // Si la granularité est hebdomadaire, ajuster date_fin à 7 jours après date_debut
-            const debutDate = new Date(date_debut);
-            adjustedDateFin = new Date(debutDate.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        } else if (granularite === 'day' && date_debut) {
-            // Si la granularité est journalière, ajuster la date de fin pour couvrir une seule journée
-            adjustedDateFin = new Date(new Date(date_debut).getTime() + 24 * 60 * 60 * 1000 - 1).toISOString().split('T')[0];
-        }
-
-        // Construire l'URL avec la date ajustée si nécessaire
-        const url = `<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/recherche_avancee.php?libgeo=${encodeURIComponent(libgeo)}&region=${encodeURIComponent(region)}&nom_dept=${encodeURIComponent(nom_dept)}&codegeo=${encodeURIComponent(codegeo)}&date_debut=${adjustedDateDebut}&date_fin=${adjustedDateFin}`;
-
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                displayResults(data, granularite); // Passer la granularité au moment de l'affichage
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                alert("Erreur lors de la récupération des données.");
-            });
+    if (granularite === 'month' && date_debut) {
+        const debutDate = new Date(date_debut);
+        adjustedDateFin = new Date(debutDate.getFullYear(), debutDate.getMonth() + 1, 0).toISOString().split('T')[0];
+    } else if (granularite === 'week' && date_debut) {
+        const debutDate = new Date(date_debut);
+        adjustedDateFin = new Date(debutDate.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    } else if (granularite === 'day' && date_debut) {
+        adjustedDateFin = new Date(new Date(date_debut).getTime() + 24 * 60 * 60 * 1000 - 1).toISOString().split('T')[0];
     }
+
+    // Construire l'URL uniquement avec les champs renseignés
+    const params = new URLSearchParams();
+    if (libgeo) params.append('libgeo', libgeo);
+    if (region) params.append('region', region);
+    if (nom_dept) params.append('nom_dept', nom_dept);
+    if (codegeo) params.append('codegeo', codegeo);
+    if (adjustedDateDebut) params.append('date_debut', adjustedDateDebut);
+    if (adjustedDateFin) params.append('date_fin', adjustedDateFin);
+
+    const url = `<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/recherche_avancee.php?${params.toString()}`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            displayResults(data, granularite);
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert("Erreur lors de la récupération des données.");
+        });
+
+    document.getElementById('downloadChart').style.display = 'none';
+}
+
 
     function displayResults(data, granularite) {
         const table = document.getElementById('result-table');
@@ -435,5 +481,10 @@
     #result-table th {
         background-color: #5d9ee7;
     }
+
+    #downloadChart {
+        display: none; /* Caché par défaut */
+    }
+
 
 </style>

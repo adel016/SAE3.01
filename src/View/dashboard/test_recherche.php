@@ -58,12 +58,12 @@
                     <th>Département</th>
                     <th>Ville</th>
                     <th>Date</th>
-                    <th>Vitesse du vent</th>
-                    <th>Pression</th>
-                    <th>Humidité</th>
-                    <th>Température</th>
-                    <th>Visibilité</th>
-                    <th>Pression au niveau de la mer</th>
+                    <th>Vitesse du vent (km/h)</th>
+                    <th>Pression (Pa)</th>
+                    <th>Humidité (%)</th>
+                    <th>Température (°C)</th>
+                    <th>Visibilité (m)</th>
+                    <th>Pression au niveau de la mer (Pa)</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -149,12 +149,30 @@ function downloadData(format) {
         return;
     }
 
+    // 🔹 Récupérer les critères pour nommer le fichier
+    const libgeo = document.getElementById('libgeo').value.trim();
+    const region = document.getElementById('region').value.trim();
+    const dateDebut = document.getElementById('date_debut').value.trim();
+
+    // 🔹 Construire le nom du fichier dynamiquement sans "inconnu"
+    let fileParts = [];
+    if (region) fileParts.push(region);
+    if (libgeo) fileParts.push(libgeo);
+    if (dateDebut) fileParts.push(dateDebut);
+
+    const fileName = fileParts.join('_').replace(/\s+/g, '_'); // 🔹 Assemble le nom sans "inconnu"
+
+    if (fileName === "") {
+        alert("Aucun critère de recherche n'a été fourni. Impossible de nommer le fichier.");
+        return;
+    }
+
     if (format === 'json') {
         const blob = new Blob([JSON.stringify(fetchedData, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'data.json';
+        a.download = `${fileName}.json`; // 🔹 Nom dynamique
         a.click();
     } else if (format === 'csv') {
         const csvHeaders = ['Région', 'Département', 'Ville', 'Date', 'Vitesse du vent', 'Pression', 'Humidité', 'Température', 'Visibilité', 'Pression au niveau de la mer'];
@@ -176,10 +194,11 @@ function downloadData(format) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'data.csv';
+        a.download = `${fileName}.csv`; // 🔹 Nom dynamique
         a.click();
     }
 }
+
 
 // Masquer/afficher des colonnes selon les cases cochées
 document.addEventListener('change', (e) => {
