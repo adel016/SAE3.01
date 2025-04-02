@@ -44,7 +44,7 @@
         </div>
         
         
-    <button id="downloadChart">Télécharger le Graphique</button>
+        <button id="downloadChart" class="btn btn-info mt-3">Télécharger le Graphique</button>
 
 
         <table id="result-table" style="display: none;">
