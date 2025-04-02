@@ -106,45 +106,45 @@ class ControllerMeteotheque {
     // Enregistre une requete pour la carte interactive (cote Station)
     public static function saveStationRequest() {
         if (!isset($_SESSION['utilisateur_id'])) {
+            error_log("❌ Utilisateur non connecté");
             echo json_encode(['success' => false, 'message' => 'Utilisateur non connecté.']);
             return;
         }
     
         $data = json_decode(file_get_contents('php://input'), true);
-        if (!$data || !isset($data['station_id']) || !isset($data['mesure']) || !isset($data['valeur'])) {
+        error_log("📥 Données reçues : " . print_r($data, true));
+    
+        if (!$data || !isset($data['station_id']) || !is_string($data['station_id']) || !isset($data['details'])) {
+            error_log("❌ Données invalides");
             echo json_encode(['success' => false, 'message' => 'Données invalides.']);
             return;
         }
     
         $stationId = $data['station_id'];
-        $mesure = $data['mesure']; // Exemple : Température, Humidité, Pression
-        $valeur = $data['valeur'];
+        $details = $data['details'];
         $utilisateurId = $_SESSION['utilisateur_id'];
+        error_log("✅ Données valides - Utilisateur : $utilisateurId, Station : $stationId");
     
-        $description = "Station ID: $stationId - Mesure: $mesure - Valeur: $valeur";
-    
+        // Création de l'objet
+        $description = "Station ID: $stationId. Détails: $details";
         $repo = new MeteothequeRepository();
-        $meteo = new Meteotheques(
-            0, // ID généré automatiquement
-            $utilisateurId,
-            "Station_$stationId",
-            $description,
-            date('Y-m-d H:i:s')
-        );
+        $meteo = new Meteotheques(0, $utilisateurId, "Station_$stationId", $description, date('Y-m-d H:i:s'));
     
         $success = $repo->sauvegarder($meteo);
+        error_log($success ? "✅ Enregistrement réussi" : "❌ Échec de l'enregistrement");
     
-        // Ajouter une entrée dans les logs
+        // Ajout dans les logs si succès
         if ($success) {
             $logRepository = new LogRepository();
             $logRepository->addLog($utilisateurId, 'ajout_station_meteo');
+            error_log("✅ Log ajouté");
         }
     
         echo json_encode([
             'success' => $success,
             'message' => $success ? 'Données de la station enregistrées avec succès.' : 'Erreur lors de l’enregistrement.'
         ]);
-    }    
+    }                
 
     // Enregistre une requête pour la carte thermique
     public static function saveRequestThermique() {

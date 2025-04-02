@@ -15,12 +15,17 @@ class DatabaseConnection {
         try {
             // Utilise la configuration via la classe Conf
             $this->pdo = Conf::getPDO();
-            // Message de succès (à supprimer en production)
-            // echo "Connexion réussie avec UTF-8 et gestion des erreurs activée !<br>";
+            
+            // Vérification de la connexion
+            if ($this->pdo) {
+                error_log("Connexion à la base de données réussie !");
+            } else {
+                error_log("ÉCHEC de connexion à la base de données !");
+            }
         } catch (PDOException $e) {
-            // En cas d'erreur, affiche un message et arrête le script
-            echo "Erreur de connexion : " . $e->getMessage();
-            die();
+            // En cas d'erreur, log l'erreur et arrête le script
+            error_log("Erreur de connexion : " . $e->getMessage());
+            die("Erreur de connexion à la base de données.");
         }
     }
 
@@ -37,3 +42,4 @@ class DatabaseConnection {
         return self::getInstance()->pdo;
     }
 }
+?>
