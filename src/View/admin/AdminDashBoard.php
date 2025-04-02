@@ -128,11 +128,13 @@
         Sauvegarder la base de données
     </button>
 
-    <!-- Message d'info pour l'upload (apparaît au survol du bouton) -->
-    <div id="uploadMessage" style="display: none; font-size: 12px; color: #555; margin-top: 10px;">
-        Uploader une nouvelle version de la base de données pour les sauvegardes administrateur.
-    </div>
+    <!-- Bouton pour afficher la liste des anciens fichiers -->
+    <button id="showBackupListBtn" class="btn btn-info mt-3">
+        Afficher les versions précédentes
+    </button>
 
+
+    
     <!-- Formulaire d'upload de la base de données -->
     <div id="upload-section" style="display: none; margin-top: 20px;">
         <h3>Uploader une nouvelle version de la base de données</h3>
@@ -144,6 +146,46 @@
             <button type="submit" class="btn btn-warning mt-2">Télécharger</button>
         </form>
     </div>
+
+    <!-- Conteneur pour la liste des fichiers SQL -->
+    <div id="backupListContainer" style="display:none;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nom du fichier</th>
+                    <th>Date de modification</th>
+                    <th>Télécharger</th>
+                </tr>
+            </thead>
+            <tbody id="backupListBody">
+                <!-- Les données seront chargées ici via JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Fonction pour afficher ou masquer la liste des fichiers de sauvegarde
+        document.getElementById('showBackupListBtn').addEventListener('click', function() {
+            var container = document.getElementById('backupListContainer');
+            container.style.display = (container.style.display === 'none') ? 'block' : 'none';
+            if (container.style.display === 'block') {
+                loadBackupList();
+            }
+        });
+
+        // Charger la liste des fichiers SQL via AJAX
+        function loadBackupList() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'get_backup_list.php', true);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    document.getElementById('backupListBody').innerHTML = xhr.responseText;
+                }
+            };
+            xhr.send();
+        }
+    </script>
+
 </section>
 
 <!-- Notification Toast -->
@@ -153,13 +195,6 @@
 
 <script>
     // Script pour afficher le message au survol du bouton
-    document.getElementById('uploadBackupBtn').addEventListener('mouseover', function() {
-        document.getElementById('uploadMessage').style.display = 'block';
-    });
-
-    document.getElementById('uploadBackupBtn').addEventListener('mouseout', function() {
-        document.getElementById('uploadMessage').style.display = 'none';
-    });
 
     // Script pour afficher le formulaire de téléchargement au clic sur "Sauvegarder la base de données"
     document.getElementById('uploadBackupBtn').addEventListener('click', function() {

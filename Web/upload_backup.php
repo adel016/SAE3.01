@@ -26,7 +26,7 @@ if (isset($_FILES['backup-file']) && $_FILES['backup-file']['error'] == 0) {
     }
 
     // Spécifier le nouveau fichier à télécharger
-    $newFilePath = $targetDir . 'BD_SAE_METEOVISION.sql'; // Nouveau fichier téléchargé
+    $newFilePath = $targetDir . basename($uploadedFile['name']); 
 
     // Déplacer le fichier téléchargé vers le dossier de sauvegarde
     if (move_uploaded_file($uploadedFile['tmp_name'], $newFilePath)) {
