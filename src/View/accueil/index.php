@@ -138,6 +138,7 @@ function addStationMarker(station) {
                     condition: getWeatherCondition(temp),
                 }, true);
 
+                // Enregistrer la station sélectionnée
                 saveStationRequest(ville, temp, humidity, windSpeed);
             } else {
                 console.error("Données station invalides :", station);
@@ -197,53 +198,71 @@ function showRegionData(regionName, saveRequest = true) {
     }
 }
 
-    function saveRegionRequest(regionName, details) {
-        const url = '<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=saveRequest&controller=meteotheque';
+function saveRegionRequest(regionName, details) {
+    const url = '<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=saveRequest&controller=meteotheque';
 
-        fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                region: regionName,
-                details: details // Inclure les détails des stations
-            })
+    fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            region: regionName,
+            details: details // Inclure les détails des stations
         })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Erreur HTTP : ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    console.log('Requête enregistrée avec succès.');
-                } else {
-                    console.warn('Erreur lors de l\'enregistrement :', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Erreur lors de l\'enregistrement de la requête :', error);
-            });
-    }
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP : ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                console.log('Requête enregistrée avec succès.');
+            } else {
+                console.warn('Erreur lors de l\'enregistrement :', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors de l\'enregistrement de la requête :', error);
+        });
+}
 
-function saveStationRequest(stationName, temp, humidity, windSpeed) {
+function saveStationRequest(stationId, temp, humidity, windSpeed) {
     const url = '<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=saveStationRequest&controller=meteotheque';
 
+    const details = `Température: ${temp !== null && temp !== undefined ? temp : 'N/A'}°C, Humidité: ${humidity !== null && humidity !== undefined ? humidity : 'N/A'}%, Vent: ${windSpeed !== null && windSpeed !== undefined ? windSpeed : 'N/A'} km/h`;
+
+    console.log("Station ID :", stationId);
+    console.log("Température :", temp);
+    console.log("Humidité :", humidity);
+    console.log("Vent :", windSpeed);
+
     const requestData = {
-        station_name: stationName,
-        details: `Température: ${temp}°C, Humidité: ${humidity}%, Vent: ${windSpeed} km/h`
+        station_id: stationId,
+        details: details // Envoyer les détails
     };
 
-    console.log("Données envoyées :", requestData);
+    console.log("Données envoyées pour la station :", requestData);
 
     fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestData)
     })
-    .then(response => response.json())
-    .then(data => console.log(data.message))
-    .catch(error => console.error('Erreur enregistrement station:', error));
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP : ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            console.log('Station enregistrée avec succès.');
+        } else {
+            console.warn('Erreur lors de l\'enregistrement :', data.message);
+        }
+    })
+    .catch(error => console.error('Erreur:', error));
 }
 
 function calculateWeatherData(stations) {
