@@ -210,7 +210,10 @@
                             <strong>Température moyenne :</strong> ${regionTemps !== 'Aucune donnée' ? `${regionTemps.toFixed(1)}°C` : regionTemps}
                         </li>
                     `;
-                    saveUserRequest(region.properties.nom); // Enregistrer la requête
+                    
+                    // Enregistrer la requête immédiatement après la recherche
+                    const details = regionTemps !== 'Aucune donnée' ? `Température Moyenne: ${regionTemps.toFixed(1)}°C` : 'Aucune donnée disponible';
+                    saveUserRequest(region.properties.nom, details);
                 } else {
                     alert('Aucune région correspondante trouvée.');
                 }
