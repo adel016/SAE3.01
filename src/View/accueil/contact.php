@@ -5,7 +5,7 @@
     <div class="contact-list">
         <div class="contact-item">
             <div class="contact-card">
-                <h2>MOHAMED Ridxan</h2>
+                <h2>MOHAMED Ridwan</h2>
                 <p>Email: <a href="mailto:ridwan.mohamed@etu.u-pec.fr" class="email">ridwan.mohamed@etu.u-pec.fr</a></p>
                 <p class="role">Responsable Design</p>
                 <p class="bio">Passionné par le design et l'ergonomie, Mohamed veille à offrir une expérience utilisateur optimale dans tous nos projets.</p>
