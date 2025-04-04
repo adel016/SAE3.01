@@ -5,7 +5,6 @@
     <div class="contact-list">
         <div class="contact-item">
             <div class="contact-card">
-                <img src="https://via.placeholder.com/150" alt="Mohamed Ridxan" class="contact-photo">
                 <h2>MOHAMED Ridxan</h2>
                 <p>Email: <a href="mailto:ridwan.mohamed@etu.u-pec.fr" class="email">ridwan.mohamed@etu.u-pec.fr</a></p>
                 <p class="role">Responsable Design</p>
@@ -15,7 +14,6 @@
 
         <div class="contact-item">
             <div class="contact-card">
-                <img src="https://via.placeholder.com/150" alt="Daabak Ilyes" class="contact-photo">
                 <h2>DAABAK Ilyes</h2>
                 <p>Email: <a href="mailto:ilyes.daabak@etu.u-pec.fr" class="email">ilyes.daabak@etu.u-pec.fr</a></p>
                 <p class="role">Chef de Projet</p>
@@ -25,7 +23,6 @@
 
         <div class="contact-item">
             <div class="contact-card">
-                <img src="https://via.placeholder.com/150" alt="Hugo Alves-Miranda" class="contact-photo">
                 <h2>ALVES MIRANDA Hugo</h2>
                 <p>Email: <a href="mailto:hugo.alves-miranda@etu.u-pec.fr" class="email">hugo.alves-miranda@etu.u-pec.fr</a></p>
                 <p class="role">Développeur Full-Stack</p>
@@ -35,7 +32,6 @@
 
         <div class="contact-item">
             <div class="contact-card">
-                <img src="https://via.placeholder.com/150" alt="Rayan Elleuch" class="contact-photo">
                 <h2>ELLEUCH Rayan</h2>
                 <p>Email: <a href="mailto:rayan.elleuch@etu.u-pec.fr" class="email">rayan.elleuch@etu.u-pec.fr</a></p>
                 <p class="role">Développeur Back-End</p>
@@ -45,7 +41,6 @@
 
         <div class="contact-item">
             <div class="contact-card">
-                <img src="https://via.placeholder.com/150" alt="Adel Achouche" class="contact-photo">
                 <h2>ACHOUCHE Adel</h2>
                 <p>Email: <a href="mailto:adel.achouche@etu.u-pec.fr" class="email">adel.achouche@etu.u-pec.fr</a></p>
                 <p class="role">Développeur Back-End</p>
