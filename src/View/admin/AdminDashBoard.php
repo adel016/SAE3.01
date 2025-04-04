@@ -1,3 +1,4 @@
+<div class="main-content">
 <header class="dashboard-header">
     <h1>Tableau de bord</h1>
 </header>
@@ -114,26 +115,27 @@
 </script>
 
 
-   <!-- Section Sauvegarde de la base de données -->
+<!-- Section Sauvegarde de la base de données -->
 <section id="sauvegarde-bd">
-    <h2>Base de données</h2>
+    <h2 class="dashboard-header">Base de données</h2>
 
-    <!-- Bouton Télécharger la base de données -->
-    <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/download_backup.php" class="btn btn-success">
-        Télécharger la base de données
-    </a>
+    <!-- Conteneur pour aligner les boutons -->
+    <div class="button-container">
+        <!-- Bouton Télécharger la base de données -->
+        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/download_backup.php" class="btn btn-primary">
+            Télécharger la base de données
+        </a>
 
-    <!-- Bouton Sauvegarder la base de données -->
-    <button id="uploadBackupBtn" class="btn btn-warning mt-3">
-        Sauvegarder la base de données
-    </button>
+        <!-- Bouton Sauvegarder la base de données -->
+        <button id="uploadBackupBtn" class="btn btn-secondary">
+            Sauvegarder la base de données
+        </button>
 
-    <!-- Bouton pour afficher la liste des anciens fichiers -->
-    <button id="showBackupListBtn" class="btn btn-info mt-3">
-        Afficher les versions précédentes
-    </button>
-
-
+        <!-- Bouton pour afficher la liste des anciens fichiers -->
+        <button id="showBackupListBtn" class="btn btn-tertiary">
+            Afficher les versions précédentes
+        </button>
+    </div>   
     
     <!-- Formulaire d'upload de la base de données -->
     <div id="upload-section" style="display: none; margin-top: 20px;">
@@ -186,7 +188,24 @@
         }
     </script>
 
+    <!-- Message d'info pour l'upload (apparaît au survol du bouton) -->
+    <div id="uploadMessage" style="display: none; font-size: 12px; color: #555; margin-top: 10px;">
+        Uploader une nouvelle version de la base de données pour les sauvegardes administrateur.
+    </div>
+
+    <!-- Formulaire d'upload de la base de données -->
+    <div id="upload-section" style="display: none; margin-top: 20px;">
+        <h3>Uploader une nouvelle version de la base de données</h3>
+        <form id="upload-form" action="upload_backup.php" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file-upload" class="form-label">Choisissez le fichier SQL :</label>
+                <input type="file" id="file-upload" name="backup-file" accept=".sql" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-warning mt-2">Télécharger</button>
+        </form>
+    </div>
 </section>
+
 
 <!-- Notification Toast -->
 <div id="toast-notification" class="toast hidden">
@@ -195,11 +214,32 @@
 
 <script>
     // Script pour afficher le message au survol du bouton
+    document.getElementById('uploadBackupBtn').addEventListener('mouseover', function() {
+        document.getElementById('uploadMessage').style.display = 'block';
+    });
 
-    // Script pour afficher le formulaire de téléchargement au clic sur "Sauvegarder la base de données"
-    document.getElementById('uploadBackupBtn').addEventListener('click', function() {
-        // Afficher le formulaire d'upload de fichier
-        document.getElementById('upload-section').style.display = 'block';
+    document.getElementById('uploadBackupBtn').addEventListener('mouseout', function() {
+        document.getElementById('uploadMessage').style.display = 'none';
+    });
+
+    // Script pour afficher ou masquer le formulaire de téléchargement au clic sur "Sauvegarder la base de données"
+    document.getElementById('uploadBackupBtn').addEventListener('click', function () {
+        const uploadSection = document.getElementById('upload-section');
+        // Basculer entre afficher et masquer
+        if (uploadSection.style.display === 'none' || uploadSection.style.display === '') {
+            uploadSection.style.display = 'block'; // Afficher la section
+        } else {
+            uploadSection.style.display = 'none'; // Masquer la section
+        }
+    });
+
+    // Script pour afficher le message au survol du bouton
+    document.getElementById('uploadBackupBtn').addEventListener('mouseover', function () {
+        document.getElementById('uploadMessage').style.display = 'block';
+    });
+
+    document.getElementById('uploadBackupBtn').addEventListener('mouseout', function () {
+        document.getElementById('uploadMessage').style.display = 'none';
     });
 
     // Script de notification Toast
@@ -231,3 +271,147 @@
         }
     });
 </script>
+
+</div>
+
+<style>
+
+html, body {
+    height: 100%; /* Assure que le fond couvre toute la hauteur */
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to bottom, #FDF7DA 0%, #FFF9E6 15%, #E3F0FF 100%) no-repeat; /* Même couleur que le footer */
+    background-attachment: fixed; /* Fixe le fond pour qu'il ne défile pas */
+}
+
+.main-content {
+    min-height: 100%; /* Assure que le contenu principal remplit la hauteur */
+    padding: 20px; /* Ajoute un espace autour du contenu principal */
+    box-sizing: border-box; /* Inclut le padding dans la hauteur totale */
+}
+
+#sidebarToggle {
+    background-color: #3E6F98; /* Couleur bleue */
+    color: #fff; /* Couleur du texte en blanc */
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px; /* Coins arrondis */
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); /* Légère ombre */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#sidebarToggle:hover {
+    background-color: #2C5A7A; /* Bleu légèrement plus foncé au survol */
+}
+ /* Harmoniser la couleur du header */
+ header.dashboard-header, 
+.dashboard-header {
+    background: transparent; /* Fond transparent */
+    color: #3E6F98; /* Couleur du texte */
+    padding: 20px;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 10px; /* Coins arrondis pour un effet harmonieux */
+    box-shadow: none; /* Supprime l'ombre */
+    margin-bottom: 20px; /* Ajoute un espace sous le titre */
+}
+
+.table-responsive {
+    margin-bottom: 30px; /* Ajoute un espace de 30px sous le tableau */
+}
+
+section#sauvegarde-bd {
+    margin-bottom: 50px; /* Ajoute un espace sous la section "Base de données" */
+}
+
+#backupListContainer {
+    margin-top: 20px; /* Ajoute un espace de 20px au-dessus du tableau */
+}
+
+/* Conteneur des boutons */
+.button-container {
+    display: flex;
+    justify-content: center; /* Espacement uniforme entre les boutons */
+    align-items: center;
+    gap: 10px; /* Espacement entre les boutons */
+    margin-top: 20px;
+}
+
+/* Styles des boutons */
+.btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Couleurs harmonisées pour les boutons */
+.btn-primary {
+    background-color: #4CAF50; /* Vert clair */
+}
+
+.btn-primary:hover {
+    background-color: #45A049; /* Vert légèrement plus foncé */
+}
+
+.btn-secondary {
+    background-color: #2196F3; /* Bleu clair */
+}
+
+.btn-secondary:hover {
+    background-color: #1E88E5; /* Bleu légèrement plus foncé */
+}
+
+.btn-tertiary {
+    background-color: #FFC107; /* Jaune clair */
+}
+
+.btn-tertiary:hover {
+    background-color: #FFB300; /* Jaune légèrement plus foncé */
+}
+
+/* Footer styles */
+footer {
+    margin-top: 20px; /* Réduire l'espace au-dessus */
+    text-align: center;
+    padding: 15px 10px; /* Réduire le padding */
+    font-size: 14px; /* Réduire la taille de la police */
+    background: linear-gradient(to bottom, #FDF7DA 0%, #FFF9E6 15%, #E3F0FF 100%) no-repeat;
+    border-radius: 10px; /* Réduire le rayon des coins */
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); /* Réduire l'ombre */
+    color: #333;
+}
+
+footer p {
+    margin: 5px 0; /* Réduire les marges */
+    font-size: 20px;
+    font-family: 'Arial', sans-serif;
+    color: #3E6F98;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Réduire l'espacement entre les liens */
+    margin-top: 10px; /* Réduire l'espace au-dessus */
+}
+
+.footer-links a {
+    font-size: 14px; /* Réduire la taille de la police */
+    padding: 5px 8px; /* Réduire le padding des liens */
+    border-radius: 5px; /* Réduire le rayon des coins */
+    background-color: #E3F0FF;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    color: #3E6F98;
+}
+
+.footer-links a:hover {
+    background-color: #D0E1F9;
+}
+</style>
