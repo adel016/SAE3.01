@@ -26,7 +26,10 @@
                     <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=rechercheAvancee&controller=tableauDeBord">Recherche libre</a>
                 </div>
             </li>
-            <li><a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=default&controller=api">Observations</a></li>
+            <li><a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=defaultAction&controller=api">Observations</a></li>
+            <?php if ($cheminVueBody === 'observations/carteThermique.php'): ?>
+                <script src="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/js/autocomplete.js"></script>
+            <?php endif; ?>
             <li><a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=readAll&controller=Meteotheque">Meteotheques</a></li>
             <li><a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=show&controller=contact">Contact</a></li>
         </ul>
@@ -93,6 +96,9 @@
         </div>
     </footer>
 
+    <?php if ($cheminVueBody === 'observations/carteThermique.php'): ?>
+        <script src="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Assets/js/autocomplete.js"></script>
+    <?php endif; ?>
 </body>
 </html>
 

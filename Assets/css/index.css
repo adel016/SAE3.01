@@ -1445,6 +1445,55 @@ table tr:hover {
     background-color: #0056b3;
 }
 
+.region-search-bar {
+    position: relative; /* Nécessaire pour que les suggestions soient positionnées par rapport à l'input */
+}
+
+/* Conteneur principal pour la recherche */
+#regionSearch {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin: 20px auto;
+    display: block;
+}
+
+#autocomplete-results {
+    position: absolute;
+    top: calc(100% - 35px); /* Place le conteneur juste en dessous de l'input, en chevauchant légèrement la bordure */
+    left: 0;
+    width: 100%;
+    background-color: white;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+/* Style pour chaque suggestion */
+.suggestion-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* Dernier élément sans bordure */
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+/* Style au survol */
+.suggestion-item:hover {
+    background: #007bff;
+    color: #ffffff;
+    border-bottom: 1px solid #007bff;
+}
+
 @keyframes fadeIn {
     0% {
         opacity: 0;

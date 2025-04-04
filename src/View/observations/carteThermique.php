@@ -15,6 +15,7 @@
                 <div class="region-search-bar">
                     <label for="regionSearch"></label>
                     <input type="text" id="regionSearch" placeholder="Entrez le nom de la région">
+                    <div id="autocomplete-results"></div>
                     <button id="searchRegion" class="bton">Rechercher</button>
                     <button id="resetView" class="bton bton-reset">Réinitialiser la vue</button>
                 </div>

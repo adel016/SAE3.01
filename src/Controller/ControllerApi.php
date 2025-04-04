@@ -3,7 +3,7 @@
 namespace App\Meteo\Controller;
 
 class ControllerApi {
-    public static function default() {
+    public static function defaultAction() {
         self::afficheVue('view.php', [
             'pagetitle' => 'MéteoVision - Observations',
             'cheminVueBody' => 'observations/carteThermique.php'
@@ -92,6 +92,35 @@ class ControllerApi {
         extract($parametres);
         require __DIR__ . '/../view/' . $cheminVue;
     }
+    public static function getRegions() {
+        header('Content-Type: application/json');
+    
+        $url = "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/donnees-synop-essentielles-omm/records?limit=100";
+        $response = file_get_contents($url);
+    
+        if ($response === false) {
+            http_response_code(500);
+            echo json_encode(["error" => "Impossible de récupérer les données de l'API."]);
+            exit();
+        }
+    
+        $data = json_decode($response, true);
+    
+        if (!isset($data['results']) || !is_array($data['results']) || count($data['results']) === 0) {
+            http_response_code(500);
+            echo json_encode(["error" => "Structure inattendue des données de l'API.", "details" => $data]);
+            exit();
+        }
+    
+        $regions = [];
+        foreach ($data['results'] as $record) {
+            if (!empty($record['nom_reg']) && !in_array($record['nom_reg'], $regions)) {
+                $regions[] = $record['nom_reg'];
+            }
+        }
+    
+        echo json_encode($regions);
+    }    
 }
 
 ?>
