@@ -914,107 +914,76 @@ input[type="text"]:focus {
 
 /* UTILISATEUR - inscription et connexion */
 /* Conteneur principal */
+
+.log-container {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    max-width: 700px;
+    margin: 20px auto;
+}
+
+h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
 .formulaire {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: flex-start;
-    gap: 20px; /* Espacement entre les deux formulaires */
-    margin: 50px auto;
-    max-width: 800px;
 }
 
-/* Style des formulaires individuels */
-.formulaire div {
-    background: linear-gradient(to bottom, #84d0f1, #c7eafd);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    width: 100%; /* Taille égale pour les deux formulaires */
-    max-width: 350px;
+.formulaire label {
+    font-weight: bold;
+    margin-bottom: 5px;
 }
 
-/* Séparation des formulaires avec une barre */
-.formulaire::after {
-    content: '';
-    display: block;
-    width: 2px;
-    height: auto;
-    background-color: #007acc;
-    position: relative;
-    margin: 0 10px;
-}
-
-/* Titres des formulaires */
-.formulaire h3 {
-    text-align: center;
-    color: #005b96;
-    margin-bottom: 20px;
-    font-size: 20px;
-    text-transform: uppercase;
-}
-
-/* Champs d'entrée */
-.formulaire input[type="text"],
-.formulaire input[type="email"],
-.formulaire input[type="password"] {
-    width: calc(100% - 20px);
+.formulaire input {
+    width: 100%;
     padding: 10px;
     margin-bottom: 15px;
-    border: 1px solid #007acc;
+    border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 14px;
-    background-color: #f0faff;
-    color: #333;
-    box-sizing: border-box;
 }
 
-/* Boutons des formulaires */
 .formulaire button {
-    display: block;
-    width: calc(100% - 20px);
-    margin: 10px auto;
+    width: 100%;
     padding: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    color: #fff;
-    background-color: #007acc;
+    background-color: #ffc107;
+    color: white;
     border: none;
     border-radius: 5px;
+    font-size: 16px;
     cursor: pointer;
-    text-transform: uppercase;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
 }
 
-/* Bouton bascule */
-#toggleButton {
-    display: block;
-    width: 150px; /* Réduit la largeur */
-    margin: 20px auto;
-    padding: 10px;
-    font-size: 14px;
-    color: #007acc;
-    background: transparent;
-    border: 2px solid #007acc;
-    border-radius: 5px;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: background-color 0.3s, color 0.3s;
+.formulaire p {
+    margin-top: 15px;
 }
 
-#toggleButton:hover {
-    background-color: #007acc;
-    color: #fff;
+.formulaire a {
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: bold;
 }
-/* Responsive Design */
-@media screen and (max-width: 600px) {
-    .formulaire {
-        flex-direction: column;
-        align-items: center;
-    }
 
-    .formulaire::after {
-        display: none;
-    }
+.formulaire a:hover {
+    text-decoration: underline;
+}
+
+.name-fields {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+.name-fields div {
+    flex: 1;
 }
 
 /* UTILISATEUR - formulaire de modification et changement de role */

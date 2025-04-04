@@ -1,4 +1,3 @@
-<!-- filepath: /c:/wamp64/www/SAE3.01/src/View/view.php -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>

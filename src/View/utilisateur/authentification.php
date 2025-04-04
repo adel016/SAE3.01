@@ -1,72 +1,61 @@
-<h1>FORMULAIRE DE CONNEXION / INSCRIPTION</h1>
-<button id="toggleButton" onclick="toggleForm()">Inscription</button>
+<div class="log-container">
+    <h1>Bienvenue sur MétéoVision !</h1>
 
-<section class="formulaire">
-    <!-- Formulaire de connexion -->
-    <div id="connexionForm">
-        <h3>Connexion</h3>
-        <form action="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=connexion&controller=utilisateur" method="POST">
-            <label for="email">Email :</label>
-            <input type="email" name="email" id="email" required><br><br>
+        <section class="formulaire">
+            <!-- Formulaire de connexion -->
+            <div id="connexionForm">
+                <form action="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=connexion&controller=utilisateur" method="POST">
+                    <label for="emailConnexion">Email :</label>
+                    <input type="email" name="email" id="emailConnexion" required><br><br>
 
-            <label for="motdepasse">Mot de passe :</label>
-            <input type="password" name="motdepasse" id="motdepasse" required><br><br>
+                    <label for="motdepasseConnexion">Mot de passe :</label>
+                    <input type="password" name="motdepasse" id="motdepasseConnexion" required><br><br>
 
-            <button type="submit">Se connecter</button>
-        </form>
+                    <button type="submit">Se connecter</button>
+                </form>
+                <p>Vous n'avez pas de compte ? <a href="#" onclick="toggleForm('inscription')">Inscrivez-vous!</a></p>
+            </div>
+
+            <!-- Formulaire d'inscription -->
+            <div id="inscriptionForm" style="display: none;">
+                <form action="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=inscription&controller=utilisateur" method="POST">
+                    <div class="name-fields">
+                        <div>
+                            <label for="nom">Nom :</label>
+                            <input type="text" name="nom" id="nom" required>
+                        </div>
+                        <div>
+                            <label for="prenom">Prénom :</label>
+                            <input type="text" name="prenom" id="prenom" required>
+                        </div>
+                    </div>
+                    <br>
+                    <label for="emailInscription">Email :</label>
+                    <input type="email" name="email" id="emailInscription" required><br><br>
+
+                    <label for="motdepasseInscription">Mot de passe :</label>
+                    <input type="password" name="motdepasse" id="motdepasseInscription" required><br><br>
+
+                    <button type="submit">S'inscrire</button>
+                </form>
+                <p>Vous avez déjà un compte ? <a href="#" onclick="toggleForm('connexion')">Connectez-vous!</a></p>
+            </div>
+        </section>
     </div>
 
-    <!-- Formulaire d'inscription -->
-    <div id="inscriptionForm">
-        <h3>Inscription</h3>
-        <form action="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=inscription&controller=utilisateur" method="POST">
-                <label for="nom">Nom :</label>
-                <input type="text" name="nom" id="nom" required><br><br>
+    <script>
+        // Affiche le formulaire de connexion au départ
+        document.getElementById('connexionForm').style.display = 'block';
+        document.getElementById('inscriptionForm').style.display = 'none';
 
-                <label for="prenom">Prénom :</label>
-                <input type="text" name="prenom" id="prenom" required><br><br>
-
-                <label for="email">Email :</label>
-                <input type="email" name="email" id="email" required><br><br>
-
-                <label for="motdepasse">Mot de passe :</label>
-                <input type="password" name="motdepasse" id="motdepasse" required><br><br>
-
-            <button type="submit">S'inscrire</button>
-        </form>
-    </div>
-</section>
-
-<div class="footer2"> </div>
-
-<style>
-    #connexionForm, #inscriptionForm {
-        margin-left: 150px; /* Ajustez cette valeur selon vos besoins */
-        border: 2px solid blue;
-        background: rgba(55, 175, 255, 0.23); /* Fond bleu légèrement transparent */
-    }
-    .footer2 {
-        margin-bottom: 220px;
-    }
-</style>
-
-<script>
-    // Affiche le formulaire de connexion au départ
-    document.getElementById('connexionForm').style.display = 'block';
-    document.getElementById('inscriptionForm').style.display = 'none';
-
-    // Variable pour garder la trace de l'état actuel (connexion ou inscription)
-    let isConnexion = true;
-
-    // Change entre connexion et inscription
-    function toggleForm() {
-        isConnexion = !isConnexion;
-
-        // Affiche le formulaire correspondant
-        document.getElementById('connexionForm').style.display = isConnexion ? 'block' : 'none';
-        document.getElementById('inscriptionForm').style.display = isConnexion ? 'none' : 'block';
-
-        // Change le texte du bouton
-        document.getElementById('toggleButton').textContent = isConnexion ? 'Inscription' : 'Connexion';
-    }
-</script>
+        // Change entre connexion et inscription
+        function toggleForm(formType) {
+            if (formType === 'inscription') {
+                document.getElementById('connexionForm').style.display = 'none';
+                document.getElementById('inscriptionForm').style.display = 'block';
+            } else {
+                document.getElementById('connexionForm').style.display = 'block';
+                document.getElementById('inscriptionForm').style.display = 'none';
+            }
+        }
+    </script>

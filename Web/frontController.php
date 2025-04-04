@@ -21,12 +21,17 @@ $controller = htmlspecialchars($_GET['controller'] ?? 'utilisateur', ENT_QUOTES,
 $action = htmlspecialchars($_GET['action'] ?? 'default', ENT_QUOTES, 'UTF-8');
 $controllerClass = "App\\Meteo\\Controller\\Controller" . ucfirst($controller);
 
+error_log("Controller: " . $controller);
+error_log("Action: " . $action);
+error_log("Controller Class: " . $controllerClass);
+
 try {
     if (!class_exists($controllerClass)) {
         throw new Exception("Le contrôleur spécifié est introuvable : $controllerClass");
     }
 
     if (method_exists($controllerClass, $action)) {
+        error_log("Method exists: " . $action);
         $controllerClass::$action();
     } else {
         throw new Exception("Action inconnue : $action");

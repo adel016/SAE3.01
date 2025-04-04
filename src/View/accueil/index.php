@@ -209,22 +209,28 @@ function saveRegionRequest(regionName, details) {
             details: details // Inclure les détails des stations
         })
     })
-        .then(response => {
-            if (!response.ok) {
+    .then(response => {
+        // Vérifiez si la réponse est au format JSON
+        if (!response.ok) {
+            return response.text().then(text => {
+                console.error(`Erreur HTTP : ${response.status}\n${text}`);
                 throw new Error(`Erreur HTTP : ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                console.log('Requête enregistrée avec succès.');
-            } else {
-                console.warn('Erreur lors de l\'enregistrement :', data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Erreur lors de l\'enregistrement de la requête :', error);
-        });
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            console.log('Requête enregistrée avec succès.');
+        } else {
+            console.warn('Erreur lors de l\'enregistrement :', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Erreur lors de l\'enregistrement de la requête :', error);
+    });
+
+    console.log("Détails de la région :", details);
 }
 
 function saveStationRequest(stationId, temp, humidity, windSpeed) {

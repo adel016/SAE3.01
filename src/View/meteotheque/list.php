@@ -1,9 +1,12 @@
 <div class="profile-container">
     <!-- Sélection de l'utilisateur -->
     <h1>Meteothèque des Utilisateurs</h1>
-    <p>
+    <p style="font-size: 1.25rem;">
         Bienvenue sur la page Météothèques !
-        Ici, vous
+        Cette interface dédiée à la gestion des données météorologiques permet de consulter 
+        et d’analyser les enregistrements des utilisateurs de manière structurée et visuelle. 
+        Conçue pour les besoins spécifiques de la météorologie, 
+        elle combine simplicité d’utilisation et fonctionnalités avancées.
     </p>
     <select id="selectUtilisateur">
         <option value="">-- Choisir un utilisateur --</option>

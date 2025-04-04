@@ -145,14 +145,14 @@ abstract class AbstractRepository {
         return array_map([$this, 'construire'], $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
-    public function getAllMeteotheques($userId): array {
-        $sql = "SELECT * FROM " . $this->getNomTable() ." WHERE utilisateur_id = :userId";
-        $stmt = DatabaseConnection::getPDO()->prepare($sql);
-        $stmt->execute(['userId' => $userId]);
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    public function getAllMeteotheques(int $userId): array {
+        $sql = "SELECT * FROM meteotheques WHERE utilisateur_id = :id";
+        $stmt = DatabaseConnection::getPdo()->prepare($sql);
+        $stmt->execute(['id' => $userId]);
+        $resultats = $stmt->fetchAll();
     
         $meteotheques = [];
-        foreach ($rows as $row) {
+        foreach ($resultats as $row) {
             $meteotheques[] = new Meteotheques(
                 $row['meteo_id'],
                 $row['utilisateur_id'],
@@ -163,8 +163,7 @@ abstract class AbstractRepository {
         }
     
         return $meteotheques;
-    }
-       
+    }         
 
     // Methode specifique pour recuperer la meteotheque d'un utilisateur (unique methode)
     public function getAllUtilisateurs() {
