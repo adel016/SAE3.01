@@ -19,17 +19,18 @@
     <!-- Section Meteothèque -->
     <section class="meteotheque">
         <h2>Votre Meteothèque</h2>
-        <input type="text" id="searchBar" placeholder="Rechercher..." class="search-bar">
-        <div class="toggle-container">
-            <input type="checkbox" id="toggleView" class="toggle-input">
-            <label for="toggleView" class="toggle-label"></label>
-            <span class="toggle-text">Appuyez ici pour le voir en graphique</span>
-        </div>
-        <div class="sort-container">
-            <button id="sortAsc" class="btn btn-secondary">Trier par ordre croissant</button>
-            <button id="sortDesc" class="btn btn-secondary">Trier par ordre décroissant</button>
-        </div>
 
+        <!-- Boutons de tri et Barre de recherche -->
+        <div class="sort-container">
+            <button id="sortAsc" class="btn btn-secondary">
+                <i class="fas fa-sort-amount-up"></i> Trier par ordre croissant
+            </button>
+            <button id="sortDesc" class="btn btn-secondary">
+                <i class="fas fa-sort-amount-down"></i> Trier par ordre décroissant
+            </button>
+            <!-- Barre de recherche -->
+            <input type="text" id="searchBar" placeholder="Rechercher..." class="searchi-bar" style="display: block;">
+        </div>
 
         <?php
         $groupedRequetes = [];
@@ -38,230 +39,258 @@
             if (!isset($groupedRequetes[$nomCollection])) {
                 $groupedRequetes[$nomCollection] = [];
             }
-            $groupedRequetes[$nomCollection][] = $requete->getDateCreation();
+            $groupedRequetes[$nomCollection][] = $requete; // Stocker l'objet Requete complet
         }
 
-        // Encodez les données en JSON
+        // Encodez les données en JSON pour le graphique
         $originalData = json_encode(array_values(array_map('count', $groupedRequetes)));
-        $originalLabels = json_encode(array_values(array_keys($groupedRequetes)));
+        $originalLabels = json_encode(array_keys($groupedRequetes));
         ?>
 
-        <div id="graphView" class="content-slide">
-            <canvas id="meteothequeChart"></canvas>
-        </div>
+        <!-- Conteneur principal pour le graphique et les enregistrements -->
+        <div class="content-container">
+            <!-- Graphique -->
+            <div id="graphView" class="graph-section">
+                <canvas id="meteothequeChart"></canvas>
+            </div>
 
-        <div id="listView" class="content-slide active">
-            <div class="meteotheque-list" id="meteothequeList">
-                <?php foreach ($groupedRequetes as $nomCollection => $dates): ?>
-                    <div class="meteotheque-item">
-                        <strong>Nom de la collection :</strong> <?= htmlspecialchars($nomCollection) ?><br>
-                        <strong>Nombre d'enregistrements :</strong> <?= count($dates) ?><br>
-                        <strong>Dates :</strong> <?= implode(' || ', array_map('htmlspecialchars', $dates)) ?><br>
-                        <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=deleteMeteothequeGroup&controller=meteotheque&nomCollection=<?= urlencode($nomCollection) ?>" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer tous les enregistrements de cette collection ? Cette action est irréversible.');">Supprimer</a>
-                    </div>
-                <?php endforeach; ?>
+            <!-- Liste des enregistrements -->
+            <div id="listView" class="records-section">
+                <div class="meteotheque-list" id="meteothequeList">
+                    <?php foreach ($groupedRequetes as $nomCollection => $requetesCollection): ?>
+                        <div class="meteotheque-item">
+                            <strong>Nom de la collection :</strong> <?= htmlspecialchars($nomCollection) ?><br>
+                            <strong>Nombre d'enregistrements :</strong> <?= count($requetesCollection) ?><br>
+
+                            <?php if (count($requetesCollection) > 1): ?>
+                                <!-- Affichage pour les enregistrements groupés -->
+                                <strong>Types d'affichage :</strong><br>
+                                <ul>
+                                    <li>Carte interactive: <?= floor(count($requetesCollection) / 2) ?></li>
+                                    <li>Carte thermique: <?= count($requetesCollection) - floor(count($requetesCollection) / 2) ?></li>
+                                </ul>
+                            <?php else: ?>
+                                <!-- Affichage complet pour un seul enregistrement -->
+                                <?php $requete = $requetesCollection[0]; ?>
+                                <strong>Date de création :</strong> <?= htmlspecialchars($requete->getDateCreation()) ?><br>
+                                <strong>Description :</strong> <?= htmlspecialchars($requete->getDescription()) ?><br>
+                                <!-- Ajoutez ici les autres données que vous souhaitez afficher -->
+                            <?php endif; ?>
+
+                            <a href="<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=deleteMeteothequeGroup&controller=meteotheque&nomCollection=<?= urlencode($nomCollection) ?>" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer tous les enregistrements de cette collection ? Cette action est irréversible.');">Supprimer</a>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
         </div>
-
     </section>
 </div>
 
 <style>
-.search-bar {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
+    /* Styles pour la disposition côte à côte */
+    .content-container {
+        display: flex;
+        gap: 20px;
+        margin-top: 20px;
+    }
 
-.toggle-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 15px;
-}
+    .graph-section {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
 
-.toggle-input {
-    display: none;
-}
+    #meteothequeChart {
+        max-width: 100%;
+        max-height: 400px;
+    }
 
-.toggle-label {
-    width: 50px;
-    height: 25px;
-    background: #ddd;
-    border-radius: 25px;
-    position: relative;
-    cursor: pointer;
-    transition: background 0.3s;
-    margin-right: 10px;
-}
+    .records-section {
+        flex: 1;
+        max-height: 400px; /* Limite la hauteur */
+        overflow-y: auto; /* Active le défilement */
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
 
-.toggle-label::before {
-    content: "";
-    width: 20px;
-    height: 20px;
-    background: white;
-    position: absolute;
-    top: 50%;
-    left: 5px;
-    transform: translateY(-50%);
-    border-radius: 50%;
-    transition: left 0.3s;
-}
+    .meteotheque-item {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ddd;
+    }
 
-.toggle-input:checked + .toggle-label {
-    background: #007bff;
-}
+    /* Styles pour la barre de recherche */
+    .search-bar {
+        width: calc(100% - 20px);
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 5px;
+    }
 
-.toggle-input:checked + .toggle-label::before {
-    left: 25px;
-}
-
-.toggle-text {
-    font-size: 14px;
-    color: #333;
-}
-
-.content-slide {
-    display: none;
-    height: auto;
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-}
-
-.content-slide.active {
-    display: block;
-    opacity: 1;
-}
-
-.sort-container {
-    display: none;
-    margin-bottom: 15px;
-    gap: 10px;
-}
-
-.sort-container.active {
-    display: flex; 
-    justify-content: center;
-}
-
-#meteothequeChart {
-    max-height: 100%;
-    width: 100% !important;
-}
+    /* Styles pour les boutons de tri */
+    .sort-container {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-let meteothequeChart = null;
-let originalData = <?php echo $originalData; ?>;
-let originalLabels = <?php echo $originalLabels; ?>;
+    let meteothequeChart = null;
+    let originalData = <?php echo $originalData; ?>;
+    let originalLabels = <?php echo $originalLabels; ?>;
 
-if (!Array.isArray(originalData) || !Array.isArray(originalLabels)) {
-    console.error("Les données originales ne sont pas des tableaux valides.");
-} else {
-    let filteredLabels = [...originalLabels];
-    let filteredData = [...originalData];
-
-    // Initialisation du graphique
-    function initChart() {
-        const ctx = document.getElementById('meteothequeChart').getContext('2d');
-
-        if(meteothequeChart) {
-            meteothequeChart.destroy();
-        }
-
-        meteothequeChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: filteredLabels,
-                datasets: [{
-                    label: "Nombre d'enregistrements",
-                    data: filteredData,
-                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 2,
-                    borderRadius: 5
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true } }
-            }
-        });
-    }
-
-    // Fonction pour trier les données
-    function sortData(ascending = true) {
-        const combined = originalLabels.map((label, index) => ({ label, value: originalData[index] }));
-        combined.sort((a, b) => (ascending ? a.value - b.value : b.value - a.value));
-
-        filteredLabels = combined.map(item => item.label);
-        filteredData = combined.map(item => item.value);
-
-        if(meteothequeChart) {
-            meteothequeChart.data.labels = filteredLabels;
-            meteothequeChart.data.datasets[0].data = filteredData;
-            meteothequeChart.update();
-        }
-    }
-
-    // Gestion du toggle
-    document.getElementById('toggleView').addEventListener('change', function() {
-        const graphView = document.getElementById('graphView');
-        const listView = document.getElementById('listView');
-        const sortContainer = document.querySelector('.sort-container');
-
-        if (this.checked) {
-            listView.classList.remove('active');
-            graphView.classList.add('active');
-            sortContainer.classList.add('active'); // Afficher les boutons de tri
-            initChart(); // Réinitialiser le graphique avec les données filtrées
-        } else {
-            graphView.classList.remove('active');
-            listView.classList.add('active');
-            sortContainer.classList.remove('active'); // Masquer les boutons de tri
-        }
-    });
-
-    // Gestion de la recherche
-    document.getElementById('searchBar').addEventListener('input', function() {
-        const filter = this.value.toLowerCase();
-        const items = document.querySelectorAll('.meteotheque-item');
-        filteredLabels = [];
-        filteredData = [];
-
-        items.forEach((item, index) => {
-            const label = originalLabels[index];
-            const match = label.toLowerCase().includes(filter);
-
-            item.style.display = match ? '' : 'none';
-
-            if(match) {
-                filteredLabels.push(label);
-                filteredData.push(originalData[index]);
-            }
-        });
-
-        if(meteothequeChart) {
-            meteothequeChart.data.labels = filteredLabels;
-            meteothequeChart.data.datasets[0].data = filteredData;
-            meteothequeChart.update();
-        }
-    });
-
-    // Gestion du tri
-    document.getElementById('sortAsc').addEventListener('click', () => sortData(true));
-    document.getElementById('sortDesc').addEventListener('click', () => sortData(false));
-
-    // Initialisation au chargement si nécessaire
     document.addEventListener("DOMContentLoaded", function() {
-        if(document.getElementById('toggleView').checked) {
-            initChart();
+        if (!Array.isArray(originalData) || !Array.isArray(originalLabels)) {
+            console.error("Les données originales ne sont pas des tableaux valides.");
+            return;
         }
+
+        let filteredLabels = [...originalLabels];
+        let filteredData = [...originalData];
+
+        // Initialisation du graphique
+        function initChart() {
+            const ctx = document.getElementById('meteothequeChart').getContext('2d');
+
+            if (meteothequeChart) {
+                meteothequeChart.destroy();
+            }
+
+            meteothequeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: filteredLabels,
+                    datasets: [{
+                        label: "Nombre d'enregistrements",
+                        data: filteredData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Fonction pour trier les données
+        function sortData(ascending = true) {
+            const combined = originalLabels.map((label, index) => ({
+                label,
+                value: originalData[index]
+            }));
+            combined.sort((a, b) => (ascending ? a.value - b.value : b.value - a.value));
+
+            filteredLabels = combined.map(item => item.label);
+            filteredData = combined.map(item => item.value);
+
+            updateListView();
+
+            if (meteothequeChart) {
+                meteothequeChart.data.labels = filteredLabels;
+                meteothequeChart.data.datasets[0].data = filteredData;
+                meteothequeChart.update();
+            }
+        }
+
+        // Fonction pour filtrer les données
+        function filterData(filterText) {
+            filteredLabels = [];
+            filteredData = [];
+
+            const meteothequeList = document.getElementById('meteothequeList');
+            meteothequeList.innerHTML = ''; // Effacer la liste actuelle
+
+            originalLabels.forEach((label, index) => {
+                if (label.toLowerCase().includes(filterText)) {
+                    filteredLabels.push(label);
+                    filteredData.push(originalData[index]);
+                }
+            });
+
+            updateListView();
+
+            if (meteothequeChart) {
+                meteothequeChart.data.labels = filteredLabels;
+                meteothequeChart.data.datasets[0].data = filteredData;
+                meteothequeChart.update();
+            }
+        }
+
+        // Fonction pour mettre à jour la liste des enregistrements
+        function updateListView() {
+            const meteothequeList = document.getElementById('meteothequeList');
+            meteothequeList.innerHTML = ''; // Effacer la liste actuelle
+
+            filteredLabels.forEach((label, index) => {
+                const nomCollection = label;
+                const nombreEnregistrements = filteredData[index];
+
+                const meteothequeItem = document.createElement('div');
+                meteothequeItem.classList.add('meteotheque-item');
+
+                let itemContent = `<strong>Nom de la collection :</strong> ${nomCollection}<br>
+                                   <strong>Nombre d'enregistrements :</strong> ${nombreEnregistrements}<br>`;
+
+                // Récupérer les requêtes correspondantes à ce nom de collection
+                const requetesCollection = <?php echo json_encode($groupedRequetes); ?>[nomCollection];
+
+                if (requetesCollection && requetesCollection.length > 0) {
+                    if (requetesCollection.length > 1) {
+                        // Affichage pour les enregistrements groupés
+                        itemContent += `<strong>Types d'affichage :</strong><br>
+                                        <ul>
+                                            <li>Carte interactive: ${Math.floor(requetesCollection.length / 2)}</li>
+                                            <li>Carte thermique: ${requetesCollection.length - Math.floor(requetesCollection.length / 2)}</li>
+                                        </ul>`;
+                    } else {
+                        // Affichage complet pour un seul enregistrement
+                        const requete = requetesCollection[0];
+                        itemContent += `<strong>Date de création :</strong> ${requete.dateCreation}<br>
+                                        <strong>Description :</strong> ${requete.description}<br>`;
+                        // Ajoutez ici les autres données que vous souhaitez afficher
+                    }
+                }
+
+                meteothequeItem.innerHTML = itemContent;
+
+                meteothequeList.appendChild(meteothequeItem);
+            });
+        }
+
+
+        // Gestion de la recherche
+        document.getElementById('searchBar').addEventListener('input', function() {
+            const filterText = this.value.toLowerCase();
+            filterData(filterText);
+        });
+
+        // Gestion du tri
+        document.getElementById('sortAsc').addEventListener('click', () => sortData(true));
+        document.getElementById('sortDesc').addEventListener('click', () => sortData(false));
+
+        // Initialisation du graphique et de la liste au chargement
+        initChart();
+        updateListView();
     });
-}
 </script>

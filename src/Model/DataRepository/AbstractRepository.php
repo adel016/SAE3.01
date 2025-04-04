@@ -4,9 +4,9 @@ namespace App\Meteo\Model\DataRepository;
 
 use App\Meteo\Model\DataRepository\DatabaseConnection;
 use App\Meteo\Model\DataObject\Utilisateur;
+use App\Meteo\Model\DataObject\Meteotheques;
 use App\Meteo\Model\DataObject\Logs;
 use PDO;
-use PDOException;
 
 abstract class AbstractRepository {
     // Méthode abstraite pour retourner le nom des colonnes d'une table
@@ -145,12 +145,26 @@ abstract class AbstractRepository {
         return array_map([$this, 'construire'], $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
-    public function getAllMeteotheques($userId) {
-        $pdo = DatabaseConnection::getPdo();
-        $stmt = $pdo->prepare("SELECT nom_collection AS nom, description, date_creation AS date FROM " . $this->getNomTable() . " WHERE utilisateur_id = :userId");
-        $stmt->execute([':userId' => $userId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    public function getAllMeteotheques($userId): array {
+        $sql = "SELECT * FROM " . $this->getNomTable() ." WHERE utilisateur_id = :userId";
+        $stmt = DatabaseConnection::getPDO()->prepare($sql);
+        $stmt->execute(['userId' => $userId]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+        $meteotheques = [];
+        foreach ($rows as $row) {
+            $meteotheques[] = new Meteotheques(
+                $row['meteo_id'],
+                $row['utilisateur_id'],
+                $row['nom_collection'],
+                $row['description'],
+                $row['date_creation']
+            );
+        }
+    
+        return $meteotheques;
     }
+       
 
     // Methode specifique pour recuperer la meteotheque d'un utilisateur (unique methode)
     public function getAllUtilisateurs() {

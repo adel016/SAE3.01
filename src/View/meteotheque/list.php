@@ -1,9 +1,10 @@
-<?php
-// Vérifier si des utilisateurs sont disponibles
-if (isset($utilisateurs) && count($utilisateurs) > 0) {
-?>
-    <h1>Meteothèque</h1>
-
+<div class="profile-container">
+    <!-- Sélection de l'utilisateur -->
+    <h1>Meteothèque des Utilisateurs</h1>
+    <p>
+        Bienvenue sur la page Météothèques !
+        Ici, vous
+    </p>
     <select id="selectUtilisateur">
         <option value="">-- Choisir un utilisateur --</option>
         <?php foreach ($utilisateurs as $utilisateur) { ?>
@@ -13,188 +14,250 @@ if (isset($utilisateurs) && count($utilisateurs) > 0) {
         <?php } ?>
     </select>
 
-    <button id="viewMeteotheque">Voir Météothèque</button>
-    <button id="resetPage">Réinitialiser</button>
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <button id="viewMeteotheque" class="btn btn-primary">Voir Météothèque</button>
+        <button id="resetPage" class="btn btn-secondary">Réinitialiser</button>
+    </div>
 
-    <br>
+    <!-- Boutons de tri et Barre de recherche -->
+    <div class="sort-container">
+        <button id="sortAsc" class="btn btn-secondary">
+            <i class="fas fa-sort-amount-up"></i> Trier par ordre croissant
+        </button>
+        <button id="sortDesc" class="btn btn-secondary">
+            <i class="fas fa-sort-amount-down"></i> Trier par ordre décroissant
+        </button>
+        <!-- Barre de recherche -->
+        <input type="text" id="searchBar" placeholder="Rechercher..." class="searchi-bar" style="display: none;">
+    </div>
 
+    <!-- Titre pour afficher le nom de l'utilisateur -->
     <h2 id="resultTitle" style="display: none;"></h2>
-    <div id="meteothequeContent" style="display: none;"></div>
-    <div class="footer2"> </div>
-    <script>
-        // Fonction pour charger la météothèque d'un utilisateur
-        async function loadMeteotheque(userId) {
-            try {
-                const response = await fetch(`frontController.php?action=readMeteothequeByUser&controller=meteotheque&user_id=${userId}`);
-                
-                if (!response.ok) {
-                    throw new Error(`Erreur HTTP : ${response.status}`);
-                }
 
-                const data = await response.json();
+    <!-- Conteneur principal pour le graphique et les enregistrements -->
+    <div class="content-container">
+        <!-- Graphique -->
+        <div id="graphView" class="graph-section">
+            <canvas id="meteothequeChart"></canvas>
+        </div>
 
-                const contentDiv = document.getElementById('meteothequeContent');
-                const title = document.getElementById('resultTitle');
+        <!-- Liste des enregistrements -->
+        <div id="meteothequeContent" class="records-section"></div>
+    </div>
+</div>
 
-                if (data.success && data.results && data.results.length > 0) {
-                    // Afficher le titre avec le nom de l'utilisateur
-                    title.innerText = `Meteothèque de "${data.user.nom} ${data.user.prenom}"`;
-                    title.style.display = 'block';
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+let meteothequeChart = null;
+let originalData = [],
+    originalLabels = [],
+    filteredLabels = [],
+    filteredData = [];
 
-                    // Générer l'affichage des météothèques
-                    contentDiv.style.display = 'block';
-                    contentDiv.innerHTML = `
-                        <ul>
-                            ${data.results.map(item => `
-                                <li>
-                                    <strong>Nom de la collection :</strong> ${item.nom}<br>
-                                    <strong>Description :</strong> ${item.description}<br>
-                                    <strong>Date :</strong> ${item.date}
-                                </li>
-                            `).join('')}
-                        </ul>
-                    `;
-                } else {
-                    contentDiv.innerHTML = `<p>${data.message || 'Aucune météothèque trouvée pour cet utilisateur.'}</p>`;
-                }
-            } catch (error) {
-                console.error('Erreur lors de la récupération des données :', error);
-                alert('Une erreur est survenue lors de la récupération des données.');
-            }
+async function loadMeteotheque(userId) {
+    try {
+        const url = `<?= \App\Meteo\Config\Conf::getBaseUrl(); ?>/Web/frontController.php?action=readMeteothequeByUser&controller=Meteotheque&user_id=${userId}`;
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP : ${response.status}`);
         }
 
-        document.getElementById('viewMeteotheque').addEventListener('click', () => {
-            const userId = document.getElementById('selectUtilisateur').value;
-            if (!userId) {
-                alert('Veuillez sélectionner un utilisateur.');
-                return;
+        const data = await response.json();
+        console.log("Données JSON analysées :", data);
+
+        if (!data.success || !data.user || !data.results) {
+            alert('Erreur : Les données reçues sont incomplètes.');
+            return;
+        }
+
+        // Regrouper les enregistrements par nom de collection et stocker les données complètes
+        const groupedData = data.results.reduce((acc, item) => {
+            const key = item.nom_collection;
+            if (!acc[key]) {
+                acc[key] = [];
+            }
+            acc[key].push(item); // Stocker l'objet complet
+            return acc;
+        }, {});
+
+        // Affichage du titre et des données
+        document.getElementById('resultTitle').innerText = `Meteothèque de ${data.user.nom} ${data.user.prenom}`;
+        document.getElementById('resultTitle').style.display = 'block';
+
+        let meteothequeHTML = '';
+        for (const nomCollection in groupedData) {
+            const enregistrements = groupedData[nomCollection];
+            const nombreEnregistrements = enregistrements.length;
+
+            meteothequeHTML += `
+                <div class='meteotheque-item'>
+                    <strong>Nom :</strong> ${nomCollection}<br>
+                    <strong>Nombre d'enregistrements :</strong> ${nombreEnregistrements}<br>
+            `;
+
+            if (nombreEnregistrements > 1) {
+                // Affichage pour les enregistrements groupés
+                meteothequeHTML += `<strong>Types d'affichage :</strong><br>`;
+                meteothequeHTML += `
+                    <ul>
+                        <li>Carte interactive: ${Math.floor(nombreEnregistrements / 2)}</li>
+                        <li>Carte thermique: ${nombreEnregistrements - Math.floor(nombreEnregistrements / 2)}</li>
+                    </ul>
+                `;
+            } else {
+                // Affichage complet pour un seul enregistrement
+                const enregistrement = enregistrements[0];
+                meteothequeHTML += `
+                    <strong>Date de création :</strong> ${enregistrement.date_creation}<br>
+                    <strong>Description :</strong> ${enregistrement.description}<br>
+                    <!-- Ajoutez ici les autres données que vous souhaitez afficher -->
+                `;
             }
 
-            loadMeteotheque(userId);
-        });
+            meteothequeHTML += `</div>`; // Fin de meteotheque-item
+        }
 
-        document.getElementById('resetPage').addEventListener('click', () => {
-            document.getElementById('selectUtilisateur').value = '';
-            document.getElementById('meteothequeContent').style.display = 'none';
-            document.getElementById('resultTitle').style.display = 'none';
-        });
-    </script>
-<?php
-} else {
-    echo "<p>Aucun utilisateur disponible.</p>";
-}
-?>
+        document.getElementById('meteothequeContent').innerHTML = meteothequeHTML;
+        document.getElementById('meteothequeContent').style.display = 'block';
+        document.getElementById('searchBar').style.display = 'block';
 
-<div class="footer2"> </div>
+        // Gestion des données du graphique
+        originalLabels = Object.keys(groupedData);
+        originalData = Object.values(groupedData).map(enregistrements => enregistrements.length);
+        filteredLabels = [...originalLabels];
+        filteredData = [...originalData];
 
+        document.querySelector('.sort-container').style.display = 'flex';
+        document.getElementById('graphView').style.display = 'block'; // Toujours afficher
+        initChart();
 
-<style>
-/* PAGE - METEOTHEQUE*/
-
-/* Conteneur pour la présentation des météothèques */
-#meteothequeContent {
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-}
-
-
-/* Titre des météothèques */
-#resultTitle {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #004080;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-/* Liste des collections */
-#meteothequeContent ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-#meteothequeContent ul li {
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    padding: 15px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-}
-.footer2 {
-        margin-bottom: 300px;
-    }
-/* Textes des collections */
-#meteothequeContent ul li strong {
-    font-weight: bold;
-    color: #333;
-}
-
-#meteothequeContent ul li p {
-    margin: 5px 0;
-    font-size: 1rem;
-    color: #555;
-}
-
-
-select#selectUtilisateur {
-    display: block;
-    width: 100%;
-    max-width: 300px;
-    margin: 20px auto;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    font-size: 1rem;
-}
-
-/* Boutons */
-button#viewMeteotheque, button#resetPage {
-    display: block;
-    width: 100%;
-    max-width: 300px;
-    margin: 10px auto;
-    padding: 10px;
-    background-color:rgba(73, 158, 248, 0.86);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
-    text-align: center;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-button#viewMeteotheque:hover, button#resetPage:hover {
-    background-color: #0056b3;
-}
-
-.footer2 {
-    margin-bottom: 350px;
-}
-
-/* Style pour les messages vides */
-#meteothequeContent p {
-    font-size: 1rem;
-    color: #888;
-    text-align: center;
-    margin-top: 20px;
-}
-
-/* Responsive Design */
-@media screen and (max-width: 768px) {
-    button#viewMeteotheque, button#resetPage {
-        max-width: 100%;
-    }
-
-    #meteothequeContent ul li {
-        padding: 10px;
+    } catch (error) {
+        console.error('Erreur lors du chargement des données :', error);
+        alert('Erreur lors du chargement des données.');
     }
 }
 
+function initChart() {
+    // Supprimer l'ancien canvas s'il existe
+    const oldCanvas = document.getElementById('meteothequeChart');
+    if (oldCanvas) oldCanvas.remove();
 
-</style>
+    // Créer un nouveau canvas
+    const newCanvas = document.createElement('canvas');
+    newCanvas.id = 'meteothequeChart';
+    document.getElementById('graphView').appendChild(newCanvas);
+
+    const ctx = newCanvas.getContext('2d');
+    if (!ctx) {
+        console.error("Impossible d'obtenir le contexte 2D du canvas.");
+        return;
+    }
+
+    // Vérification des données
+    if (filteredLabels.length === 0 || filteredData.length === 0) {
+        console.warn('Les données pour le graphique sont vides.');
+        return;
+    }
+
+    // Créer le graphique
+    meteothequeChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: filteredLabels,
+            datasets: [{
+                label: 'Nombre d\'enregistrements',
+                data: filteredData,
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 2,
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+document.getElementById('viewMeteotheque').addEventListener('click', function() {
+    const userId = document.getElementById('selectUtilisateur').value;
+    if (userId) {
+        loadMeteotheque(userId);
+    }
+});
+
+document.getElementById('sortAsc').addEventListener('click', () => sortData(true));
+document.getElementById('sortDesc').addEventListener('click', () => sortData(false));
+
+function sortData(ascending = true) {
+    const combined = originalLabels.map((label, index) => ({ label, value: originalData[index] }));
+    combined.sort((a, b) => (ascending ? a.value - b.value : b.value - a.value));
+
+    filteredLabels = combined.map(item => item.label);
+    filteredData = combined.map(item => item.value);
+
+    // Mettre à jour l'affichage des enregistrements
+    const items = document.querySelectorAll('.meteotheque-item');
+    items.forEach(item => item.remove());
+    filteredLabels.forEach((label, index) => {
+        const item = document.createElement('div');
+        item.classList.add('meteotheque-item');
+        item.innerHTML = `
+            <strong>Nom :</strong> ${label}<br>
+            <strong>Nombre d'enregistrements :</strong> ${filteredData[index]}
+        `;
+        document.getElementById('meteothequeContent').appendChild(item);
+    });
+
+    if (meteothequeChart) {
+        meteothequeChart.data.labels = filteredLabels;
+        meteothequeChart.data.datasets[0].data = filteredData;
+        meteothequeChart.update();
+    }
+}
+
+document.getElementById('searchBar').addEventListener('input', function() {
+    const filter = this.value.toLowerCase();
+    const items = document.querySelectorAll('.meteotheque-item');
+    filteredLabels = [];
+    filteredData = [];
+
+    items.forEach((item, index) => {
+        const label = originalLabels[index];
+        const match = label.toLowerCase().includes(filter);
+
+        item.style.display = match ? '' : 'none';
+
+        if (match) {
+            filteredLabels.push(label);
+            filteredData.push(originalData[index]);
+        }
+    });
+
+    if (meteothequeChart) {
+        meteothequeChart.data.labels = filteredLabels;
+        meteothequeChart.data.datasets[0].data = filteredData;
+        meteothequeChart.update();
+    }
+});
+
+document.getElementById('resetPage').addEventListener('click', () => {
+    document.getElementById('selectUtilisateur').value = "";
+    document.getElementById('resultTitle').style.display = 'none';
+    document.getElementById('meteothequeContent').style.display = 'none';
+    document.getElementById('graphView').style.display = 'none';
+    document.querySelector('.sort-container').style.display = 'none';
+    document.getElementById('searchBar').style.display = 'none';
+});
+</script>

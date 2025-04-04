@@ -1,6 +1,5 @@
 <?php
 ini_set('display_errors', 1);
-ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
@@ -34,8 +33,8 @@ try {
     }
 } catch (Exception $e) {
     error_log("❌ Exception: " . $e->getMessage());
-    $message = htmlspecialchars($e->getMessage());
-    require __DIR__ . '/../src/View/error.php';
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     exit;
 }
 ?>

@@ -22,44 +22,96 @@ class ControllerMeteotheque {
     }
 
     public static function readMeteothequeByUser() {
+        // Définit l'en-tête Content-Type pour indiquer que la réponse est du JSON
+        header('Content-Type: application/json');
+
+        // Récupère l'ID utilisateur depuis la requête GET
         $userId = $_GET['user_id'] ?? null;
-    
-        if (!$userId || !ctype_digit($userId)) {
-            header('Content-Type: application/json');
+
+        // Log de l'ID utilisateur reçu
+        error_log("🔍 ID utilisateur reçu: " . ($userId ?: 'Aucun'));
+
+        // Vérifie si l'ID utilisateur est valide
+        if (!isset($userId) || !ctype_digit($userId) || (int)$userId <= 0) {
+            // Log de l'erreur
+            error_log("❌ ID utilisateur invalide : " . $userId);
+
+            // Envoie une réponse JSON avec un message d'erreur
             echo json_encode(['success' => false, 'message' => 'ID utilisateur invalide.']);
             return;
         }
-    
+
         try {
+            // Initialise les repositories
             $repo = new MeteothequeRepository();
-    
-            // Récupérer les informations de l'utilisateur
             $utilisateurRepo = new UtilisateurRepository();
+
+            // Récupère les informations de l'utilisateur
             $utilisateur = $utilisateurRepo->select($userId);
-    
+
+            // Vérifie si l'utilisateur existe
             if (!$utilisateur) {
-                header('Content-Type: application/json');
+                // Log de l'erreur
+                error_log("❌ Utilisateur introuvable : " . $userId);
+
+                // Envoie une réponse JSON avec un message d'erreur
                 echo json_encode(['success' => false, 'message' => 'Utilisateur introuvable.']);
                 return;
             }
-    
-            // Récupérer les météothèques associées
-            $meteotheques = $repo->getAllMeteotheques((int) $userId);
-    
-            header('Content-Type: application/json');
+
+            // Log de l'utilisateur trouvé
+            error_log("✅ Utilisateur trouvé: " . json_encode($utilisateur));
+
+            // Récupère les météothèques associées
+            $meteotheques = $repo->getAllMeteotheques((int)$userId);
+
+            // Log des météothèques trouvées
+            error_log("📂 Météothèques trouvées : " . json_encode($meteotheques));
+
+            // Prépare les données pour le graphique
+            $chartData = [
+                'labels' => [],
+                'data' => []
+            ];
+
+            error_log("📂 Type de meteotheques : " . gettype($meteotheques));
+            if (is_array($meteotheques)) {
+                foreach ($meteotheques as $meteo) {
+                    error_log("🔎 Type d'élément : " . gettype($meteo));
+                }
+            }
+
+            // Génère les données pour le graphique
+            foreach ($meteotheques as $meteo) {
+                $chartData['labels'][] = $meteo->getNomCollection();
+                $chartData['data'][] = rand(1, 100); // Exemple : valeur aléatoire
+            }
+
+            // Envoie une réponse JSON avec les données
             echo json_encode([
                 'success' => true,
                 'user' => [
                     'nom' => $utilisateur->getNom(),
                     'prenom' => $utilisateur->getPrenom(),
                 ],
-                'results' => $meteotheques,
+                'results' => array_map(fn($m) => [
+                    'meteo_id' => $m->getMeteoId(),
+                    'utilisateur_id' => $m->getUtilisateurId(),
+                    'nom_collection' => $m->getNomCollection(),
+                    'description' => $m->getDescription(),
+                    'date_creation' => $m->getDateCreation(),
+                ], $meteotheques),
+                'chartData' => $chartData,
             ]);
+
         } catch (Exception $e) {
-            header('Content-Type: application/json');
+            // Log de l'erreur
+            error_log("🔥 Erreur interne : " . $e->getMessage());
+
+            // Envoie une réponse JSON avec un message d'erreur
             echo json_encode(['success' => false, 'message' => 'Erreur interne : ' . $e->getMessage()]);
         }
-    }           
+    }              
 
     // Enregistre une requête pour la carte interactive (cote Region)
     public static function saveRequest() {
@@ -186,7 +238,7 @@ class ControllerMeteotheque {
             'success' => $success,
             'message' => $success ? 'Requête sauvegardée avec succès.' : 'Erreur lors de la sauvegarde.'
         ]);
-    }    
+    }
 
     public static function saveRequestTableaudeBordGraphique() {
         if (!isset($_SESSION['utilisateur_id'])) {
@@ -313,14 +365,11 @@ class ControllerMeteotheque {
     
             echo json_encode([
                 'success' => $success,
-                'message' => $success ? 'Météothèque supprimée avec succès.' : 'Erreur lors de la suppression.'
+                'message' => $success ? 'Météothèque supprimée avec succès.' : 'Erreur lors de la sauvegarde.'
             ]);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => 'Erreur interne : ' . $e->getMessage()]);
         }
-
-        header('Location: /SAE3.01/Web/frontController.php?action=readAll&controller=utilisateur');
-        exit();
     }
     
 
