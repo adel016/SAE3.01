@@ -29,11 +29,11 @@
         <!-- Conteneur carte-->
         <div class="carte">
             <!-- Barre de recherche -->
-            <div class="region-search">
-                <div class="search-bar">
-                    <input type="text" id="regionInput" placeholder="Entrez le nom de la région ou de la station">
-                    <button id="searchRegionButton">🔍</button>
-                </div>
+            <div class="region-search-bar">
+                    <label for="regionSearch"></label>
+                <input type="text" id="regionSearch" placeholder="Entrez le nom de la région">
+                <button id="searchRegion" class="bton">Rechercher</button>
+                <button id="resetView" class="bton bton-reset">Réinitialiser la vue</button>
             </div>
 
             <br>
@@ -314,8 +314,9 @@ function updateWeatherData(name, weatherData, isStation = false) {
     document.getElementById('weather-stats').innerHTML = statsHTML;
 }
 
-document.getElementById('searchRegionButton').addEventListener('click', () => {
-    const searchInput = document.getElementById('regionInput').value.trim().toLowerCase();
+document.getElementById('searchRegion').addEventListener('click', () => {
+    const inputElem = document.getElementById('regionSearch');
+    const searchInput = inputElem ? inputElem.value.trim().toLowerCase() : '';
     if (!searchInput) {
         alert('Veuillez entrer une région ou une station.');
         return;
@@ -346,6 +347,18 @@ document.getElementById('searchRegionButton').addEventListener('click', () => {
         alert('Aucune région ou station correspondante trouvée. Veuillez réessayer.');
     }
 });
+
+document.getElementById('resetView').addEventListener('click', () => {
+    // Réinitialiser la carte à la vue par défaut
+    map.setView([46.603354, 1.888334], 6);
+
+    // Réinitialiser le champ de recherche
+    document.getElementById('regionSearch').value = '';
+
+    // Réafficher la région par défaut sans sauvegarder
+    showRegionData(defaultRegionName, false);
+});
+
 
 function getWeatherIcon(temperature) {
     const baseUrl = 'https://openweathermap.org/img/wn/';
