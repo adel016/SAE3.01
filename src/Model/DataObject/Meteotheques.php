@@ -2,7 +2,7 @@
 
 namespace App\Meteo\Model\DataObject;
 
-class Meteotheques implements \JsonSerializable {
+class Meteotheques {
     private int $meteoId;
     private int $utilisateurId;
     private string $nomCollection;
@@ -38,16 +38,17 @@ class Meteotheques implements \JsonSerializable {
         return $this->dateCreation;
     }
 
-    // Implémentation de JsonSerializable
-    public function jsonSerialize(): array {
+
+    public function formatTableau(): array {
         return [
-            'meteo_id' => $this->meteoId,
-            'utilisateur_id' => $this->utilisateurId,
-            'nom_collection' => $this->nomCollection,
-            'description' => $this->description,
-            'date_creation' => $this->dateCreation,
+            "meteo_id" => $this->meteoId,
+            "utilisateur_id" => $this->utilisateurId,
+            "nom_collection" => $this->nomCollection,
+            "description" => $this->description,
+            "date_creation" => $this->dateCreation
         ];
     }
+
 }
 
 ?>

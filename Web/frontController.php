@@ -37,7 +37,7 @@ try {
         throw new Exception("Action inconnue : $action");
     }
 } catch (Exception $e) {
-    error_log("❌ Exception: " . $e->getMessage());
+    error_log("❌ Exception: " . $e->getMessage() . "\n" . $e->getTraceAsString());
     header('Content-Type: application/json');
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     exit;

@@ -49,7 +49,7 @@ abstract class AbstractRepository {
         return $stmt->rowCount() > 0;
     }
 
-    // Methode generique pour creer un objet par le noms des colonnes
+    // Méthode générique pour sauvegarder un objet par le nom des colonnes
     public function sauvegarder(object $object): bool {
         $pdo = DatabaseConnection::getPdo();
         $colonnes = $this->getNomsColonnes();
@@ -57,7 +57,8 @@ abstract class AbstractRepository {
         $sql = "INSERT INTO " . $this->getNomTable() . " (" . implode(", ", $colonnes) . ") VALUES (" . implode(", ", $parametres) . ")";
         $stmt = $pdo->prepare($sql);
         return $stmt->execute($object->formatTableau());
-    }  
+    }
+
 
     // Methode generique pour modifier un objet par le nom des colonnes
     public function update(object $object): bool {
